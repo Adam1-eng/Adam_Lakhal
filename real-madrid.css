@@ -1,0 +1,73 @@
+body { 
+    font-family: Arial;
+     background-color: #f0f2f5;
+      margin: 0;
+    }
+#barre-navigation { 
+    background-color: #001f3f;
+     padding: 15px;
+      display: flex;
+       justify-content: space-between;
+        align-items: center;
+     }
+#logo-nom { color: #c5a059;
+     margin: 0;
+     }
+.liste-menu {
+     display: flex;
+     gap: 20px;
+      list-style: none;
+     }
+.liste-menu a { 
+    color: white;
+     text-decoration: none;
+     }
+.liste-menu a:hover { 
+    color: #c5a059;
+ }
+
+#entete-rm {
+    text-align: center;
+    background-color: white;
+    padding: 30px;
+    border-bottom: 4px solid #c5a059;
+}
+
+.lien-officiel {
+    display: inline-block;
+    margin-top: 10px;
+    color: #001f3f;
+    font-weight: bold;
+}
+
+#grille-gardiens {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 20px;
+}
+
+.carte-gk {
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.secondaire {
+    background-color: #f9f9f9;
+}
+
+.photo-gk {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+#footer {
+       text-align: center;
+       padding: 20px;
+        background-color: #001f3f;
+       color: white;
+       margin-top: 30px;
+     }
