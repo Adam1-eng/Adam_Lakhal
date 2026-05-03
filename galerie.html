@@ -1,56 +1,49 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Galerie</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="galerie.css">
+    <title>Galerie</title>
 </head>
-
 <body>
+    <nav id="barre-navigation">
+        <h2 id="logo-nom">Adam Lakhal</h2>
+        <ul class="liste-menu">
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="galerie.html">Galerie</a></li>
+            <li><a href="https://www.ultrasfc.com/" target="_blank">Club</a></li>
+            <li><a href="real-madrid.html">Real Madrid</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
 
-<nav>
+    <header id="entete-page">
+        <h1>Galerie</h1>
+        <p>Quelques moments sur le terrain</p>
+    </header>
 
-<h2>Adam Lakhal</h2>
+    <main id="conteneur-galerie">
+        <div class="zone-images">
+            <h2>Souvenirs en Images</h2>
+            <div class="grille-photos">
+                <img src="images/img1.jpeg" class="photo-galerie" alt="Action de match 1">
+                <img src="images/img2.jpeg" class="photo-galerie" alt="Action de match 2">
+            </div>
+        </div>
 
-<ul>
-<li><a href="index.html">Accueil</a></li>
-<li><a href="galerie.html">Galerie</a></li>
-<li><a href="https://www.ultrasfc.com/">Club</a></li>
-<li><a href="real-madrid.html">Real Madrid</a></li>
-<li><a href="contact.html">Contact</a></li>
-</ul>
+        <div class="zone-videos">
+            <h2>Séquences Vidéos</h2>
+            <div class="grille-videos">
+                <video src="vid1.mp4" class="video-galerie" controls></video>
+                <video src="vid2.mp4" class="video-galerie" controls></video>
+                <video src="vid3.mp4" class="video-galerie" controls></video>
+            </div>
+        </div>
+    </main>
 
-</nav>
-
-<section>
-
-<h1>Galerie</h1>
-
-<p>Quelques moments sur le terrain</p>
-
-</section>
-
-<section>
-
-<img src="images/img1.jpeg" width="300">
-<img src="images/img2.jpeg" width="300">
-</section>
-
-<section>
-
-<!-- <img src="images/photo4.jpg" width="300">
-<img src="images/photo5.jpg" width="300">
-<img src="images/photo6.jpg" width="300"> -->
-
-</section>
-
-<footer>
-
-<p>Adam Lakhal 2026</p>
-
-</footer>
-
+    <footer id="footer">
+        <p>Adam Lakhal 2026</p>
+    </footer>
 </body>
-
 </html>
