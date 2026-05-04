@@ -3,11 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&family=Oswald:wght@400;500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
-    <title>Adam Lakhal</title>
+    <title>Adam Lakhal - Accueil</title>
 </head>
 <body>
-    <nav id="barre-navigation">
+    <div id="barre-navigation">
         <h2 id="logo-nom">Adam Lakhal</h2>
         <ul class="liste-menu">
             <li><a href="index.html">Accueil</a></li>
@@ -16,54 +19,91 @@
             <li><a href="real-madrid.html">Real Madrid</a></li>
             <li><a href="contact.html">Contact</a></li>
         </ul>
-    </nav>
+    </div>
 
-    <header id="entete-principale">
-        <div id="conteneur-hero">
-            <img src="images/img2.jpeg" alt="Adam signant son contrat" id="image-hero">
-            <div id="voile-noir"></div>
+    <div class="zone-hero">
+        <div class="texte-hero">
+            <h1 class="titre-principal">Adam Lakhal</h1>
+            <p class="sous-titre">Développeur Web & Gardien de But</p>
         </div>
-    </header>
+    </div>
 
-    <main id="grille-contenu">
-        <section class="bloc-info" id="section-presentation">
-            <h2>Présentation</h2>
-            <p>
-            Salut ! Je suis Adam, étudiant en informatique et gardien de but semi-pro.
-            La journée, je structure des algorithmes et je conçois des interfaces (C++, HTML, CSS).
-            Mon objectif ? Devenir développeur web.
-            Le soir, je chausse les crampons avec l'Association Ultras FC.
-            </p>
-        </section>
-
-        <section class="bloc-info">
-            <h2>Profil Technologique</h2>
-            <p>
-            <span class="gras">Stack technique :</span><br>
-            C++<br>
-            HTML<br>
-            CSS<br><br>
-            <span class="gras">Projets :</span><br>
-            Jeu de damier<br>
-            Jeu de devinette
-            </p>
-        </section>
-
-        <section class="bloc-info">
-            <h2>Profil Sportif</h2>
-            <p>
-            Gardien de but depuis l'age de 7 ans<br>
-            Club : Ultras FC<br>
-            Champion LDIR<br>
-            Objectif : Doublé
-            </p>
-        </section>
-    </main>
-
-    <footer id="footer">
-        <div class="footer-zone">
-            <p>Adam Lakhal 2026</p>
+    <div id="conteneur-principal">
+        <div id="section-presentation" class="boite-style">
+            <h2>Qui suis-je ?</h2>
+            <p>Salut ! Je suis Adam, étudiant en informatique et gardien de but semi-pro. La journée, je structure des algorithmes et je conçois des interfaces (C++, HTML, CSS). Mon objectif ? Devenir développeur web. Le soir, je chausse les crampons avec l'Association Ultras FC.</p>
         </div>
-    </footer>
+
+        <div class="conteneur-flex-2">
+            <div class="carte-techno">
+                <h2>💻 Stack Technique</h2>
+                <ul>
+                    <li>C++</li>
+                    <li>HTML5 / CSS3</li>
+                    <li>JavaScript (bases)</li>
+                    <li>Git & GitHub</li>
+                </ul>
+                <p><span class="texte-gras">Projets récents :</span> Jeu de damier, Jeu de devinette</p>
+            </div>
+
+            <div class="carte-sport">
+                <h2>🧤 Parcours Sportif</h2>
+                <ul>
+                    <li>Gardien depuis 7 ans</li>
+                    <li>Club : Ultras FC</li>
+                    <li>Champion LDIR 2024</li>
+                    <li>Objectif : Doublé cette saison</li>
+                </ul>
+                <div class="badge-stat">
+                    <span class="chiffre-stat">85%</span>
+                    <span>Arrêts critiques</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-stats">
+            <div class="stat-item">
+                <span class="nombre-stat">150+</span>
+                <span>Matchs joués</span>
+            </div>
+            <div class="stat-item">
+                <span class="nombre-stat">45</span>
+                <span>Clean sheets</span>
+            </div>
+            <div class="stat-item">
+                <span class="nombre-stat">3</span>
+                <span>Trophées</span>
+            </div>
+            <div class="stat-item">
+                <span class="nombre-stat">12</span>
+                <span>Arrêts décisifs</span>
+            </div>
+        </div>
+
+        <div class="lien-externe">
+            <a href="https://www.realmadrid.com" target="_blank" class="lien-rm">Visiter le site du Real Madrid →</a>
+        </div>
+    </div>
+
+    <div id="pied-page">
+        <div class="zone-footer">
+            <h4>Navigation</h4>
+            <ul>
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="galerie.html">Galerie</a></li>
+                <li><a href="real-madrid.html">Real Madrid</a></li>
+            </ul>
+        </div>
+        <div class="zone-footer">
+            <h4>Contact</h4>
+            <p>Email: adamlakhal99@gmail.com</p>
+            <p>Montréal, QC</p>
+        </div>
+        <div class="zone-footer">
+            <h4>Suivez-moi</h4>
+            <p><a href="#">Instagram</a> | <a href="#">LinkedIn</a></p>
+            <p>© 2026 Adam Lakhal</p>
+        </div>
+    </div>
 </body>
 </html>
