@@ -84,7 +84,7 @@ body {
 
 .hero-maroc {
     height: 400px;
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('images/maroc-hero.jpg');
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('images/marrakech.jpg');
     background-size: cover;
     background-position: center;
     border-radius: 20px;
