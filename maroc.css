@@ -1,0 +1,314 @@
+:root {
+    --couleur-fonce: #0a1a2f;
+    --couleur-dore: #c5a059;
+    --couleur-blanche: #ffffff;
+    --couleur-rouge: #c1272d;
+    --couleur-vert: #006233;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f0e8 0%, #ffffff 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#barre-navigation {
+    background-color: var(--couleur-fonce);
+    padding: 18px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid var(--couleur-dore);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+#logo-nom {
+    color: var(--couleur-dore);
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+}
+
+.liste-menu {
+    display: flex;
+    gap: 25px;
+    list-style: none;
+}
+
+.liste-menu a {
+    color: var(--couleur-blanche);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 8px 12px;
+}
+
+.liste-menu a:hover {
+    color: var(--couleur-dore);
+    border-bottom: 2px solid var(--couleur-dore);
+}
+
+#entete-maroc {
+    background: linear-gradient(135deg, var(--couleur-rouge), var(--couleur-vert));
+    text-align: center;
+    padding: 60px 20px;
+    border-bottom: 4px solid var(--couleur-dore);
+}
+
+#entete-maroc h1 {
+    color: var(--couleur-dore);
+    font-family: 'Oswald', sans-serif;
+    font-size: 3rem;
+}
+
+#entete-maroc p {
+    color: white;
+    font-size: 1.2rem;
+}
+
+#contenu-maroc {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 25px;
+    flex: 1;
+}
+
+.hero-maroc {
+    height: 400px;
+    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('images/maroc-hero.jpg');
+    background-size: cover;
+    background-position: center;
+    border-radius: 20px;
+    margin-bottom: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.texte-hero-maroc {
+    text-align: center;
+    color: white;
+}
+
+.texte-hero-maroc h2 {
+    font-size: 2.5rem;
+    font-family: 'Oswald', sans-serif;
+    margin-bottom: 15px;
+}
+
+.texte-hero-maroc p {
+    font-size: 1.2rem;
+}
+
+.section-villes, .section-gastro, .section-lieux {
+    margin-bottom: 60px;
+}
+
+h2 {
+    color: var(--couleur-fonce);
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    margin-bottom: 30px;
+    border-left: 5px solid var(--couleur-dore);
+    padding-left: 20px;
+}
+
+.grille-villes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.carte-ville {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.carte-ville:hover {
+    transform: translateY(-5px);
+}
+
+.image-ville {
+    width: 100%;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+}
+
+.carte-ville h3 {
+    padding: 15px 15px 5px;
+    color: var(--couleur-rouge);
+}
+
+.carte-ville p {
+    padding: 0 15px 15px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.flex-gastro {
+    display: flex;
+    gap: 25px;
+    justify-content: space-between;
+}
+
+.plat {
+    flex: 1;
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+}
+
+.plat:hover {
+    transform: scale(1.02);
+    background: var(--couleur-dore);
+    color: white;
+}
+
+.plat h3 {
+    margin-bottom: 10px;
+}
+
+.table-lieux {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.table-lieux th {
+    background: var(--couleur-rouge);
+    color: white;
+    padding: 12px;
+    text-align: center;
+}
+
+.table-lieux td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.table-lieux tr:hover {
+    background: #f5f0e8;
+}
+
+.image-hyperlien {
+    text-align: center;
+    margin: 40px 0;
+    padding: 20px;
+    background: #f5f0e8;
+    border-radius: 20px;
+}
+
+.image-hyperlien img {
+    width: 200px;
+    border-radius: 15px;
+    border: 3px solid var(--couleur-dore);
+    transition: 0.3s;
+}
+
+.image-hyperlien img:hover {
+    transform: scale(1.05);
+    opacity: 0.9;
+}
+
+.image-hyperlien p {
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+#pied-page {
+    background: var(--couleur-fonce);
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 40px;
+    gap: 30px;
+    margin-top: 30px;
+    border-top: 3px solid var(--couleur-dore);
+}
+
+.zone-footer h4 {
+    color: var(--couleur-dore);
+    margin-bottom: 15px;
+}
+
+.zone-footer ul {
+    list-style: none;
+}
+
+.zone-footer a {
+    color: #ccc;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.zone-footer a:hover {
+    color: var(--couleur-dore);
+}
+
+@media (max-width: 1199px) and (min-width: 768px) {
+    .grille-villes {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .flex-gastro {
+        flex-wrap: wrap;
+    }
+    .plat {
+        flex: 1 1 calc(50% - 25px);
+    }
+}
+
+@media (max-width: 767px) {
+    #barre-navigation {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+    .liste-menu {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    .grille-villes {
+        grid-template-columns: 1fr;
+    }
+    .flex-gastro {
+        flex-direction: column;
+    }
+    .hero-maroc {
+        height: 250px;
+    }
+    .texte-hero-maroc h2 {
+        font-size: 1.5rem;
+    }
+    #pied-page {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 25px;
+    }
+    .zone-footer:nth-child(2) {
+        display: none;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+}

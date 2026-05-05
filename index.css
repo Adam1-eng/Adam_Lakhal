@@ -23,7 +23,6 @@ body {
 
 #barre-navigation {
     background-color: rgba(10, 26, 47, 0.95);
-    backdrop-filter: blur(12px);
     padding: 20px 40px;
     display: flex;
     justify-content: space-between;
@@ -86,7 +85,7 @@ body {
 
 .titre-principal {
     font-family: 'Oswald', sans-serif;
-    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-size: 4rem;
     font-weight: 700;
     color: var(--couleur-blanche);
     text-transform: uppercase;
@@ -97,7 +96,7 @@ body {
 }
 
 .sous-titre {
-    font-size: clamp(1rem, 4vw, 1.5rem);
+    font-size: 1.3rem;
     color: var(--couleur-dore);
     font-weight: 400;
     margin-bottom: 40px;
@@ -240,7 +239,6 @@ body {
 
 .stat-item {
     background: rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
     padding: 25px;
     border-radius: 15px;
     text-align: center;
@@ -331,7 +329,7 @@ body {
         flex-wrap: wrap;
     }
     .stat-item {
-        flex: calc(50% - 20px);
+        flex: 1 1 calc(50% - 20px);
     }
 }
 
@@ -349,6 +347,12 @@ body {
     .zone-hero {
         height: 60vh;
         background-attachment: scroll;
+    }
+    .titre-principal {
+        font-size: 2.5rem;
+    }
+    .sous-titre {
+        font-size: 1rem;
     }
     .conteneur-flex-2 {
         flex-direction: column;
