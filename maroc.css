@@ -4,6 +4,7 @@
     --couleur-blanche: #ffffff;
     --couleur-rouge: #c1272d;
     --couleur-vert: #006233;
+    --gris-texte: #333333;
 }
 
 * {
@@ -57,6 +58,10 @@ body {
     border-bottom: 2px solid var(--couleur-dore);
 }
 
+.liste-menu a:active {
+    transform: scale(0.95);
+}
+
 #entete-maroc {
     background: linear-gradient(135deg, var(--couleur-rouge), var(--couleur-vert));
     text-align: center;
@@ -73,6 +78,7 @@ body {
 #entete-maroc p {
     color: white;
     font-size: 1.2rem;
+    font-style: italic;
 }
 
 #contenu-maroc {
@@ -84,7 +90,7 @@ body {
 
 .hero-maroc {
     height: 400px;
-    background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('images/marrakech.jpg');
+    background-image: linear-gradient(rgba(255, 246, 246, 0.4), rgba(0,0,0,0.6)), url('images/maroc-drapeau.jpg');
     background-size: cover;
     background-position: center;
     border-radius: 20px;
@@ -109,7 +115,7 @@ body {
     font-size: 1.2rem;
 }
 
-.section-villes, .section-gastro, .section-lieux {
+.section-palmares, .section-cdm2022, .section-joueurs, .section-records, .section-clubs {
     margin-bottom: 60px;
 }
 
@@ -122,69 +128,104 @@ h2 {
     padding-left: 20px;
 }
 
-.grille-villes {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+.flex-palmares {
+    display: flex;
     gap: 25px;
+    flex-wrap: wrap;
 }
 
-.carte-ville {
+.palmares-item {
+    background: linear-gradient(135deg, var(--couleur-rouge), var(--couleur-vert));
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    flex: 1;
+    min-width: 180px;
+    text-align: center;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.palmares-item:hover {
+    transform: translateY(-5px);
+    background: var(--couleur-dore);
+    color: var(--couleur-fonce);
+}
+
+.palmares-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.flex-cdm {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.match-cdm {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.match-cdm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.match-cdm h3 {
+    color: var(--couleur-rouge);
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+.flex-joueurs {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.carte-joueur {
     background: white;
     border-radius: 15px;
     overflow: hidden;
+    text-align: center;
+    flex: 1;
+    min-width: 180px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transition: transform 0.3s;
+    transition: 0.3s;
 }
 
-.carte-ville:hover {
+.carte-joueur:hover {
     transform: translateY(-5px);
 }
 
-.image-ville {
+.image-joueur {
     width: 100%;
     height: 200px;
-    background-size: cover;
-    background-position: center;
+    object-fit: cover;
+    object-position: center 22%;
 }
 
-.carte-ville h3 {
+.carte-joueur h3 {
     padding: 15px 15px 5px;
     color: var(--couleur-rouge);
 }
 
-.carte-ville p {
+.carte-joueur p {
     padding: 0 15px 15px;
     font-size: 0.9rem;
     color: #666;
 }
 
-.flex-gastro {
-    display: flex;
-    gap: 25px;
-    justify-content: space-between;
-}
-
-.plat {
-    flex: 1;
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    text-align: center;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    transition: all 0.3s;
-}
-
-.plat:hover {
-    transform: scale(1.02);
-    background: var(--couleur-dore);
-    color: white;
-}
-
-.plat h3 {
-    margin-bottom: 10px;
-}
-
-.table-lieux {
+.table-records {
     width: 100%;
     border-collapse: collapse;
     background: white;
@@ -193,21 +234,53 @@ h2 {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-.table-lieux th {
+.table-records th {
     background: var(--couleur-rouge);
     color: white;
     padding: 12px;
     text-align: center;
 }
 
-.table-lieux td {
+.table-records td {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
 }
 
-.table-lieux tr:hover {
+.table-records tr:hover {
     background: #f5f0e8;
+}
+
+.flex-clubs {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.carte-club {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    flex: 1;
+    min-width: 180px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+    border-bottom: 4px solid var(--couleur-dore);
+}
+
+.carte-club:hover {
+    transform: translateY(-5px);
+    background: var(--couleur-dore);
+}
+
+.carte-club h3 {
+    color: var(--couleur-rouge);
+    margin-bottom: 10px;
+}
+
+.carte-club:hover h3 {
+    color: var(--couleur-fonce);
 }
 
 .image-hyperlien {
@@ -238,21 +311,31 @@ h2 {
 #pied-page {
     background: var(--couleur-fonce);
     color: white;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    display: flex;
+    justify-content: space-around;
     padding: 40px;
     gap: 30px;
     margin-top: 30px;
     border-top: 3px solid var(--couleur-dore);
 }
 
+.zone-footer {
+    flex: 1;
+    text-align: center;
+}
+
 .zone-footer h4 {
     color: var(--couleur-dore);
     margin-bottom: 15px;
+    font-family: 'Oswald', sans-serif;
 }
 
 .zone-footer ul {
     list-style: none;
+}
+
+.zone-footer li {
+    margin: 8px 0;
 }
 
 .zone-footer a {
@@ -263,17 +346,37 @@ h2 {
 
 .zone-footer a:hover {
     color: var(--couleur-dore);
+    text-decoration: underline;
+}
+
+.lien-haut {
+    color: var(--couleur-dore);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.lien-haut:hover {
+    text-decoration: underline;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
-    .grille-villes {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    .flex-gastro {
+    .flex-palmares {
         flex-wrap: wrap;
     }
-    .plat {
+    .palmares-item {
         flex: 1 1 calc(50% - 25px);
+    }
+    .flex-joueurs {
+        flex-wrap: wrap;
+    }
+    .carte-joueur {
+        flex: 1 1 calc(50% - 25px);
+    }
+    .flex-clubs {
+        flex-wrap: wrap;
+    }
+    .carte-club {
+        flex: 1 1 calc(33.33% - 25px);
     }
 }
 
@@ -288,27 +391,42 @@ h2 {
         text-align: center;
         gap: 12px;
     }
-    .grille-villes {
-        grid-template-columns: 1fr;
-    }
-    .flex-gastro {
-        flex-direction: column;
-    }
     .hero-maroc {
         height: 250px;
     }
     .texte-hero-maroc h2 {
         font-size: 1.5rem;
     }
+    .texte-hero-maroc p {
+        font-size: 0.9rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    .flex-palmares {
+        flex-direction: column;
+    }
+    .flex-cdm {
+        flex-direction: column;
+    }
+    .flex-joueurs {
+        flex-direction: column;
+    }
+    .flex-clubs {
+        flex-direction: column;
+    }
+    .table-records {
+        font-size: 0.75rem;
+    }
+    .table-records th, .table-records td {
+        padding: 8px 5px;
+    }
     #pied-page {
-        grid-template-columns: 1fr;
+        flex-direction: column;
         text-align: center;
         gap: 25px;
     }
     .zone-footer:nth-child(2) {
         display: none;
-    }
-    h2 {
-        font-size: 1.5rem;
     }
 }
