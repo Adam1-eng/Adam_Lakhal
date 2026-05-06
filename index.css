@@ -64,6 +64,11 @@ body {
     transform: translateY(-3px);
 }
 
+/* État actif du lien (critère supplémentaire) */
+.liste-menu a:active {
+    transform: scale(0.95);
+}
+
 .zone-hero {
     height: 85vh;
     background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('images/img2.jpeg');
@@ -99,6 +104,7 @@ body {
     font-size: 1.3rem;
     color: var(--couleur-dore);
     font-weight: 400;
+    font-style: italic;
     margin-bottom: 40px;
     letter-spacing: 2px;
     animation: apparaitre 1.2s ease-in;
@@ -122,6 +128,10 @@ body {
     color: white;
     transform: scale(1.08);
     box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.bouton-decouvrir:active {
+    transform: scale(0.98);
 }
 
 @keyframes glisser-haut {
@@ -287,6 +297,46 @@ body {
     padding: 12px 40px;
 }
 
+.section-column {
+    background: rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 30px;
+    margin: 40px 0;
+    text-align: center;
+}
+
+.section-column h3 {
+    color: var(--couleur-dore);
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.colonne-valeurs {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.valeur-item {
+    background: var(--couleur-dore);
+    color: var(--couleur-fonce);
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    width: 80%;
+    max-width: 300px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.valeur-item:hover {
+    transform: scale(1.05);
+    background: var(--couleur-rouge);
+    color: white;
+}
+
 #pied-page {
     background: linear-gradient(135deg, #0a1220, #0a1a2f);
     color: white;
@@ -319,6 +369,19 @@ body {
 
 .zone-footer a:hover {
     color: var(--couleur-dore);
+    text-decoration: underline;
+}
+
+/* Lien haut de page sans style inline */
+.lien-haut {
+    color: #c5a059;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.lien-haut:hover {
+    color: var(--couleur-dore);
+    text-decoration: underline;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
@@ -362,6 +425,15 @@ body {
     }
     .stat-item {
         width: 100%;
+    }
+    .colonne-valeurs {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .valeur-item {
+        width: auto;
+        min-width: 120px;
     }
     #pied-page {
         flex-direction: column;
