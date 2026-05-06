@@ -71,9 +71,12 @@ body {
     transform: translateY(-2px);
 }
 
+.liste-menu a:active {
+    transform: scale(0.95);
+}
+
 #conteneur-contact {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 35px;
     max-width: 1000px;
     margin: 60px auto;
@@ -87,11 +90,17 @@ body {
     border-radius: 15px;
     box-shadow: var(--ombre);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex: 1;
 }
 
 .boite-contact:hover {
     transform: translateY(-5px);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.grid-section {
+    display: grid;
+    grid-template-rows: auto 1fr;
 }
 
 .boite-contact h1 {
@@ -170,13 +179,58 @@ textarea.champ-form {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-#footer {
+#bouton-envoi:active {
+    transform: scale(0.98);
+}
+
+#pied-page {
     background: var(--marine-fonce);
     color: var(--blanc);
-    text-align: center;
-    padding: 30px;
+    display: flex;
+    justify-content: space-around;
+    padding: 40px;
     margin-top: auto;
     border-top: 3px solid var(--dore);
+}
+
+.zone-footer {
+    flex: 1;
+    text-align: center;
+}
+
+.zone-footer h4 {
+    color: var(--dore);
+    margin-bottom: 15px;
+    font-family: 'Oswald', sans-serif;
+}
+
+.zone-footer ul {
+    list-style: none;
+}
+
+.zone-footer li {
+    margin: 8px 0;
+}
+
+.zone-footer a {
+    color: #ccc;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.zone-footer a:hover {
+    color: var(--dore);
+    text-decoration: underline;
+}
+
+.lien-haut {
+    color: var(--dore);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.lien-haut:hover {
+    text-decoration: underline;
 }
 
 @media (max-width: 1199px) and (min-width: 768px) {
@@ -204,7 +258,7 @@ textarea.champ-form {
     }
     
     #conteneur-contact {
-        grid-template-columns: 1fr;
+        flex-direction: column;
         gap: 25px;
         margin: 40px auto;
         padding: 0 20px;
@@ -231,7 +285,13 @@ textarea.champ-form {
         padding: 12px;
     }
     
-    #footer {
-        padding: 20px;
+    #pied-page {
+        flex-direction: column;
+        text-align: center;
+        gap: 25px;
+    }
+    
+    .zone-footer:nth-child(2) {
+        display: none;
     }
 }

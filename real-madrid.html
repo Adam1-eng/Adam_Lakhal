@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real Madrid - Découvrez les légendes gardiens du club, le palmarès et les moments iconiques de l'histoire du Real Madrid C.F.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Oswald:wght@400;500;700&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="real-madrid.css">
     <title>Real Madrid - Légendes Gardiens</title>
 </head>
@@ -41,11 +45,12 @@
         </aside>
 
         <main class="contenu-rm">
+            <!-- SECTION 1: Gardiens légendaires (Flexbox, pas Grid) -->
             <div class="section-gardiens-principaux">
-                <h2>Les Gardiens Légendaires</h2>
-                <div class="grille-speciale">
+                <h2>⭐ Les Gardiens Légendaires</h2>
+                <div class="flex-gardiens">
                     <div class="carte-gk">
-                        <img src="/images/Iker Casillas.png" alt="Iker Casillas" class="image-gk lien-image">
+                        <img src="/images/Iker Casillas.png" alt="Iker Casillas" class="image-gk">
                         <h3>Iker Casillas</h3>
                         <p>La légende 🧤</p>
                     </div>
@@ -62,9 +67,10 @@
                 </div>
             </div>
 
+            <!-- SECTION 2: Gardiens secondaires (Flexbox) -->
             <div class="section-gardiens-secondaires">
                 <h2>🔄 Rotation & Seconds</h2>
-                <div class="grille-secondaire">
+                <div class="flex-secondaires">
                     <div class="carte-gk-secondaire">
                         <img src="/images/Jerzy Dudek.png" alt="Dudek">
                         <h4>Jerzy Dudek</h4>
@@ -87,6 +93,51 @@
                     </div>
                 </div>
             </div>
+
+            <div class="rang-flex-simple">
+                <div class="element-demi">
+                    <p>🏆 <strong>15 Ligues des Champions</strong></p>
+                    <p>Record absolu 🏆</p>
+                </div>
+                <div class="element-demi">
+                    <p>⭐ <strong>Ballons d'Or</strong></p>
+                    <p>Di Stéfano, Zidane, Ronaldo, Benzema...</p>
+                </div>
+            </div>
+
+            <div class="rang-flex-triple">
+                <div class="tiers">🇪🇸 <strong>36 La Liga</strong><br>Champion d'Espagne</div>
+                <div class="tiers">🌍 <strong>8 Coupes du Monde</strong><br>des Clubs</div>
+                <div class="tiers">👑 <strong>20 Coupes du Roi</strong><br>Trophée national</div>
+            </div>
+
+            <div class="grille-wrap-centree">
+                <div class="wrap-item">🏅 Zidane<br>Entraîneur légendaire</div>
+                <div class="wrap-item">⚽ Ronaldo Nazário<br>Buteur mythique</div>
+                <div class="wrap-item">🎯 Raúl González<br>Capitaine emblématique</div>
+                <div class="wrap-item">🔥 Sergio Ramos<br>Défenseur buteur</div>
+                <div class="wrap-item">💫 Modrić<br>Ballon d'Or 2018</div>
+                <div class="wrap-item">🕊️ Di Stéfano<br>L'âme du club</div>
+            </div>
+
+            <div class="grille-wrap-pleine">
+                <div class="item-plein">⚡ Remontada 2016 vs Wolfsburg</div>
+                <div class="item-plein">🏆 La Décima 2014 - Lisbonne</div>
+                <div class="item-plein">👑 3 Champions League consécutives</div>
+                <div class="item-plein">🎢 Remontada 2022 vs PSG</div>
+            </div>
+
+            <div class="bloc-vw">
+                <h3>¡Hala Madrid!</h3>
+                <p>Le plus grand club du monde - 124 ans d'histoire et de légendes</p>
+            </div>
+
+            <div class="image-hyperlien">
+                <a href="https://www.realmadrid.com/fr" target="_blank">
+                    <img src="/images/Champions.webp" alt="Real Madrid Champions League">
+                </a>
+                <p>🏆 Cliquez sur l'image pour visiter le site officiel</p>
+            </div>
         </main>
     </div>
 
@@ -96,15 +147,18 @@
             <ul>
                 <li><a href="index.html">Accueil</a></li>
                 <li><a href="galerie.html">Galerie</a></li>
+                <li><a href="maroc.html">Maroc</a></li>
             </ul>
         </div>
         <div class="zone-footer">
             <h4>Liens</h4>
             <p><a href="https://www.realmadrid.com" target="_blank">Real Madrid</a></p>
+            <p><a href="#">Page en construction</a></p>
         </div>
         <div class="zone-footer">
             <h4>Contact</h4>
             <p>adamlakhal99@gmail.com</p>
+            <p><a href="#haut" class="lien-haut">↑ Haut de page</a></p>
             <p>© 2026</p>
         </div>
     </div>
