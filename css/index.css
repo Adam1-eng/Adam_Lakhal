@@ -71,9 +71,9 @@ header {
 
 .zone-hero {
     height: 85vh;
-    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('/images/img2.jpeg');
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('/images/img7.jpeg');
     background-size: cover;
-    background-position: center 13%;
+    background-position: center 6%;
     background-attachment: fixed;
     display: flex;
     align-items: center;

@@ -21,7 +21,7 @@ body {
     flex-direction: column;
 }
 
-#barre-navigation {
+header{
     background-color: var(--couleur-fonce);
     padding: 18px 40px;
     display: flex;
@@ -55,33 +55,35 @@ body {
 
 .liste-menu a:hover {
     color: var(--couleur-dore);
-    border-bottom: 2px solid var(--couleur-dore);
+    text-decoration: underline;
+    text-underline-offset: 8px;
+    text-decoration-thickness: 2px;
 }
 
 .liste-menu a:active {
     transform: scale(0.95);
 }
 
-#entete-maroc {
+.entete-maroc {
     background: linear-gradient(135deg, var(--couleur-rouge), var(--couleur-vert));
     text-align: center;
     padding: 60px 20px;
     border-bottom: 4px solid var(--couleur-dore);
 }
 
-#entete-maroc h1 {
+.entete-maroc h1 {
     color: var(--couleur-dore);
     font-family: 'Oswald', sans-serif;
     font-size: 3rem;
 }
 
-#entete-maroc p {
+.entete-maroc p {
     color: white;
     font-size: 1.2rem;
     font-style: italic;
 }
 
-#contenu-maroc {
+main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 50px 25px;
@@ -308,7 +310,7 @@ h2 {
     font-weight: 600;
 }
 
-#pied-page {
+footer {
     background: var(--couleur-fonce);
     color: white;
     display: flex;
@@ -381,7 +383,7 @@ h2 {
 }
 
 @media (max-width: 767px) {
-    #barre-navigation {
+    header {
         flex-direction: column;
         gap: 15px;
         padding: 15px;
@@ -421,7 +423,7 @@ h2 {
     .table-records th, .table-records td {
         padding: 8px 5px;
     }
-    #pied-page {
+    footer {
         flex-direction: column;
         text-align: center;
         gap: 25px;
