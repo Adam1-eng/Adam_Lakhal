@@ -20,7 +20,7 @@ body {
     min-height: 100vh;
 }
 
-#barre-navigation {
+header {
     background: var(--bleu-madrid);
     padding: 18px 30px;
     display: flex;
@@ -55,10 +55,11 @@ body {
 }
 
 .liste-menu a:hover {
-    background: var(--or-madrid);
-    color: var(--bleu-madrid);
-    border-radius: 8px;
-    transform: scale(1.05);
+    color: var(--or-madrid);
+    text-decoration: underline;
+    text-underline-offset: 8px;
+    text-decoration-thickness: 2px;
+    transform: translateY(-2px);
 }
 
 .liste-menu a:active {
@@ -170,7 +171,7 @@ body {
     color: var(--bleu-madrid);
 }
 
-.contenu-rm {
+main {
     flex: 1;
 }
 
@@ -420,7 +421,7 @@ body {
     font-weight: bold;
 }
 
-#pied-page {
+footer {
     background: var(--bleu-madrid);
     color: white;
     display: flex;
@@ -488,7 +489,7 @@ body {
 }
 
 @media (max-width: 767px) {
-    #barre-navigation {
+    header {
         flex-direction: column;
         gap: 15px;
     }
@@ -536,7 +537,7 @@ body {
     .bloc-vw p {
         font-size: 4vw;
     }
-    #pied-page {
+    footer {
         flex-direction: column;
         text-align: center;
         gap: 25px;

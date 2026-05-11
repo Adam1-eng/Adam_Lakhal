@@ -25,7 +25,7 @@ body {
     flex-direction: column;
 }
 
-#barre-navigation {
+header {
     background-color: var(--marine-fonce);
     padding: 18px 40px;
     display: flex;
@@ -183,7 +183,7 @@ textarea.champ-form {
     transform: scale(0.98);
 }
 
-#pied-page {
+footer {
     background: var(--marine-fonce);
     color: var(--blanc);
     display: flex;
@@ -245,7 +245,7 @@ textarea.champ-form {
 }
 
 @media (max-width: 767px) {
-    #barre-navigation {
+    header{
         flex-direction: column;
         padding: 15px 20px;
         gap: 15px;
@@ -285,7 +285,7 @@ textarea.champ-form {
         padding: 12px;
     }
     
-    #pied-page {
+    footer {
         flex-direction: column;
         text-align: center;
         gap: 25px;

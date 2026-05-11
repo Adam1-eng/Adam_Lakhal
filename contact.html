@@ -7,51 +7,55 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="contact.css">
+    <link rel="stylesheet" href="css/contact.css">
     <title>Contact - Adam Lakhal</title>
 </head>
 <body id="haut">
-    <nav id="barre-navigation">
+    <header>
         <h2 id="logo-nom">Adam Lakhal</h2>
-        <ul class="liste-menu">
-            <li><a href="index.html">Accueil</a></li>
-            <li><a href="galerie.html">Galerie</a></li>
-            <li><a href="maroc.html">Maroc</a></li>
-            <li><a href="https://www.ultrasfc.com/" target="_blank">Club</a></li>
-            <li><a href="real-madrid.html">Real Madrid</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-    </nav>
+        <nav>
+            <ul class="liste-menu">
+                <li><a href="index.html">Accueil</a></li>
+                <li><a href="galerie.html">Galerie</a></li>
+                <li><a href="maroc.html">Maroc</a></li>
+                <li><a href="https://www.ultrasfc.com/" target="_blank">Club</a></li>
+                <li><a href="real-madrid.html">Real Madrid</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <div id="conteneur-contact">
-        <section class="boite-contact">
-            <h1>Contact</h1>
-            <p>Vous pouvez me contacter ici :</p>
-            <p><strong>Email :</strong> adamlakhal99@gmail.com</p>
-            <p><strong>Localisation :</strong> Montreal</p>
-        </section>
+    <main>
+        <div id="conteneur-contact">
+            <section class="boite-contact">
+                <h1>Contact</h1>
+                <p>Vous pouvez me contacter ici :</p>
+                <p><strong>Email :</strong> adamlakhal99@gmail.com</p>
+                <p><strong>Localisation :</strong> Montreal</p>
+            </section>
 
-        <section class="boite-contact grid-section">
-            <h2>M'envoyer un message</h2>
-            <form id="formulaire-contact">
-                <label for="nom">Nom :</label><br>
-                <input type="text" id="nom" name="nom" class="champ-form"><br><br>
+            <section class="boite-contact grid-section">
+                <h2>M'envoyer un message</h2>
+                <form id="formulaire-contact">
+                    <label for="nom">Nom :</label><br>
+                    <input type="text" id="nom" name="nom" class="champ-form"><br><br>
 
-                <label for="email">Votre Email :</label><br>
-                <input type="email" id="email" name="email" class="champ-form"><br><br>
+                    <label for="email">Votre Email :</label><br>
+                    <input type="email" id="email" name="email" class="champ-form"><br><br>
 
-                <label for="sujet">Sujet :</label><br>
-                <input type="text" id="sujet" name="sujet" class="champ-form"><br><br>
+                    <label for="sujet">Sujet :</label><br>
+                    <input type="text" id="sujet" name="sujet" class="champ-form"><br><br>
 
-                <label for="msg">Message :</label><br>
-                <textarea id="msg" name="msg" rows="4" class="champ-form"></textarea><br><br>
+                    <label for="msg">Message :</label><br>
+                    <textarea id="msg" name="msg" rows="4" class="champ-form"></textarea><br><br>
 
-                <button type="submit" id="bouton-envoi">Envoyer le message</button>
-            </form>
-        </section>
-    </div>
+                    <button type="submit" id="bouton-envoi">Envoyer le message</button>
+                </form>
+            </section>
+        </div>
+    </main>
 
-    <footer id="pied-page">
+    <footer>
         <div class="zone-footer">
             <h3>Navigation</h3>
             <ul>
