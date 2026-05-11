@@ -21,7 +21,7 @@ body {
     min-height: 100vh;
 }
 
-#barre-navigation {
+header {
     background-color: rgba(10, 26, 47, 0.95);
     padding: 20px 40px;
     display: flex;
@@ -55,16 +55,16 @@ body {
     font-size: 1rem;
     padding: 8px 12px;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 25px;
 }
 
 .liste-menu a:hover {
-    background-color: var(--couleur-dore);
-    color: var(--couleur-fonce);
-    transform: translateY(-3px);
+    color: var(--couleur-dore);
+    text-decoration: underline;
+    text-underline-offset: 8px;
+    text-decoration-thickness: 2px;
+    transform: translateY(-2px);
 }
 
-/* État actif du lien (critère supplémentaire) */
 .liste-menu a:active {
     transform: scale(0.95);
 }
@@ -337,7 +337,7 @@ body {
     color: white;
 }
 
-#pied-page {
+footer {
     background: linear-gradient(135deg, #0a1220, #0a1a2f);
     color: white;
     display: flex;
@@ -372,7 +372,6 @@ body {
     text-decoration: underline;
 }
 
-/* Lien haut de page sans style inline */
 .lien-haut {
     color: #c5a059;
     text-decoration: none;
@@ -397,7 +396,7 @@ body {
 }
 
 @media (max-width: 767px) {
-    #barre-navigation {
+    header {
         flex-direction: column;
         gap: 20px;
         padding: 15px;
@@ -435,7 +434,7 @@ body {
         width: auto;
         min-width: 120px;
     }
-    #pied-page {
+    footer {
         flex-direction: column;
         gap: 30px;
     }
