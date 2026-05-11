@@ -92,9 +92,9 @@ main {
 
 .hero-maroc {
     height: 400px;
-    background-image: linear-gradient(rgba(255, 246, 246, 0.4), rgba(0,0,0,0.6)), url('/images/maroc-drapeau.jpg');
+    background-image: url('/images/cup2022.jpeg');
     background-size: cover;
-    background-position: center;
+    background-position: center 68%;
     border-radius: 20px;
     margin-bottom: 50px;
     display: flex;
