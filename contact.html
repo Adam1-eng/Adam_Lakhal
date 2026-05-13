@@ -76,5 +76,48 @@
             <p>© 2026</p>
         </div>
     </footer>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    
+    <script type="text/javascript">
+        // 1. Initialisation avec ta Public Key
+        (function() {
+            emailjs.init("dosLRCO2P9flOWvto"); 
+        })();
+
+        // 2. Gestion de l'envoi du formulaire
+        const form = document.getElementById('formulaire-contact');
+        const bouton = document.getElementById('bouton-envoi');
+
+        form.addEventListener('submit', function(event) {
+            // Empêche le rechargement de la page
+            event.preventDefault();
+
+            // Modifie le texte du bouton pour faire patienter l'utilisateur
+            const texteOriginal = bouton.innerText;
+            bouton.innerText = 'Envoi en cours...';
+
+            // 3. Envoi via EmailJS (Remplace avec tes IDs)
+            emailjs.sendForm('service_hv7wy6f', 'template_mwyb9sp', this)
+                .then(function() {
+                    // Succès
+                    bouton.innerText = 'Message envoyé !';
+                    bouton.style.backgroundColor = '#28a745'; // Optionnel: change la couleur en vert
+                    form.reset(); // Vide les champs du formulaire
+                    
+                    // Remet le bouton à son état initial après 3 secondes
+                    setTimeout(() => {
+                        bouton.innerText = texteOriginal;
+                        bouton.style.backgroundColor = ''; 
+                    }, 3000);
+                }, function(erreur) {
+                    // Échec
+                    bouton.innerText = 'Erreur lors de l\'envoi';
+                    bouton.style.backgroundColor = '#dc3545'; // Optionnel: change la couleur en rouge
+                    console.log('Échec de l\'envoi...', erreur);
+                });
+        });
+    </script>
+</body>
+</html>
 </body>
 </html>
