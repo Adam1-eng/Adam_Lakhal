@@ -492,6 +492,7 @@ footer {
     header {
         flex-direction: column;
         gap: 15px;
+        position: static;
     }
     .liste-menu {
         flex-direction: column;
