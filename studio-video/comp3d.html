@@ -24,25 +24,38 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);col
 .p3{position:absolute;left:0;top:0;transform-style:preserve-3d}
 .part{position:absolute;border-radius:50%;background:radial-gradient(circle,#ffd98a,rgba(232,176,74,0) 70%)}
 #shadow{position:absolute;left:290px;top:1770px;width:500px;height:90px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.75),transparent 70%);filter:blur(10px)}
-/* téléphone */
-#rig{position:absolute;left:220px;top:450px;width:640px;height:1338px;transform-style:preserve-3d}
-.slab{position:absolute;inset:0;border-radius:88px;background:#1c1618;border:3px solid #5a4a50}
-#back{position:absolute;inset:0;border-radius:88px;backface-visibility:hidden;transform:translateZ(-40px) rotateY(180deg);
-  background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.18),transparent 40%),linear-gradient(150deg,#2a1219 0%,#a51f43 55%,#4a0b1c 100%);border:3px solid #6a5258}
-#back .cam{position:absolute;left:46px;top:46px;width:250px;height:250px;border-radius:70px;background:rgba(10,8,9,.55);border:3px solid rgba(255,255,255,.12)}
-#back .lens{position:absolute;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3a4a6a,#050608 60%);border:8px solid #1a1517}
-#back .brand{position:absolute;left:0;right:0;top:600px;text-align:center}
-#back .brand .lg{width:150px;height:150px;margin:0 auto 26px;border-radius:44px;display:grid;place-items:center;background:rgba(11,9,9,.6);font:900 72px "Big Shoulders";color:var(--gold);border:3px solid rgba(232,176,74,.4)}
-#back .brand b{font:900 50px "Big Shoulders";letter-spacing:.08em;color:#fff}
-#back .brand small{display:block;margin-top:8px;font:700 26px Manrope;color:rgba(255,255,255,.75)}
-#front{position:absolute;inset:0;border-radius:88px;backface-visibility:hidden;background:#050405;border:3px solid #6a5258;
-  box-shadow:inset 0 0 0 10px #0d0a0b}
-#screen{position:absolute;left:20px;top:20px;width:600px;height:1298px;border-radius:68px;overflow:hidden;background:#0b0909}
-#scr{position:absolute;left:0;top:0;width:600px;height:1298px}
-#ui{position:absolute;left:0;top:0;width:390px;height:844px;transform-origin:0 0}
+/* téléphone : iPhone 16 Pro Max (proportions réelles 77,6 x 163 x 8,25 mm), titane désert */
+#shadow{position:absolute;left:290px;top:1795px;width:500px;height:90px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.75),transparent 70%);filter:blur(10px)}
+#rig{position:absolute;left:220px;top:440px;width:640px;height:1353px;transform-style:preserve-3d}
+.slab{position:absolute;inset:0;border-radius:104px;background:#9c8571;border:3px solid #d9c5b1}
+.btn{position:absolute;width:9px;border-radius:5px;background:#b9a28c;border:1px solid #e3d1be}
+.btn.cc{background:#2c2a2b;border:2px solid #cbb6a1}
+#back{position:absolute;inset:0;border-radius:104px;backface-visibility:hidden;transform:translateZ(-62px) rotateY(180deg);
+  background:radial-gradient(ellipse at 65% 30%,rgba(255,255,255,.28),transparent 45%),linear-gradient(160deg,#e2cfbb 0%,#c9b19a 45%,#ad937c 100%);
+  border:4px solid #d9c5b1;box-shadow:inset 0 0 40px rgba(80,55,35,.25)}
+#back .plateau{position:absolute;left:34px;top:34px;width:276px;height:276px;border-radius:76px;
+  background:linear-gradient(150deg,rgba(255,255,255,.30),rgba(120,95,75,.18));border:2px solid rgba(255,255,255,.35);
+  box-shadow:0 6px 18px rgba(70,45,25,.35),inset 0 2px 6px rgba(255,255,255,.4)}
+#back .lens{position:absolute;width:116px;height:116px;border-radius:50%;border:10px solid #cfb9a4;
+  background:radial-gradient(circle at 38% 32%,#5b6c9a 0%,#1d2340 22%,#05060b 55%,#000 100%);
+  box-shadow:0 5px 12px rgba(0,0,0,.45),inset 0 0 0 6px #121216}
+#back .lens::after{content:'';position:absolute;left:24px;top:20px;width:22px;height:14px;border-radius:50%;background:rgba(190,210,255,.55);filter:blur(1px)}
+#back .flash{position:absolute;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,#fff8e8,#e8d6b8 60%,#bba58e);border:3px solid #d6c2ad}
+#back .lidar{position:absolute;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#2a2a2e,#0a0a0c);border:3px solid #cfb9a4}
+#back .mic{position:absolute;width:10px;height:10px;border-radius:50%;background:#5a4636}
+#back .mono{position:absolute;left:0;right:0;top:600px;text-align:center;font:900 120px "Big Shoulders";color:rgba(255,255,255,.28);
+  text-shadow:0 -2px 0 rgba(120,90,65,.35),0 2px 0 rgba(255,255,255,.35);letter-spacing:.04em}
+#slabs,#btns{position:absolute;inset:0;transform-style:preserve-3d}
+#front *,#back *{backface-visibility:hidden}
+#front{position:absolute;inset:0;border-radius:104px;backface-visibility:hidden;background:#000;
+  border:5px solid #cdb8a3;box-shadow:inset 0 0 0 3px #7d6a59,inset 0 0 0 9px #050505}
+#screen{position:absolute;left:16px;top:16px;width:598px;height:1311px;border-radius:88px;overflow:hidden;background:#0b0909}
+#scr{position:absolute;left:0;top:0;width:598px;height:1300px}
+#ui{position:absolute;left:0;top:0;width:440px;height:956px;transform-origin:0 0}
 #dim{position:absolute;inset:0;background:#000;opacity:0}
 #glare{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen}
-#island{position:absolute;left:50%;top:22px;width:180px;height:50px;margin-left:-90px;border-radius:30px;background:#000}
+#island{position:absolute;left:50%;top:16px;width:172px;height:50px;margin-left:-86px;border-radius:30px;background:#000;box-shadow:inset 0 0 0 1px #111}
+#island::after{content:'';position:absolute;right:20px;top:15px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#22304a,#05070c)}
 /* doigt */
 #finger{position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;opacity:0}
 #finger .tip{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.95),rgba(235,235,240,.75) 60%,rgba(255,255,255,.35));box-shadow:0 10px 26px rgba(0,0,0,.45),0 0 0 3px rgba(255,255,255,.35)}
@@ -99,8 +112,11 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);col
   <div id="shadow"></div>
   <div id="rig">
     <div id="slabs"></div>
-    <div id="back"><div class="cam"><div class="lens" style="left:22px;top:22px"></div><div class="lens" style="left:128px;top:22px"></div><div class="lens" style="left:22px;top:128px"></div></div>
-      <div class="brand"><div class="lg">AL</div><b>ADAM LAKHAL</b><small>Sites web &amp; applis</small></div></div>
+    <div id="back"><div class="plateau">
+        <div class="lens" style="left:20px;top:20px"></div><div class="lens" style="left:20px;top:140px"></div><div class="lens" style="left:140px;top:80px"></div>
+        <div class="flash" style="left:212px;top:22px"></div><div class="lidar" style="left:212px;top:212px"></div><div class="mic" style="left:180px;top:226px"></div></div>
+      <div class="mono">AL</div></div>
+    <div id="btns"></div>
     <div id="front"><div id="screen">
       <img id="scr">
       <div id="ui">
@@ -140,7 +156,7 @@ const eo = x => 1 - Math.pow(1-x, 3);
 const eio = x => x<.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2;
 const back = x => { const c=1.6; return 1 + (c+1)*Math.pow(x-1,3) + c*Math.pow(x-1,2); };
 const lerp = (a,b,x) => a + (b-a)*x;
-const S = 600/390;                         // px CSS du site → px de l'écran du téléphone
+let VW = 440, VH = 956, S = 598/440;       // écran iPhone 16 Pro Max (points) → px de l'écran du téléphone
 let rnd = 7; const R = () => (rnd = (rnd*16807) % 2147483647) / 2147483647;
 
 // Scènes : quelle partie de l'enregistrement montrer dans chaque phrase de la voix
@@ -160,18 +176,19 @@ const BADGES = ['🔤 Bilingue français / arabe','🚚 Livraison partout au Mar
 
 let TL, CL = {}, chunks = [], SC = [];
 window.setup = (tl, rec) => {
-  TL = tl;
+  TL = tl; VW = rec.vw || 390; VH = rec.vh || 844; S = 598/VW; const SL = rec.slow || 1;
+  $('scr').style.height = (598*VH/VW)+'px'; $('ui').style.width = VW+'px'; $('ui').style.height = VH+'px';
   // --- enregistrement : clips, images et gestes en temps relatif ---
-  rec.log.filter(l=>l.k==='clip').forEach(c => CL[c.id] = {t0:c.t0, dur:c.t1-c.t0, frames:[], taps:[], swipes:[], pickers:[], kbs:[], sends:[]});
-  rec.frames.forEach(f => CL[f.clip].frames.push({f:'rec/'+f.f, t:f.t - CL[f.clip].t0}));
-  const which = t => Object.values(CL).find(c => t >= c.t0-0.5 && t <= c.t0+c.dur+0.5);
-  rec.log.forEach(l => { const t = l.t ?? l.t0; const c = which(t); if (!c) return; const r = x => x - c.t0;
+  rec.log.filter(l=>l.k==='clip').forEach(c => CL[c.id] = {t0:c.t0, dur:(c.t1-c.t0)/SL, frames:[], taps:[], swipes:[], pickers:[], kbs:[], sends:[]});
+  rec.frames.forEach(f => CL[f.clip].frames.push({f:'rec/'+f.f, t:(f.t - CL[f.clip].t0)/SL}));
+  const which = t => Object.values(CL).find(c => t >= c.t0-0.5 && t <= c.t0+c.dur*SL+0.5);
+  rec.log.forEach(l => { const t = l.t ?? l.t0; const c = which(t); if (!c) return; const r = x => (x - c.t0)/SL;
     if (l.k==='tap') c.taps.push({t:r(l.t), x:l.x, y:l.y});
     if (l.k==='swipe') c.swipes.push({t0:r(l.t0), t1:r(l.t1), dy:l.dy});
     if (l.k==='kb') c.kbs.push({t0:r(l.t0), t1:r(l.t1)});
-    if (l.k==='picker') { const n=l.options.length, h=56+n*48, top=844-10-h;
+    if (l.k==='picker') { const n=l.options.length, h=56+n*48, top=VH-10-h;
       c.pickers.push({t0:r(l.t0), t1:r(l.t1), options:l.options, chosen:l.chosen, top});
-      c.taps.push({t:r(l.t1)-0.28, x:195, y:top+56+l.chosen*48+24, pick:true}); }
+      c.taps.push({t:r(l.t1)-0.28, x:VW/2, y:top+56+l.chosen*48+24, pick:true}); }
   });
   Object.values(CL).forEach(c => c.taps.sort((a,b)=>a.t-b.t));
   // --- durée et vitesse de chaque scène ---
@@ -185,7 +202,11 @@ window.setup = (tl, rec) => {
   // --- sous-titres : groupes de 3 mots ---
   TL.lines.forEach(l => { for (let i=0;i<l.words.length;i+=3) chunks.push({line:l, words:l.words.slice(i,i+3)}); });
   // --- décor 3D : épaisseur du téléphone, particules, clavier, bulles ---
-  const sl = $('slabs'); for (let i=1;i<=16;i++){ const d=document.createElement('div'); d.className='slab'; d.style.transform=`translateZ(${-i*2.4}px)`; sl.appendChild(d); }
+  const sl = $('slabs'); for (let i=1;i<=20;i++){ const d=document.createElement('div'); d.className='slab'; d.style.transform=`translateZ(${-i*3}px)`; sl.appendChild(d); }
+  // boutons : gauche = Action, volume +, volume − ; droite = côté, Commande de l'appareil photo
+  const B=[[-7,270,62,''],[-7,380,120,''],[-7,530,120,''],[638,410,190,''],[640,760,112,'cc']];
+  B.forEach(([x,y,h,cl])=>{ for (let z=10;z<=50;z+=3){ const d=document.createElement('div'); d.className='btn '+cl;
+    Object.assign(d.style,{left:x+'px',top:y+'px',height:h+'px',transform:`translateZ(${-z}px)`}); $('btns').appendChild(d); } });
   const pp = $('parts'); for (let i=0;i<42;i++){ const d=document.createElement('div'); d.className='part'; const s=10+R()*26;
     d.dataset.x=R()*1080; d.dataset.y=200+R()*1700; d.dataset.z=-1300+R()*1100; d.dataset.s=s; d.dataset.v=10+R()*30;
     d.style.width=d.style.height=s+'px'; d.style.opacity=.25+R()*.5; pp.appendChild(d); }
@@ -236,7 +257,7 @@ function drawFinger(c, ct){
     return; }
   for (const sw of c.swipes){ if (ct < sw.t0-0.2 || ct > sw.t1+0.15) continue;
     const p=eo(seg(ct, sw.t0, sw.t1)); const len=Math.min(380, Math.abs(sw.dy)*0.55)*Math.sign(sw.dy||1);
-    f.style.left=lerp(250,262,p)+'px'; f.style.top=(640 - len*p)+'px';
+    f.style.left=lerp(VW*0.64,VW*0.67,p)+'px'; f.style.top=(VH*0.76 - len*p)+'px';
     f.style.opacity = seg(ct, sw.t0-0.2, sw.t0) * (1-seg(ct, sw.t1, sw.t1+0.15)); f.style.transform='scale(1)';
     return; }
 }
@@ -245,7 +266,7 @@ function drawSheet(c, ct){
   if (ct!==null) for (const p of c.pickers){ if (ct < p.t0 || ct > p.t1+0.15) continue;
     const a = eo(seg(ct,p.t0,p.t0+0.2)) * (1-seg(ct,p.t1-0.02,p.t1+0.15));
     if (sh.dataset.k!==String(p.t0)){ sh.innerHTML='<h4>Choisir</h4>'+p.options.map(o=>`<div class="opt"><span>${o}</span><span class="ck">✓</span></div>`).join(''); sh.dataset.k=String(p.t0); }
-    sh.style.opacity=a>0?1:0; sh.style.transform=`translateY(${(1-a)*420}px)`; d=.45*a;
+    sh.style.opacity=a>0?1:0; sh.style.transform=`translateY(${(1-a)*480}px)`; d=.45*a;
     [...sh.querySelectorAll('.opt')].forEach((o,i)=>o.classList.toggle('on', i===p.chosen && ct>p.t1-0.28));
   }
   dim.style.opacity=d;

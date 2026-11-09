@@ -1,19 +1,22 @@
 // ENREGISTREMENT RÉEL du site, comme un vrai client sur son téléphone :
 // vrais touchers, vrais défilements, vraies sélections, vraie saisie au clavier.
-// - Écran capturé à 60 images/s en 1170x2532 (qualité Retina x3)
+// - Écran de l'iPhone 16 Pro Max (440x956 points) filmé en 880x1912 px, au ralenti x3 puis remis à vitesse normale
 // - Chaque geste est noté (journal) pour dessiner le doigt, les menus et le clavier dans la vidéo
 // - WhatsApp est intercepté : une page maquette locale s'affiche, RIEN n'est envoyé au magasin
 const { chromium } = require('playwright');
 const fs = require('fs');
 const U = 'https://www.autorefaatart.com';
 const OUT = 'rec';
+const VW = 440, VH = 956;          // écran de l'iPhone 16 Pro Max (en points)
+const DPR = 2;                     // netteté x2 (880x1912 px)
+const SLOW = 3;                    // ralenti x3 pendant l'enregistrement → images fluides, remis à vitesse normale au montage
 fs.rmSync(OUT, { recursive: true, force: true }); fs.mkdirSync(OUT + '/frames', { recursive: true });
 
 const now = () => Date.now() / 1000;
 const LOG = [];                  // journal des gestes
 const FRAMES = [];               // {f: fichier, t: horodatage}
 let clip = null;
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = ms => new Promise(r => setTimeout(r, ms * SLOW));   // toutes les attentes sont ralenties
 
 // Page maquette "WhatsApp" (affichée à la place de wa.me, rien ne sort de l'ordinateur)
 function waPage(text, photo) {
@@ -49,8 +52,8 @@ function waPage(text, photo) {
 }
 
 (async () => {
-  const b = await chromium.launch();
-  const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, locale: 'fr-FR' });
+  const b = await chromium.launch({ args: [`--force-device-scale-factor=${DPR}`] });
+  const ctx = await b.newContext({ viewport: { width: VW, height: VH }, deviceScaleFactor: DPR, isMobile: true, hasTouch: true, locale: 'fr-FR' });
   let photo = '';
   await ctx.route(/wa\.me|whatsapp\.com/, r => {
     const url = new URL(r.request().url());
@@ -72,19 +75,21 @@ function waPage(text, photo) {
   });
 
   // ---------- gestes ----------
-  async function startClip(id) { clip = { id, t0: now() }; await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: 1170, maxHeight: 2532 }); await sleep(250); }
+  async function slowmo() { await cdp.send('Animation.enable').catch(() => {}); await cdp.send('Animation.setPlaybackRate', { playbackRate: 1 / SLOW }).catch(() => {}); }
+  p.on('framenavigated', f => { if (f === p.mainFrame()) slowmo(); });
+  async function startClip(id) { await slowmo(); clip = { id, t0: now() }; await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 88, maxWidth: VW * DPR, maxHeight: VH * DPR }); await sleep(250); }
   async function endClip() { await sleep(150); await cdp.send('Page.stopScreencast'); LOG.push({ k: 'clip', id: clip.id, t0: clip.t0, t1: now() }); clip = null; }
   async function center(loc) { await loc.scrollIntoViewIfNeeded().catch(() => {}); const bb = await loc.boundingBox(); return { x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 }; }
   async function tap(loc, { real = true } = {}) {
     const c = await center(loc);
-    LOG.push({ k: 'tap', t: now() + 0.32, x: c.x, y: c.y });   // le doigt arrive, puis touche
+    LOG.push({ k: 'tap', t: now() + 0.32 * SLOW, x: c.x, y: c.y });   // le doigt arrive, puis touche
     await sleep(320);
     if (real) await p.touchscreen.tap(c.x, c.y);
     await sleep(180);
   }
   async function swipe(toY, dur = 900) {      // défilement fluide, comme un geste du pouce
     const y0 = await p.evaluate(() => window.scrollY);
-    const t = now(); LOG.push({ k: 'swipe', t0: t, t1: t + dur / 1000, dy: toY - y0 });
+    const t = now(); dur *= SLOW; LOG.push({ k: 'swipe', t0: t, t1: t + dur / 1000, dy: toY - y0 });
     await p.evaluate(async ({ toY, dur }) => {
       const y0 = window.scrollY, t0 = performance.now();
       await new Promise(r => { const st = () => { const u = Math.min(1, (performance.now() - t0) / dur);
@@ -95,15 +100,15 @@ function waPage(text, photo) {
   async function pick(sel, value, label) {   // menu déroulant : le doigt touche, la liste s'ouvre, on choisit
     const c = await center(sel);
     const opts = await sel.locator('option').evaluateAll(o => o.filter(x => x.value).map(x => x.textContent.trim()));
-    const t = now(); LOG.push({ k: 'tap', t: t + 0.32, x: c.x, y: c.y });
-    LOG.push({ k: 'picker', t0: t + 0.45, t1: t + 1.05, options: opts.slice(0, 7), chosen: Math.max(0, opts.slice(0, 7).indexOf(label)) });
+    const t = now(); LOG.push({ k: 'tap', t: t + 0.32 * SLOW, x: c.x, y: c.y });
+    LOG.push({ k: 'picker', t0: t + 0.45 * SLOW, t1: t + 1.05 * SLOW, options: opts.slice(0, 7), chosen: Math.max(0, opts.slice(0, 7).indexOf(label)) });
     await sleep(1050);
     await sel.selectOption(value);
     await sleep(350);
   }
   async function type(loc, text, delay = 60) {
-    await tap(loc); const t = now(); await loc.pressSequentially(text, { delay });
-    LOG.push({ k: 'kb', t0: t - 0.2, t1: now() + 0.25 });
+    await tap(loc); const t = now(); await loc.pressSequentially(text, { delay: delay * SLOW });
+    LOG.push({ k: 'kb', t0: t - 0.2 * SLOW, t1: now() + 0.25 * SLOW });
   }
 
   // ===== 1. ACCROCHE : page d'accueil (animations du site en direct) =====
@@ -173,7 +178,7 @@ function waPage(text, photo) {
   await tap(p.locator('#send')); await sleep(1500);
   await endClip();
 
-  fs.writeFileSync(`${OUT}/log.json`, JSON.stringify({ frames: FRAMES, log: LOG }, null, 1));
+  fs.writeFileSync(`${OUT}/log.json`, JSON.stringify({ vw: VW, vh: VH, slow: SLOW, frames: FRAMES, log: LOG }, null, 1));
   const parClip = {}; FRAMES.forEach(x => parClip[x.clip] = (parClip[x.clip] || 0) + 1);
   console.log('images par scène :', parClip);
   console.log('WhatsApp (maquette) :', LOG.filter(l => l.k === 'wa').map(l => l.text.slice(0, 60).replace(/\n/g, ' ')));

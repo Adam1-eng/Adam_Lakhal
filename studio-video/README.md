@@ -3,9 +3,10 @@
 Ce dossier fabrique **automatiquement** une vidéo verticale 1080×1920 en **60 images/seconde**
 (format TikTok / Reels) qui présente un site client :
 
-- 📱 **Téléphone en vraie 3D** : épaisseur, dos signé « Adam Lakhal », il se retourne, pivote, fait un tour complet
+- 📱 **iPhone 16 Pro Max en vraie 3D** (titane désert, Dynamic Island, boutons, bloc caméra) : il se retourne, pivote, fait un tour complet
 - 👆 **Le site est vraiment utilisé** : un robot navigateur touche les boutons, ouvre les menus,
-  tape au clavier, ajoute au panier et commande — c'est l'écran **réel** qui est filmé (60 i/s, qualité Retina)
+  tape au clavier, ajoute au panier et commande — c'est l'écran **réel** qui est filmé au format iPhone 16 Pro Max
+  (880×1912 px, filmé au ralenti x3 puis remis à vitesse normale → ~90 images/s, très fluide)
 - ✋ Doigt, menus déroulants et clavier dessinés par-dessus pour qu'on voie chaque geste
 - 💬 Bulles, badges et carte « Écris-moi SITE » qui volent en 3D, particules en profondeur
 - 🎙️ **Ta voix** (ou une voix provisoire), sous-titres synchronisés mot par mot, musique + bruitages
