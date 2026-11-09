@@ -1,11 +1,11 @@
 [
- {"id":"hook","say":"Tu vends des pièces auto et tu passes ta journée à répondre sur WhatsApp ? Regarde ce site."},
- {"id":"probleme","say":"Les clients demandent toute la journée : c'est combien ? Ça va sur ma voiture ? C'est disponible ?"},
- {"id":"intro","say":"J'ai créé le site d'Auto Refaat Art, à Zemamra, en français et en arabe. Livraison partout au Maroc, paiement à la livraison."},
- {"id":"vehicule","say":"Le client choisit sa voiture, par exemple une Dacia Logan, et il ne voit que les pièces compatibles."},
- {"id":"huile","say":"Il trouve même la bonne huile moteur, en trois clics."},
- {"id":"commande","say":"Il ajoute la pièce au panier, il entre son adresse, et la commande arrive sur WhatsApp, déjà rédigée, avec le prix et la livraison."},
- {"id":"introuvable","say":"Il ne trouve pas sa pièce ? Il envoie une photo ou son numéro de châssis, et le magasin la trouve pour lui."},
- {"id":"conclusion","say":"Voilà Auto Refaat Art. J'espère que ce site vous a plu."},
- {"id":"cta","say":"Si tu as un commerce ou que tu vends en ligne, et que tu veux un site comme celui-ci qui travaille pour toi jour et nuit, écris-moi : SITE, en message."}
+ {"id":"hook","say":"Tu vends des pièces auto et tu passes tes journées à répondre sur WhatsApp ? Regarde ce site."},
+ {"id":"probleme","say":"Toute la journée, les clients posent les mêmes questions : c'est combien ? Ça va sur ma voiture ? C'est disponible ?"},
+ {"id":"intro","say":"J'ai créé le site d'AutoRefaatArt, à Zemamra. En français et en arabe, avec la livraison partout au Maroc et le paiement à la livraison."},
+ {"id":"vehicule","say":"Le client choisit sa voiture : Dacia, Logan, diesel. Et le site lui montre seulement les pièces compatibles. Fini les erreurs."},
+ {"id":"huile","say":"Il clique, et le site lui dit même quelle huile moteur acheter."},
+ {"id":"commande","say":"Il ajoute la pièce au panier, il remplit son adresse, et la commande arrive sur WhatsApp, déjà écrite, avec le total. Le vendeur n'a plus qu'à confirmer."},
+ {"id":"introuvable","say":"Il ne trouve pas sa pièce ? Il envoie une photo, et le magasin la trouve pour lui."},
+ {"id":"conclusion","say":"Voilà AutoRefaatArt. J'espère que ce site vous a plu."},
+ {"id":"cta","say":"Et toi, si tu as un commerce ou que tu vends en ligne, et que tu veux un site comme celui-ci qui travaille pour toi jour et nuit : écris-moi SITE en message. On en parle ensemble."}
 ]

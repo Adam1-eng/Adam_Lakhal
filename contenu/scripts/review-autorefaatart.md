@@ -15,21 +15,15 @@
 
 ---
 
-## 🤖 Version déjà fabriquée automatiquement
+## 🤖 Version 3D fabriquée automatiquement (français)
 
-Une version **montée automatiquement** de cette vidéo existe (dossier `studio-video/`) :
-vraies captures du site, téléphone animé, voix off IA (darija ou français), sous-titres
-synchronisés, musique, bruitages et fin « Écris SITE en DM ». 4 fichiers :
+La vidéo est fabriquée par le dossier `studio-video/` : **téléphone en 3D**, **vraie
+utilisation du site** (toucher, menus, clavier, panier, commande WhatsApp), sous-titres
+mot par mot, musique et bruitages, 60 images/seconde.
 
-| Fichier | Quand l'utiliser |
-|---|---|
-| `review_autorefaatart_ar_voix.mp4` | Publication directe (voix IA en darija) |
-| `review_autorefaatart_ar_sans_voix.mp4` | Tu enregistres **ta propre voix** par-dessus dans CapCut (recommandé : plus de confiance) ou tu mets un son tendance |
-| `review_autorefaatart_fr_voix.mp4` | Version française (voix IA) |
-| `review_autorefaatart_fr_sans_voix.mp4` | Version française, pour ta voix ou un son tendance |
-
-> 💡 Conseil d'expert : la **meilleure version** = la vidéo automatique + **ta vraie voix**
-> (ou 3 secondes de ton visage au début). Les gens achètent à une personne, pas à un robot.
+- **Avec TA voix** : lis `texte-a-lire-review-autorefaatart.md` dans un vocal, envoie-le,
+  et la vidéo se cale automatiquement dessus (`studio-video/voix_adam.py`).
+- En attendant : une version avec **voix provisoire (IA)** et une version **sans voix**.
 
 ---
 

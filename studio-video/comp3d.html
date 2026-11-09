@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<!-- Composition 3D 1080x1920 : render(t) dessine l'image au temps t (secondes).
+     Le téléphone est un vrai objet 3D (face avant, dos, épaisseur) et l'écran affiche
+     l'enregistrement RÉEL du site (rec/frames). Doigt, menus et clavier sont dessinés par-dessus. -->
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{--paper:#0b0909;--brand:#a51f43;--glow:#e0315f;--gold:#e8b04a;--ink:#f4eee8;--line:#2a2326}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Manrope,sans-serif}
+#bg{position:absolute;inset:0;overflow:hidden}
+.halo{position:absolute;border-radius:50%;filter:blur(130px)}
+#h1{width:1000px;height:1000px;background:var(--brand);opacity:.55;left:-300px;top:300px}
+#h2{width:800px;height:800px;background:#4a0b1c;opacity:.7;right:-260px;top:1150px}
+#h3{width:600px;height:600px;background:var(--gold);opacity:.10;right:-150px;top:-180px}
+#floor{position:absolute;left:-500px;right:-500px;bottom:-260px;height:1000px;
+  background-image:linear-gradient(rgba(232,176,74,.10) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.07) 2px,transparent 2px);
+  background-size:100px 100px;transform:perspective(700px) rotateX(64deg);transform-origin:bottom;
+  -webkit-mask-image:linear-gradient(to top,#000 5%,transparent 80%)}
+#sweep{position:absolute;inset:-200px;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.05) 50%,transparent 60%)}
+/* ---- monde 3D ---- */
+#world{position:absolute;inset:0;perspective:2600px;perspective-origin:540px 1120px}
+#cam{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:540px 1120px 0}
+.p3{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.part{position:absolute;border-radius:50%;background:radial-gradient(circle,#ffd98a,rgba(232,176,74,0) 70%)}
+#shadow{position:absolute;left:290px;top:1770px;width:500px;height:90px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.75),transparent 70%);filter:blur(10px)}
+/* téléphone */
+#rig{position:absolute;left:220px;top:450px;width:640px;height:1338px;transform-style:preserve-3d}
+.slab{position:absolute;inset:0;border-radius:88px;background:#1c1618;border:3px solid #5a4a50}
+#back{position:absolute;inset:0;border-radius:88px;backface-visibility:hidden;transform:translateZ(-40px) rotateY(180deg);
+  background:radial-gradient(circle at 70% 25%,rgba(255,255,255,.18),transparent 40%),linear-gradient(150deg,#2a1219 0%,#a51f43 55%,#4a0b1c 100%);border:3px solid #6a5258}
+#back .cam{position:absolute;left:46px;top:46px;width:250px;height:250px;border-radius:70px;background:rgba(10,8,9,.55);border:3px solid rgba(255,255,255,.12)}
+#back .lens{position:absolute;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3a4a6a,#050608 60%);border:8px solid #1a1517}
+#back .brand{position:absolute;left:0;right:0;top:600px;text-align:center}
+#back .brand .lg{width:150px;height:150px;margin:0 auto 26px;border-radius:44px;display:grid;place-items:center;background:rgba(11,9,9,.6);font:900 72px "Big Shoulders";color:var(--gold);border:3px solid rgba(232,176,74,.4)}
+#back .brand b{font:900 50px "Big Shoulders";letter-spacing:.08em;color:#fff}
+#back .brand small{display:block;margin-top:8px;font:700 26px Manrope;color:rgba(255,255,255,.75)}
+#front{position:absolute;inset:0;border-radius:88px;backface-visibility:hidden;background:#050405;border:3px solid #6a5258;
+  box-shadow:inset 0 0 0 10px #0d0a0b}
+#screen{position:absolute;left:20px;top:20px;width:600px;height:1298px;border-radius:68px;overflow:hidden;background:#0b0909}
+#scr{position:absolute;left:0;top:0;width:600px;height:1298px}
+#ui{position:absolute;left:0;top:0;width:390px;height:844px;transform-origin:0 0}
+#dim{position:absolute;inset:0;background:#000;opacity:0}
+#glare{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen}
+#island{position:absolute;left:50%;top:22px;width:180px;height:50px;margin-left:-90px;border-radius:30px;background:#000}
+/* doigt */
+#finger{position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;opacity:0}
+#finger .tip{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.95),rgba(235,235,240,.75) 60%,rgba(255,255,255,.35));box-shadow:0 10px 26px rgba(0,0,0,.45),0 0 0 3px rgba(255,255,255,.35)}
+#ripple{position:absolute;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:4px solid rgba(255,255,255,.9);opacity:0}
+/* menu déroulant (style iPhone) */
+#sheet{position:absolute;left:8px;right:8px;bottom:10px;border-radius:22px;background:rgba(30,30,32,.97);overflow:hidden;opacity:0;box-shadow:0 -10px 40px rgba(0,0,0,.6)}
+#sheet h4{font:700 13px Manrope;color:#8e8e93;text-align:center;padding:14px 0 10px;border-bottom:1px solid #3a3a3c}
+#sheet .opt{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font:600 17px Manrope;color:#fff;border-bottom:1px solid #2c2c2e}
+#sheet .opt.on{background:rgba(232,176,74,.16);color:var(--gold)}
+#sheet .opt .ck{opacity:0;font-weight:900}#sheet .opt.on .ck{opacity:1}
+/* clavier */
+#kb{position:absolute;left:0;right:0;bottom:0;height:300px;background:rgba(43,43,46,.97);padding:10px 3px 30px;opacity:0}
+.krow{display:flex;justify-content:center;gap:6px;margin-bottom:11px}
+.key{width:32px;height:44px;border-radius:6px;background:#6b6b70;display:grid;place-items:center;font:500 20px Manrope;color:#fff;box-shadow:0 1px 0 #000}
+.key.w{width:190px}.key.m{width:46px;background:#47474b}
+.key.hi{background:#c9c9cf;color:#111;transform:translateY(-6px) scale(1.25)}
+/* bulles 3D */
+.bub{position:absolute;padding:24px 34px;border-radius:30px 30px 30px 8px;font:800 44px Manrope;background:#202c33;color:#e9edef;box-shadow:0 30px 60px rgba(0,0,0,.55);white-space:nowrap;opacity:0;backface-visibility:hidden}
+.bub.r{background:#005c4b;border-radius:30px 30px 8px 30px}
+#notif{position:absolute;min-width:130px;height:130px;border-radius:70px;background:var(--glow);font:900 66px/130px "Big Shoulders";text-align:center;padding:0 24px;opacity:0;box-shadow:0 0 60px rgba(224,49,95,.9)}
+.badge{position:absolute;padding:24px 34px;border-radius:28px;background:rgba(21,17,19,.94);border:2px solid rgba(232,176,74,.5);font:800 40px Manrope;opacity:0;box-shadow:0 30px 70px rgba(0,0,0,.6);white-space:nowrap}
+#url{position:absolute;padding:22px 42px;border-radius:999px;background:var(--gold);color:#1a0d10;font:800 42px Manrope;opacity:0;white-space:nowrap;box-shadow:0 20px 60px rgba(232,176,74,.45)}
+/* carte d'appel à l'action */
+#cta{position:absolute;left:80px;top:560px;width:920px;height:1000px;opacity:0;transform-style:preserve-3d}
+#ctaCard{position:absolute;inset:0;border-radius:64px;background:linear-gradient(160deg,rgba(60,20,32,.97),rgba(11,9,9,.97));border:3px solid rgba(232,176,74,.45);box-shadow:0 60px 160px rgba(0,0,0,.85),0 0 140px rgba(165,31,67,.45)}
+#plane{position:absolute;left:375px;top:70px;width:170px;height:170px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--glow));display:grid;place-items:center;box-shadow:0 0 80px rgba(224,49,95,.8)}
+#ctaBig{position:absolute;left:30px;right:30px;top:290px;text-align:center;font:900 112px/1.05 "Big Shoulders";text-transform:uppercase;
+  text-shadow:0 3px 0 #c7bcc0,0 6px 0 #a51f43,0 9px 0 #4a0b1c,0 24px 40px rgba(0,0,0,.6)}
+.kw{display:inline-block;padding:0 24px;border-radius:22px;background:var(--gold);color:#1a0d10;text-shadow:none}
+#ctaSmall{position:absolute;left:0;right:0;top:560px;text-align:center;font:800 42px Manrope;color:var(--gold)}
+#dmBox{position:absolute;left:80px;right:80px;top:660px;height:124px;border-radius:62px;background:#1d181a;border:2px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 16px 0 46px}
+#dmText{font:800 54px Manrope;letter-spacing:.06em}
+#caret{display:inline-block;width:5px;height:56px;background:var(--gold);vertical-align:middle;margin-left:6px}
+#send{width:94px;height:94px;border-radius:50%;background:var(--gold);display:grid;place-items:center}
+#sign{position:absolute;left:0;right:0;top:850px;text-align:center;font:700 34px Manrope;color:#c7bcc0}#sign b{color:#fff}
+/* textes 2D */
+#progress{position:absolute;left:0;top:0;height:8px;background:linear-gradient(90deg,var(--brand),var(--gold));z-index:60}
+#top{position:absolute;left:56px;right:56px;top:60px;display:flex;justify-content:space-between;align-items:center;z-index:50}
+.chip{display:flex;align-items:center;gap:14px;padding:12px 24px 12px 12px;border-radius:999px;background:rgba(21,17,19,.78);border:2px solid var(--line);font:700 28px Manrope}
+.logo{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),var(--glow));font:900 26px "Big Shoulders";color:var(--gold)}
+.chip2{padding:14px 26px;font:800 26px Manrope;letter-spacing:.1em;color:var(--gold);border-color:rgba(232,176,74,.4)}
+#head{position:absolute;left:40px;right:40px;top:165px;text-align:center;z-index:50;transform-style:preserve-3d}
+#headMain{font:900 112px/1 "Big Shoulders";text-transform:uppercase;white-space:nowrap;
+  text-shadow:0 3px 0 #c7bcc0,0 6px 0 #a51f43,0 9px 0 #7a1631,0 12px 0 #4a0b1c,0 26px 40px rgba(0,0,0,.65)}
+#headSub{margin-top:18px;font:800 42px Manrope;color:var(--gold)}
+#cap{position:absolute;left:70px;right:70px;top:1470px;text-align:center;z-index:55}
+#capIn{display:inline-block;padding:16px 32px;border-radius:28px;background:rgba(8,6,7,.8);font:800 56px/1.25 Manrope;border:2px solid rgba(255,255,255,.07);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+#capIn span{opacity:.55}#capIn span.on{opacity:1}#capIn span.now{opacity:1;color:var(--gold)}
+</style></head>
+<body>
+<div id="bg"><div class="halo" id="h1"></div><div class="halo" id="h2"></div><div class="halo" id="h3"></div><div id="floor"></div><div id="sweep"></div></div>
+<div id="world"><div id="cam">
+  <div id="parts"></div>
+  <div id="shadow"></div>
+  <div id="rig">
+    <div id="slabs"></div>
+    <div id="back"><div class="cam"><div class="lens" style="left:22px;top:22px"></div><div class="lens" style="left:128px;top:22px"></div><div class="lens" style="left:22px;top:128px"></div></div>
+      <div class="brand"><div class="lg">AL</div><b>ADAM LAKHAL</b><small>Sites web &amp; applis</small></div></div>
+    <div id="front"><div id="screen">
+      <img id="scr">
+      <div id="ui">
+        <div id="dim"></div>
+        <div id="sheet"></div>
+        <div id="kb"></div>
+        <div id="ripple"></div>
+        <div id="finger"><div class="tip"></div></div>
+      </div>
+      <div id="glare"></div><div id="island"></div>
+    </div></div>
+  </div>
+  <div id="bubbles"></div>
+  <div id="notif" class="p3">99+</div>
+  <div class="badge" id="b0"></div><div class="badge" id="b1"></div><div class="badge" id="b2"></div>
+  <div id="url">🌐 autorefaatart.com</div>
+  <div id="cta"><div id="ctaCard"></div>
+    <div id="plane"><svg width="86" height="86" viewBox="0 0 24 24" fill="none" stroke="#f4eee8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div>
+    <div id="ctaBig">Écris-moi<br><span class="kw">SITE</span> en DM</div>
+    <div id="ctaSmall">On en parle ensemble 📩</div>
+    <div id="dmBox"><div><span id="dmText"></span><span id="caret"></span></div>
+      <div id="send"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#1a0d10" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div></div>
+    <div id="sign"><b>Adam Lakhal</b> · Sites web &amp; applis · Montréal &amp; Maroc</div>
+  </div>
+</div></div>
+<div id="progress"></div>
+<div id="top"><div class="chip"><div class="logo">AL</div><span>Adam Lakhal · Sites web</span></div><div class="chip chip2">REVIEW CLIENT</div></div>
+<div id="head"><div id="headMain"></div><div id="headSub"></div></div>
+<div id="cap"><div id="capIn"></div></div>
+
+<script>
+// ---------- outils ----------
+const $ = id => document.getElementById(id);
+const clamp = (x,a=0,b=1) => Math.min(b, Math.max(a, x));
+const seg = (t,a,b) => clamp((t-a)/(b-a));
+const eo = x => 1 - Math.pow(1-x, 3);
+const eio = x => x<.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2;
+const back = x => { const c=1.6; return 1 + (c+1)*Math.pow(x-1,3) + c*Math.pow(x-1,2); };
+const lerp = (a,b,x) => a + (b-a)*x;
+const S = 600/390;                         // px CSS du site → px de l'écran du téléphone
+let rnd = 7; const R = () => (rnd = (rnd*16807) % 2147483647) / 2147483647;
+
+// Scènes : quelle partie de l'enregistrement montrer dans chaque phrase de la voix
+const SCENE_CLIP = ['hook','hook','intro','vehicule','huile','commande','introuvable','hook','hook'];
+const HEADS = [
+  ['Ce site répond à ta place','Vendeurs de pièces auto 👀'],
+  ['Les mêmes questions…','toute la journée 😩'],
+  ['Un vrai client','AutoRefaatArt · Zemamra, Maroc'],
+  ['Choisis ta voiture','→ seulement les pièces compatibles ✅'],
+  ['La bonne huile','en 1 clic 🛢️'],
+  ['Commande sur WhatsApp','déjà écrite, avec le total 📲'],
+  ['Pièce introuvable ?','une photo suffit 📸'],
+  ['J\'espère que ça vous a plu','Site réalisé par Adam Lakhal'],
+  ['Tu veux le même ?','pour ton commerce']];
+const BUBBLES = [['C\'est combien ?',0],['Ça va sur ma Logan ?',1],['C\'est dispo ?',0],['Prix svp ?',1],['Vous livrez à Rabat ?',0]];
+const BADGES = ['🔤 Bilingue français / arabe','🚚 Livraison partout au Maroc','💵 Paiement à la livraison'];
+
+let TL, CL = {}, chunks = [], SC = [];
+window.setup = (tl, rec) => {
+  TL = tl;
+  // --- enregistrement : clips, images et gestes en temps relatif ---
+  rec.log.filter(l=>l.k==='clip').forEach(c => CL[c.id] = {t0:c.t0, dur:c.t1-c.t0, frames:[], taps:[], swipes:[], pickers:[], kbs:[], sends:[]});
+  rec.frames.forEach(f => CL[f.clip].frames.push({f:'rec/'+f.f, t:f.t - CL[f.clip].t0}));
+  const which = t => Object.values(CL).find(c => t >= c.t0-0.5 && t <= c.t0+c.dur+0.5);
+  rec.log.forEach(l => { const t = l.t ?? l.t0; const c = which(t); if (!c) return; const r = x => x - c.t0;
+    if (l.k==='tap') c.taps.push({t:r(l.t), x:l.x, y:l.y});
+    if (l.k==='swipe') c.swipes.push({t0:r(l.t0), t1:r(l.t1), dy:l.dy});
+    if (l.k==='kb') c.kbs.push({t0:r(l.t0), t1:r(l.t1)});
+    if (l.k==='picker') { const n=l.options.length, h=56+n*48, top=844-10-h;
+      c.pickers.push({t0:r(l.t0), t1:r(l.t1), options:l.options, chosen:l.chosen, top});
+      c.taps.push({t:r(l.t1)-0.28, x:195, y:top+56+l.chosen*48+24, pick:true}); }
+  });
+  Object.values(CL).forEach(c => c.taps.sort((a,b)=>a.t-b.t));
+  // --- durée et vitesse de chaque scène ---
+  const n = TL.lines.length;
+  for (let i=0;i<n;i++){
+    const s0 = i===0 ? 0 : TL.lines[i].start - 0.15, s1 = i===n-1 ? TL.total : TL.lines[i+1].start - 0.15;
+    const c = CL[SCENE_CLIP[i]]; const own = [0,2,3,4,5,6].includes(i);
+    const rate = own ? clamp(c.dur / Math.max(1, (s1-s0) - 0.3), 1, 1.6) : 1;
+    SC.push({s0, s1, D:s1-s0, clip:c, rate, own});
+  }
+  // --- sous-titres : groupes de 3 mots ---
+  TL.lines.forEach(l => { for (let i=0;i<l.words.length;i+=3) chunks.push({line:l, words:l.words.slice(i,i+3)}); });
+  // --- décor 3D : épaisseur du téléphone, particules, clavier, bulles ---
+  const sl = $('slabs'); for (let i=1;i<=16;i++){ const d=document.createElement('div'); d.className='slab'; d.style.transform=`translateZ(${-i*2.4}px)`; sl.appendChild(d); }
+  const pp = $('parts'); for (let i=0;i<42;i++){ const d=document.createElement('div'); d.className='part'; const s=10+R()*26;
+    d.dataset.x=R()*1080; d.dataset.y=200+R()*1700; d.dataset.z=-1300+R()*1100; d.dataset.s=s; d.dataset.v=10+R()*30;
+    d.style.width=d.style.height=s+'px'; d.style.opacity=.25+R()*.5; pp.appendChild(d); }
+  const rows=['azertyuiop','qsdfghjklm','⇧wxcvbn⌫']; let k='';
+  rows.forEach(r=>{ k+='<div class="krow">'+[...r].map(ch=>`<div class="key${'⇧⌫'.includes(ch)?' m':''}">${ch}</div>`).join('')+'</div>'; });
+  k+='<div class="krow"><div class="key m">123</div><div class="key m">🙂</div><div class="key w">espace</div><div class="key m" style="width:90px">OK</div></div>';
+  $('kb').innerHTML=k;
+  const bb=$('bubbles'); BUBBLES.forEach((b,i)=>{ const d=document.createElement('div'); d.className='bub'+(b[1]?' r':''); d.id='bub'+i; d.textContent=b[0]; bb.appendChild(d); });
+  [0,1,2].forEach(i=>$('b'+i).textContent=BADGES[i]);
+  $('ui').style.transform=`scale(${S})`;
+  window.EVENTS = computeEvents();
+  return {scenes: SC.map(s=>({s0:s.s0, D:s.D, rate:s.rate}))};
+};
+
+// temps dans l'enregistrement pour une scène donnée
+const clipTime = (s,u) => s.own ? clamp((u-0.12)*s.rate, 0, s.clip.dur-0.02) : null;
+function frameAt(c, ct){ const F=c.frames; let lo=0, hi=F.length-1;
+  while (lo<hi){ const m=(lo+hi+1)>>1; if (F[m].t<=ct) lo=m; else hi=m-1; } return F[lo].f; }
+
+// bruitages synchronisés (exportés pour le mixage audio)
+function computeEvents(){
+  const ev=[];
+  SC.forEach((s,i)=>{ if(i) ev.push({t:s.s0, k:'whoosh'});
+    if (!s.own) return;
+    const at = ct => s.s0 + 0.12 + ct/s.rate;
+    s.clip.taps.forEach(tp=>{ const t=at(tp.t); if (t<s.s1) ev.push({t, k:'tap'}); });
+    s.clip.pickers.forEach(p=>{ const t=at(p.t0); if (t<s.s1) ev.push({t, k:'sheet'}); });
+    s.clip.kbs.forEach(kb=>{ for (let x=kb.t0+.25; x<kb.t1-.2; x+=.09){ const t=at(x); if (t<s.s1) ev.push({t, k:'key'}); } });
+  });
+  const p=SC[1]; BUBBLES.forEach((_,j)=>ev.push({t:p.s0+.15+j*.8, k:'pop'}));
+  const b=SC[2]; [0,1,2].forEach(j=>ev.push({t:b.s0+1.0+j*1.7, k:'pop'}));
+  ev.push({t:SC[7].s0+.1, k:'whoosh'}); ev.push({t:SC[7].s0+1.4, k:'pop'});
+  const c=SC[8]; ev.push({t:c.s0+.3,k:'whoosh'}); [0,1,2,3].forEach(j=>ev.push({t:c.s0+2.2+j*.22,k:'key'})); ev.push({t:c.s0+3.4,k:'send'});
+  return ev.sort((a,b)=>a.t-b.t);
+}
+
+// ---------- éléments dessinés sur l'écran ----------
+function drawFinger(c, ct){
+  const f=$('finger'), rp=$('ripple'); f.style.opacity=0; rp.style.opacity=0;
+  if (ct===null) return;
+  for (const tp of c.taps){ if (ct < tp.t-0.38 || ct > tp.t+0.5) continue;
+    const a = eo(seg(ct, tp.t-0.38, tp.t-0.08));
+    const x = lerp(tp.x+70, tp.x, a), y = lerp(tp.y+120, tp.y, a);
+    f.style.left=x+'px'; f.style.top=y+'px';
+    f.style.opacity = a * (1 - seg(ct, tp.t+0.18, tp.t+0.5));
+    f.style.transform = `scale(${ct>=tp.t && ct<tp.t+0.16 ? 0.8 : lerp(1.25,1,a)})`;
+    if (ct>=tp.t){ const p=seg(ct,tp.t,tp.t+0.45); rp.style.left=tp.x+'px'; rp.style.top=tp.y+'px'; rp.style.opacity=1-p; rp.style.transform=`scale(${.5+p*1.9})`; }
+    return; }
+  for (const sw of c.swipes){ if (ct < sw.t0-0.2 || ct > sw.t1+0.15) continue;
+    const p=eo(seg(ct, sw.t0, sw.t1)); const len=Math.min(380, Math.abs(sw.dy)*0.55)*Math.sign(sw.dy||1);
+    f.style.left=lerp(250,262,p)+'px'; f.style.top=(640 - len*p)+'px';
+    f.style.opacity = seg(ct, sw.t0-0.2, sw.t0) * (1-seg(ct, sw.t1, sw.t1+0.15)); f.style.transform='scale(1)';
+    return; }
+}
+function drawSheet(c, ct){
+  const sh=$('sheet'), dim=$('dim'); sh.style.opacity=0; let d=0;
+  if (ct!==null) for (const p of c.pickers){ if (ct < p.t0 || ct > p.t1+0.15) continue;
+    const a = eo(seg(ct,p.t0,p.t0+0.2)) * (1-seg(ct,p.t1-0.02,p.t1+0.15));
+    if (sh.dataset.k!==String(p.t0)){ sh.innerHTML='<h4>Choisir</h4>'+p.options.map(o=>`<div class="opt"><span>${o}</span><span class="ck">✓</span></div>`).join(''); sh.dataset.k=String(p.t0); }
+    sh.style.opacity=a>0?1:0; sh.style.transform=`translateY(${(1-a)*420}px)`; d=.45*a;
+    [...sh.querySelectorAll('.opt')].forEach((o,i)=>o.classList.toggle('on', i===p.chosen && ct>p.t1-0.28));
+  }
+  dim.style.opacity=d;
+}
+function drawKb(c, ct){
+  const kb=$('kb'); kb.style.opacity=0;
+  if (ct===null) return;
+  for (const k of c.kbs){ if (ct < k.t0 || ct > k.t1) continue;
+    const a=eo(seg(ct,k.t0,k.t0+0.22))*(1-seg(ct,k.t1-0.2,k.t1));
+    kb.style.opacity=1; kb.style.transform=`translateY(${(1-a)*320}px)`;
+    const keys=kb.querySelectorAll('.key'); const idx=Math.floor(ct*11);
+    keys.forEach((el,i)=>el.classList.toggle('hi', i===((idx*7919)%26)));
+  }
+}
+function drawHead(i, t){
+  const s=SC[i], u=t-s.s0;
+  const hm=$('headMain');
+  if (hm.dataset.k!=i){ hm.textContent=HEADS[i][0]; $('headSub').textContent=HEADS[i][1]; let fs=112; hm.style.fontSize=fs+'px';
+    while (hm.scrollWidth>1000 && fs>60){ fs-=4; hm.style.fontSize=fs+'px'; } hm.dataset.k=i; }
+  const a=eo(seg(u,0,.5)), out=seg(u,s.D-.22,s.D);
+  const h=$('head'); h.style.opacity=a*(1-out);
+  h.style.transform=`perspective(900px) rotateX(${(1-a)*-75 + out*60}deg) translateY(${(1-a)*30}px)`;
+}
+function drawCaptions(t){
+  let cur=null;
+  for (const c of chunks){ const st=c.words[0].t-.05, en=Math.min(c.words[c.words.length-1].e+.35, c.line.end+.25); if (t>=st && t<en) cur=c; }
+  const box=$('capIn'); if (!cur){ box.style.opacity=0; return; }
+  box.style.opacity=1;
+  box.innerHTML=cur.words.map(w=>`<span class="${t>=w.t ? (t<w.e+.05?'now':'on') : ''}">${w.w}</span>`).join(' ');
+  const p=eo(seg(t,cur.words[0].t-.05,cur.words[0].t+.12)); box.style.transform=`scale(${.9+.1*p})`;
+}
+
+// ---------- rendu d'une image ----------
+window.render = async t => {
+  let i=0; SC.forEach((s,k)=>{ if (t>=s.s0) i=k; });
+  const s=SC[i], u=t-s.s0, D=s.D;
+  $('progress').style.width=(t/TL.total*100)+'%';
+  $('h1').style.transform=`translate(${Math.sin(t*.4)*90}px,${Math.cos(t*.3)*70}px)`;
+  $('h2').style.transform=`translate(${Math.cos(t*.35)*80}px,${Math.sin(t*.25)*90}px)`;
+  $('floor').style.backgroundPosition=`0 ${t*60}px`;
+  $('sweep').style.transform=`translateX(${((t*0.25)%2-1)*1400}px)`;
+  drawHead(i,t); drawCaptions(t);
+
+  // écran : image de l'enregistrement réel
+  const ct = clipTime(s,u);
+  const c = s.own ? s.clip : CL.hook;
+  const src = s.own ? frameAt(c, ct) : frameAt(CL.hook, (i===1 ? 4.6 : (u*0.8) % (CL.hook.dur-0.1)));
+  const img=$('scr'); if (img.dataset.src!==src){ img.src=src; img.dataset.src=src; await img.decode(); }
+  drawFinger(c, s.own?ct:null); drawSheet(c, s.own?ct:null); drawKb(c, s.own?ct:null);
+
+  // caméra / téléphone (valeurs par défaut : léger flottement)
+  let ph={x:0,y:Math.sin(t*1.1)*10,z:0,rx:4,ry:Math.sin(t*.55)*9,rz:0,s:1}, cam={ry:Math.sin(t*.3)*4, rx:0}, dim=0;
+  ['bub0','bub1','bub2','bub3','bub4','notif','b0','b1','b2','url','cta'].forEach(id=>$(id).style.opacity=0);
+
+  if (i===0){ // le téléphone arrive en se retournant (on voit le dos, puis l'écran)
+    const p=eio(seg(u,0,1.9)); ph.ry=lerp(-200,-10,p)+Math.sin(t*.55)*9*p; ph.z=lerp(-1600,0,p); ph.rx=lerp(25,4,p); ph.y+=lerp(300,0,p);
+  }
+  if (i===1){ // le téléphone recule, les questions arrivent en 3D
+    const p=eo(seg(u,0,.6)); ph.z=-420*p; ph.ry=lerp(ph.ry,-18,p); dim=.6*p;
+    const pos=[[90,640,320],[430,820,220],[60,1010,380],[560,1190,260],[150,1360,330]];
+    BUBBLES.forEach((_,j)=>{ const b=$('bub'+j), q=seg(u,.15+j*.8,.15+j*.8+.45), o=seg(u,D-.35,D);
+      b.style.opacity=q>0?1-o:0;
+      b.style.transform=`translate3d(${pos[j][0]}px,${pos[j][1]-u*8}px,${lerp(-900,pos[j][2],eo(q))+o*600}px) rotateY(${(1-eo(q))*-60 + Math.sin(t*1.3+j)*6}deg) rotateX(${Math.cos(t+j)*5}deg)`; });
+    const nb=$('notif'), q=seg(u,.3,.7); nb.style.opacity=q*(1-seg(u,D-.35,D));
+    nb.textContent=Math.min(99,Math.floor(seg(u,.3,D-.7)*96)+3)+(u>D-.9?'+':'');
+    nb.style.transform=`translate3d(760px,520px,${400*back(q)}px) scale(${back(q)*(1+.07*Math.sin(u*14))})`;
+  }
+  if (i===2){ // visite : le téléphone pivote, les atouts flottent devant
+    const p=eio(seg(u,0,D)); ph.ry=lerp(16,-16,p); ph.rx=3;
+    const pos=[[40,700,260],[430,980,320],[60,1250,240]];
+    [0,1,2].forEach(j=>{ const b=$('b'+j), q=seg(u,1+j*1.7,1+j*1.7+.45), o=seg(u,D-.3,D);
+      b.style.opacity=q>0?1-o:0;
+      b.style.transform=`translate3d(${pos[j][0]}px,${pos[j][1]}px,${pos[j][2]*back(q)}px) rotateY(${(1-q)*70 + Math.sin(t+j)*5}deg)`; });
+  }
+  if (i===3){ ph.ry=lerp(-14,8,eio(seg(u,0,D))); ph.rx=2; ph.s=1+.04*eo(seg(u,0,.6)); }
+  if (i===4){ ph.ry=lerp(10,-10,eio(seg(u,0,D))); ph.z=120*eo(seg(u,.4,1.6)); }
+  if (i===5){ ph.ry=lerp(-10,12,eio(seg(u,0,D))); ph.rx=3; }
+  if (i===6){ ph.ry=lerp(14,-6,eio(seg(u,0,D))); ph.z=80*eo(seg(u,.2,1.2)); }
+  if (i===7){ // tour complet du téléphone (on voit les côtés et le dos signé Adam Lakhal)
+    const p=eio(seg(u,0,2.2)); ph.ry=lerp(-6,354,p)+Math.sin(t*.55)*6*seg(u,2.2,3); ph.y+=-30*Math.sin(Math.PI*p);
+    const q=seg(u,1.6,2.0), url=$('url'); url.style.opacity=q*(1-seg(u,D-.2,D));
+    url.style.transform=`translate3d(${540-260}px,1660px,${280*back(q)}px)`;
+  }
+  if (i===8){ // appel à l'action : la carte se retourne vers nous
+    const p=eo(seg(u,0,.7)); ph.z=-700*p; ph.y+=-120*p; ph.ry=lerp(ph.ry,-30,p); dim=.5*p;
+    const c=$('cta'), q=seg(u,.2,.95); c.style.opacity=q>0?1:0;
+    c.style.transform=`translate3d(0,${(1-eo(q))*200}px,${lerp(-500,180,eo(q))}px) rotateX(${(1-back(q))*80}deg)`;
+    $('plane').style.transform=`translateY(${Math.sin(u*4)*12}px) rotate(${Math.sin(u*3)*8}deg)`;
+    $('dmText').textContent='SITE'.slice(0, Math.max(0,Math.min(4,Math.floor((u-2.2)/.22)+1)));
+    $('caret').style.opacity=(Math.floor(u*2.2)%2)?1:0;
+    $('send').style.transform=`scale(${1+.3*Math.sin(Math.PI*seg(u,3.4,3.7))})`;
+    $('send').style.boxShadow=u>3?`0 0 ${30+24*Math.sin(u*6)}px rgba(232,176,74,.85)`:'none';
+  }
+  $('cap').style.top = i===8 ? '1600px' : '1470px';
+
+  // application des transformations 3D
+  $('rig').style.transform=`translate3d(${ph.x}px,${ph.y}px,${ph.z}px) rotateX(${ph.rx}deg) rotateY(${ph.ry}deg) rotateZ(${ph.rz}deg) scale(${ph.s})`;
+  $('cam').style.transform=`rotateY(${cam.ry}deg) rotateX(${cam.rx}deg)`;
+  $('dim').style.opacity=Math.max(dim, parseFloat($('dim').style.opacity)||0);
+  const ry=((ph.ry%360)+360)%360, side=Math.abs(Math.sin(ph.ry*Math.PI/180));
+  $('glare').style.background=`linear-gradient(${110+ph.ry*1.5}deg,transparent 30%,rgba(255,255,255,${.06+side*.18}) 48%,transparent 62%)`;
+  $('shadow').style.transform=`translateZ(${ph.z*0.3}px) scaleX(${1-side*.45})`;
+  $('shadow').style.opacity=1-Math.min(.8,-ph.z/1600);
+  document.querySelectorAll('.part').forEach((d,k)=>{ const y=((+d.dataset.y - t*d.dataset.v) % 1900 + 1900) % 1900;
+    d.style.transform=`translate3d(${+d.dataset.x + Math.sin(t*.5+k)*20}px,${y}px,${d.dataset.z}px)`; });
+};
+</script></body></html>

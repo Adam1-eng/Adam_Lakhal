@@ -7,3 +7,6 @@ fonts/
 timeline_*.json
 events_*.json
 node_modules/
+rec/
+events.json
+timeline.json
