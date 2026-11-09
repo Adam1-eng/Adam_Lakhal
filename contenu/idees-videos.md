@@ -1,7 +1,7 @@
-# 30 idées de vidéos
+# 31 idées de vidéos
 
-**Répartition :** 12 Montréal (40 %) · 17 Maroc (57 %) · 1 pour les deux marchés (3 %)
-**Langues :** 16 en français · 14 en arabe (darija)
+**Répartition :** 12 Montréal · 18 Maroc · 1 pour les deux marchés
+**Langues :** 16 en français · 15 en arabe (darija)
 
 **Piliers :** A = Démo/Avant-Après · B = Conseils/Erreurs · C = Coulisses/Personnel · D = Preuve · E = Offre
 **Dépend de :** certaines démos ne peuvent être filmées qu'après l'étape 4 (landing page café) ou l'étape 5 (plateforme école).
@@ -42,6 +42,7 @@
 | 28 | Je refais le site d'une boutique fictive à Marrakech (accéléré) | Maroc | AR | A | — |
 | 29 | « Tu es à Montréal, comment on travaille ensemble ? » | Maroc | AR | C | — |
 | 30 | Offre de lancement : 3 commerces marocains à prix spécial | Maroc | AR | E | — |
+| 31 | ⭐ Review du site AutoRefaatArt (vrai client, Zemamra) | Maroc | AR (+ version FR) | D + A | — |
 
 ---
 
@@ -208,9 +209,14 @@
 - **Contenu :** −30 % pour les 3 premiers, en échange d'un témoignage vidéo. Date limite claire.
 - **Tournage :** face caméra, ton énergique.
 
+**31. ⭐ Review du site AutoRefaatArt (vrai client)** — AR + version FR — Pilier D + A
+- **Accroche :** « بايع قطع الغيار وعييتي تجاوب ف الواتساب؟ شوف هاد السيت. »
+- **Contenu :** visite du site autorefaatart.com : version arabe/français, « Mon véhicule », conseiller huile, commande WhatsApp, pièce introuvable → appel à l'action « écris SITE en DM ».
+- **Script complet :** `scripts/review-autorefaatart.md`.
+
 ---
 
 ## Comment utiliser ce fichier
-- Le **calendrier des 30 premiers jours** (`calendrier-30-jours.md`) utilise **13 de ces idées**.
-- Les **17 autres** servent pour les semaines suivantes : tu as donc du contenu jusqu'à fin janvier.
+- Le **calendrier des 30 premiers jours** (`calendrier-30-jours.md`) utilise **13 de ces idées** (dont la review AutoRefaatArt).
+- Les **18 autres** servent pour les semaines suivantes : tu as donc du contenu jusqu'à fin janvier.
 - Quand une vidéo marche bien, **refais une variante** (même sujet, autre accroche).

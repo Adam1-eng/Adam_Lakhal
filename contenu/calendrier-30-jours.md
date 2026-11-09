@@ -42,10 +42,11 @@ Rien à publier cette semaine. Tu prépares tout :
 
 | Date | # | Vidéo | Marché | Langue | Heure (Montréal) |
 |---|---|---|---|---|---|
-| **Lun 23 nov** | 4 | Ton resto au Maroc n'a pas de site ? Voici ce que tu perds *(idée 14)* | Maroc | AR | 13 h |
+| **Lun 23 nov** | 4 | ⭐ Review du site AutoRefaatArt — vrai client *(idée 31, script : `scripts/review-autorefaatart.md`)* | Maroc | AR | 13 h |
 | **Mer 25 nov** | 5 | Uber Eats te prend jusqu'à 30 % : la solution *(idée 6)* | Montréal | FR | 18 h |
 | **Ven 27 nov** | 6 | Google Business Profile : 5 minutes pour être trouvé *(idée 10)* | Montréal | FR | 18 h |
 
+⭐ La vidéo 4 est ta **première preuve avec un vrai client** : demande la permission au propriétaire et invite-le en « Collaboration » sur Instagram. (L'idée 14 passe dans la réserve.)
 💡 Commence à **envoyer des DM** à quelques commerces (on préparera les messages à l'étape 6).
 🎬 **Dimanche 29 :** filmer et monter les vidéos 7, 8 et 9.
 ⚠️ La vidéo 8 demande que **l'étape 4 (landing page café)** soit terminée.
