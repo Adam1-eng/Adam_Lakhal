@@ -73,7 +73,7 @@ Chaque vidéo appartient à un « pilier ». On alterne pour ne pas lasser.
 
 ## 5. Un compte ou deux ?
 
-**Recommandation : UN SEUL compte bilingue au début** (ex. `@adamlakhal.dev`).
+**Recommandation : UN SEUL compte bilingue au début** (ex. `@lakauraa`).
 - Plus simple à gérer pour un débutant.
 - Ton histoire « Montréal ↔ Maroc » est justement ta force.
 - Les algorithmes montrent chaque vidéo au bon public selon la langue.
@@ -177,7 +177,7 @@ en échange d'un témoignage vidéo. » Les témoignages vont alimenter le pilie
 ### Comptes à créer (semaine 0)
 - [ ] Créer un compte **Instagram** → le passer en **compte professionnel** (Paramètres → Type de compte → Professionnel → catégorie « Développeur web »).
 - [ ] Créer un compte **TikTok** → le passer en **compte Business** (Paramètres → Compte → Passer en compte Business).
-- [ ] Prendre **le même nom d'utilisateur** sur les deux (ex. `@adamlakhal.dev`).
+- [ ] Prendre **le même nom d'utilisateur** sur les deux (ex. `@lakauraa`).
 - [ ] Créer un **WhatsApp Business** (gratuit) avec un message d'accueil automatique.
 - [ ] Mettre une **photo de profil** claire de ton visage (fond simple, bien éclairée).
 - [ ] Copier la bio de la section 5.

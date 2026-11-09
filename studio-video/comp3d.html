@@ -41,8 +41,8 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);col
 #back .flash{position:absolute;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,#fff8e8,#e8d6b8 60%,#bba58e);border:3px solid #d6c2ad}
 #back .lidar{position:absolute;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#2a2a2e,#0a0a0c);border:3px solid #cfb9a4}
 #back .mic{position:absolute;width:10px;height:10px;border-radius:50%;background:#5a4636}
-#back .mono{position:absolute;left:0;right:0;top:600px;text-align:center;font:900 120px "Big Shoulders";color:rgba(255,255,255,.28);
-  text-shadow:0 -2px 0 rgba(120,90,65,.35),0 2px 0 rgba(255,255,255,.35);letter-spacing:.04em}
+#back .mono{position:absolute;left:0;right:0;top:630px;text-align:center;font:900 76px "Big Shoulders";color:rgba(255,255,255,.28);
+  text-shadow:0 -2px 0 rgba(120,90,65,.35),0 2px 0 rgba(255,255,255,.35);letter-spacing:.14em}
 #slabs,#btns{position:absolute;inset:0;transform-style:preserve-3d}
 .seg{position:absolute;left:0;top:0;transform-origin:0 0}
 #core{position:absolute;inset:2px;border-radius:102px;background:#2a221d;transform:translateZ(-31px)}
@@ -115,7 +115,7 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);col
     <div id="back"><div class="plateau">
         <div class="lens" style="left:20px;top:20px"></div><div class="lens" style="left:20px;top:140px"></div><div class="lens" style="left:140px;top:80px"></div>
         <div class="flash" style="left:212px;top:22px"></div><div class="lidar" style="left:212px;top:212px"></div><div class="mic" style="left:180px;top:226px"></div></div>
-      <div class="mono">AL</div></div>
+      <div class="mono">LAKAURAA</div></div>
     <div id="btns"></div>
     <div id="front"><div id="screen">
       <img id="scr">
@@ -139,11 +139,11 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);col
     <div id="ctaSmall">On en parle ensemble 📩</div>
     <div id="dmBox"><div><span id="dmText"></span><span id="caret"></span></div>
       <div id="send"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#1a0d10" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div></div>
-    <div id="sign"><b>Adam Lakhal</b> · Sites web &amp; applis · Montréal &amp; Maroc</div>
+    <div id="sign"><b>@lakauraa</b> · Sites web &amp; applis · Montréal &amp; Maroc</div>
   </div>
 </div></div>
 <div id="progress"></div>
-<div id="top"><div class="chip"><div class="logo">AL</div><span>Adam Lakhal · Sites web</span></div><div class="chip chip2">REVIEW CLIENT</div></div>
+<div id="top"><div class="chip"><div class="logo">L</div><span>Lakauraa · Sites web</span></div><div class="chip chip2">REVIEW CLIENT</div></div>
 <div id="head"><div id="headMain"></div><div id="headSub"></div></div>
 <div id="cap"><div id="capIn"></div></div>
 
@@ -169,7 +169,7 @@ const HEADS = [
   ['La bonne huile','en 1 clic 🛢️'],
   ['Commande sur WhatsApp','déjà écrite, avec le total 📲'],
   ['Pièce introuvable ?','une photo suffit 📸'],
-  ['J\'espère que ça vous a plu','Site réalisé par Adam Lakhal'],
+  ['J\'espère que ça vous a plu','Site réalisé par Lakauraa'],
   ['Tu veux le même ?','pour ton commerce']];
 const BUBBLES = [['C\'est combien ?',0],['Ça va sur ma Logan ?',1],['C\'est dispo ?',0],['Prix svp ?',1],['Vous livrez à Rabat ?',0]];
 const BADGES = ['🔤 Bilingue français / arabe','🚚 Livraison partout au Maroc','💵 Paiement à la livraison'];
@@ -356,7 +356,7 @@ window.render = async t => {
   if (i===4){ ph.ry=lerp(10,-10,eio(seg(u,0,D))); ph.z=120*eo(seg(u,.4,1.6)); }
   if (i===5){ ph.ry=lerp(-10,12,eio(seg(u,0,D))); ph.rx=3; }
   if (i===6){ ph.ry=lerp(14,-6,eio(seg(u,0,D))); ph.z=80*eo(seg(u,.2,1.2)); }
-  if (i===7){ // tour complet du téléphone (on voit les côtés et le dos signé Adam Lakhal)
+  if (i===7){ // tour complet du téléphone (on voit les côtés et le dos signé Lakauraa)
     const p=eio(seg(u,0,2.2)); ph.ry=lerp(-6,354,p)+Math.sin(t*.55)*6*seg(u,2.2,3); ph.y+=-30*Math.sin(Math.PI*p);
     const q=seg(u,1.6,2.0), url=$('url'); url.style.opacity=q*(1-seg(u,D-.2,D));
     url.style.transform=`translate3d(${540-260}px,1660px,${280*back(q)}px)`;
