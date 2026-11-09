@@ -1,0 +1,9 @@
+# Fichiers générés (on peut tous les recréer avec les scripts)
+cap/
+voice/
+out/
+prev/
+fonts/
+timeline_*.json
+events_*.json
+node_modules/

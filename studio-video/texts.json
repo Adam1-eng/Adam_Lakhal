@@ -1,0 +1,116 @@
+{
+ "ar": {
+  "dir": "rtl",
+  "heads": [
+   [
+    "هاد السيت كيجاوب بلاصتك 👀",
+    "CE SITE RÉPOND À TA PLACE"
+   ],
+   [
+    "نفس الأسئلة… كل نهار 😩",
+    "LES MÊMES QUESTIONS, TOUTE LA JOURNÉE"
+   ],
+   [
+    "AutoRefaatArt · الزمامرة",
+    "UN VRAI CLIENT · ZEMAMRA"
+   ],
+   [
+    "اختار الطوموبيل ديالك ✅",
+    "→ PIÈCES COMPATIBLES"
+   ],
+   [
+    "الزيت المناسبة ف 3 كليكات 🛢️",
+    "LA BONNE HUILE EN 3 CLICS"
+   ],
+   [
+    "الكوموند كتوصل واجدة 📲",
+    "COMMANDE PRÊTE SUR WHATSAPP"
+   ],
+   [
+    "مالقيتيش القطعة؟ 📸",
+    "PHOTO OU N° DE CHÂSSIS"
+   ],
+   [
+    "نتمنى يكون عجبكم ❤️",
+    "AUTOREFAATART.COM"
+   ],
+   [
+    "بغيتي سيت بحال هادا؟",
+    "TU VEUX UN SITE COMME ÇA ?"
+   ]
+  ],
+  "bubbles": [
+   "شحال الثمن؟",
+   "واش كتجي مع Logan ديالي؟",
+   "واش كاينة؟",
+   "Prix svp ?",
+   "باقا عندكم؟"
+  ],
+  "badges": [
+   "🔤 عربية + Français",
+   "🚚 التوصيل للمغرب كامل",
+   "💵 الخلاص عند الاستلام"
+  ],
+  "photo": "📷 صيفطت ليكم تصويرة ديال القطعة",
+  "cta_big": "كتب ليا <span class='kw'>SITE</span> ف الميساج",
+  "cta_small": "ÉCRIS « SITE » EN DM 📩",
+  "made_by": "صاوبو Adam Lakhal"
+ },
+ "fr": {
+  "dir": "ltr",
+  "heads": [
+   [
+    "Ce site répond à ta place 👀",
+    "VENDEURS DE PIÈCES AUTO"
+   ],
+   [
+    "Les mêmes questions… 😩",
+    "TOUTE LA JOURNÉE"
+   ],
+   [
+    "AutoRefaatArt · Zemamra",
+    "UN VRAI CLIENT · MAROC"
+   ],
+   [
+    "Choisis ta voiture ✅",
+    "→ PIÈCES COMPATIBLES"
+   ],
+   [
+    "La bonne huile en 3 clics 🛢️",
+    "CONSEILLER HUILE"
+   ],
+   [
+    "Commande prête sur WhatsApp 📲",
+    "EN 1 CLIC"
+   ],
+   [
+    "Pièce introuvable ? 📸",
+    "PHOTO OU N° DE CHÂSSIS"
+   ],
+   [
+    "J'espère que ça vous a plu ❤️",
+    "AUTOREFAATART.COM"
+   ],
+   [
+    "Tu veux un site comme ça ?",
+    "POUR TON COMMERCE"
+   ]
+  ],
+  "bubbles": [
+   "C'est combien ?",
+   "Ça va sur ma Logan ?",
+   "C'est dispo ?",
+   "Prix svp ?",
+   "Vous livrez à Rabat ?"
+  ],
+  "badges": [
+   "🔤 Français + عربية",
+   "🚚 Livraison partout au Maroc",
+   "💵 Paiement à la livraison"
+  ],
+  "photo": "📷 Je vous envoie une photo de la pièce",
+  "cta_big": "Écris-moi <span class='kw'>SITE</span> en DM",
+  "cta_small": "ET ON EN PARLE ENSEMBLE 📩",
+  "made_by": ""
+ }
+}

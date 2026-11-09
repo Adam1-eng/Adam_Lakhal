@@ -15,13 +15,31 @@
 
 ---
 
+## 🤖 Version déjà fabriquée automatiquement
+
+Une version **montée automatiquement** de cette vidéo existe (dossier `studio-video/`) :
+vraies captures du site, téléphone animé, voix off IA (darija ou français), sous-titres
+synchronisés, musique, bruitages et fin « Écris SITE en DM ». 4 fichiers :
+
+| Fichier | Quand l'utiliser |
+|---|---|
+| `review_autorefaatart_ar_voix.mp4` | Publication directe (voix IA en darija) |
+| `review_autorefaatart_ar_sans_voix.mp4` | Tu enregistres **ta propre voix** par-dessus dans CapCut (recommandé : plus de confiance) ou tu mets un son tendance |
+| `review_autorefaatart_fr_voix.mp4` | Version française (voix IA) |
+| `review_autorefaatart_fr_sans_voix.mp4` | Version française, pour ta voix ou un son tendance |
+
+> 💡 Conseil d'expert : la **meilleure version** = la vidéo automatique + **ta vraie voix**
+> (ou 3 secondes de ton visage au début). Les gens achètent à une personne, pas à un robot.
+
+---
+
 ## ⚠️ À faire AVANT de filmer
 
 - [ ] **Demander la permission au propriétaire** de montrer son site, son nom et son numéro
       dans la vidéo. Un message WhatsApp suffit, garde la réponse.
 - [ ] **Encore mieux : filmer le propriétaire 5 secondes** (voir « Bonus » en bas). Un client
       content à l'écran, c'est la meilleure preuve qui existe.
-- [ ] **Tester chaque fonction sur ton téléphone** juste avant de filmer : bouton AR,
+- [ ] **Tester chaque fonction sur ton téléphone** juste avant de filmer : textes en arabe/français,
       « Mon véhicule », « Conseiller huile », panier → WhatsApp.
 - [ ] **Ne jamais inventer de chiffres** (« il a doublé ses ventes »). Si dans 1 ou 2 mois le
       propriétaire a de vrais résultats, on fera une 2ᵉ vidéo avec ses chiffres.
@@ -68,7 +86,7 @@ Si la vidéo s'arrête sur « j'espère que vous avez aimé », les gens partent
 |---|---|---|---|
 | **0 – 3 s** | Ton visage en gros plan, le téléphone avec le site dans la main | « بايع قطع الغيار وعييتي تجاوب ف الواتساب؟ شوف هاد السيت. » | `Ce site répond à ta place 👀` |
 | **3 – 10 s** | Capture d'un faux fil WhatsApp avec « prix ? », « compatible ? », « dispo ? » (ou ton visage) | « أغلب اللي كيبيعو قطع الغيار كيبقاو نهار كامل يجاوبو: شحال الثمن؟ واش كتجي مع الطوموبيل ديالي؟ واش كاينة؟ » | `"Prix ?" "Compatible ?" "Dispo ?" 😩` |
-| **10 – 16 s** | Enregistrement d'écran : page d'accueil, puis clic sur **AR** | « صاوبت لـ AutoRefaatArt سيت بالعربية والفرنسية، وكيبان من الأول: التوصيل للمغرب كامل، والخلاص عند الاستلام. » | `🇲🇦 Arabe + Français` · `Paiement à la livraison` |
+| **10 – 16 s** | Enregistrement d'écran : page d'accueil qui défile (les rayons sont écrits en français ET en arabe) | « صاوبت لـ AutoRefaatArt سيت بالعربية والفرنسية، وكيبان من الأول: التوصيل للمغرب كامل، والخلاص عند الاستلام. » | `🇲🇦 Arabe + Français` · `Paiement à la livraison` |
 | **16 – 23 s** | Page **Mon véhicule** → choisir une voiture → les pièces compatibles s'affichent | « الكليان كيختار الطوموبيل ديالو، وكيبانو ليه غير القطع اللي كتجي معاها. أسئلة أقل، وغلط أقل. » | `Choisis ta voiture → pièces compatibles ✅` |
 | **23 – 29 s** | Page **Conseiller huile** → 3 clics → résultat | « وهادي عجباتني بزاف: كيعرف شمن زيت خاصو ف 3 ديال الكليكات. » | `La bonne huile en 3 clics 🛢️` |
 | **29 – 37 s** | Produit → **Ajouter au panier** → clic → WhatsApp s'ouvre avec la commande déjà écrite | « كيزيد القطعة للبانيي، كيكليكي، والكوموند كتوصل للواتساب مكتوبة واجدة. صاحب المحل غير كيأكد. » | `Commande prête sur WhatsApp en 1 clic 📲` |
@@ -84,7 +102,7 @@ Si la vidéo s'arrête sur « j'espère que vous avez aimé », les gens partent
 |---|---|---|---|
 | **0 – 3 s** | Ton visage + téléphone avec le site | « Tu vends des pièces auto et tu passes tes journées à répondre sur WhatsApp ? Regarde ce site. » | `Ce site répond à ta place 👀` |
 | **3 – 10 s** | Faux fil WhatsApp | « La plupart des vendeurs de pièces répondent toute la journée aux mêmes questions : c'est combien ? Ça va sur ma voiture ? C'est disponible ? » | `"Prix ?" "Compatible ?" "Dispo ?" 😩` |
-| **10 – 16 s** | Accueil + clic sur AR | « Pour AutoRefaatArt, j'ai créé un site en arabe et en français. Dès l'accueil, c'est clair : livraison partout au Maroc, paiement à la livraison. » | `🇲🇦 Arabe + Français` · `Paiement à la livraison` |
+| **10 – 16 s** | Accueil qui défile (rayons en français + arabe) | « Pour AutoRefaatArt, j'ai créé un site en arabe et en français. Dès l'accueil, c'est clair : livraison partout au Maroc, paiement à la livraison. » | `🇲🇦 Arabe + Français` · `Paiement à la livraison` |
 | **16 – 23 s** | Mon véhicule → pièces compatibles | « Le client choisit sa voiture et ne voit que les pièces compatibles. Moins de questions, moins d'erreurs. » | `Choisis ta voiture → pièces compatibles ✅` |
 | **23 – 29 s** | Conseiller huile | « Et ma fonction préférée : il trouve la bonne huile moteur en 3 clics. » | `La bonne huile en 3 clics 🛢️` |
 | **29 – 37 s** | Panier → WhatsApp | « Il ajoute au panier, il clique, et la commande arrive sur WhatsApp déjà rédigée. Le vendeur n'a plus qu'à confirmer. » | `Commande prête sur WhatsApp en 1 clic 📲` |
@@ -165,7 +183,7 @@ Ensuite je te prépare une idée de maquette gratuite, tu la vois avant de déci
 1. **Enregistrement d'écran sur ton téléphone** (le site est fait pour mobile, et c'est sur
    mobile que les clients le verront). Active « Ne pas déranger » pour ne pas avoir de
    notifications à l'écran.
-2. Fais **un enregistrement par fonction** (accueil, AR, Mon véhicule, Conseiller huile,
+2. Fais **un enregistrement par fonction** (accueil, Mon véhicule, Conseiller huile,
    panier → WhatsApp, pièce introuvable). Des morceaux courts sont plus faciles à monter.
    - Pour le passage panier → WhatsApp : **ne montre pas ta conversation privée**. Montre le
      message prérempli, puis coupe avant d'envoyer.

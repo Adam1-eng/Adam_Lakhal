@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<!-- Composition vidéo 1080x1920 : chaque image est dessinée par render(t) (t en secondes) -->
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root{--paper:#0b0909;--brand:#a51f43;--glow:#e0315f;--gold:#e8b04a;--ink:#f4eee8;--wa:#1fa855;--card:#151113;--line:#2a2326}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);color:var(--ink);font-family:Manrope,sans-serif}
+  #stage{position:absolute;inset:0;overflow:hidden}
+  /* Fond : halos de la marque + grille en perspective (comme le site) */
+  .halo{position:absolute;border-radius:50%;filter:blur(120px);opacity:.55}
+  #h1{width:900px;height:900px;background:var(--brand);left:-250px;top:200px}
+  #h2{width:700px;height:700px;background:#4a0b1c;right:-200px;top:1100px}
+  #h3{width:500px;height:500px;background:var(--gold);opacity:.10;right:-100px;top:-150px}
+  #grid{position:absolute;left:-400px;right:-400px;bottom:-200px;height:900px;
+    background-image:linear-gradient(rgba(255,255,255,.06) 2px,transparent 2px),linear-gradient(90deg,rgba(255,255,255,.06) 2px,transparent 2px);
+    background-size:90px 90px;transform:perspective(600px) rotateX(62deg);transform-origin:bottom;
+    -webkit-mask-image:linear-gradient(to top,#000 10%,transparent 85%)}
+  #progress{position:absolute;left:0;top:0;height:8px;background:linear-gradient(90deg,var(--brand),var(--gold));z-index:50}
+  /* Barre du haut */
+  #top{position:absolute;left:56px;right:56px;top:56px;display:flex;justify-content:space-between;align-items:center;z-index:40}
+  .chip{display:flex;align-items:center;gap:14px;padding:12px 22px 12px 12px;border-radius:999px;background:rgba(21,17,19,.75);border:2px solid var(--line);font:700 28px Manrope}
+  .logo{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--brand),var(--glow));font:900 26px "Big Shoulders";color:var(--gold)}
+  .chip2{padding:14px 24px;font:800 26px Manrope;letter-spacing:.08em;color:var(--gold);border-color:rgba(232,176,74,.35)}
+  /* Titre */
+  #head{position:absolute;left:60px;right:60px;top:170px;height:230px;text-align:center;z-index:30}
+  #headAr{font:700 66px/1.25 "Readex Pro";white-space:nowrap;direction:rtl;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+  #headFr{margin-top:14px;font:900 46px/1 "Big Shoulders";letter-spacing:.06em;color:var(--gold)}
+  /* Téléphone */
+  #phoneWrap{position:absolute;left:220px;top:440px;width:640px;height:1340px;perspective:2200px;z-index:10}
+  #phone{position:absolute;inset:0;border-radius:86px;background:#050405;border:4px solid #3a3034;
+    box-shadow:0 0 0 14px #141012,0 0 0 16px #3a3034,0 60px 140px rgba(0,0,0,.8),0 0 160px rgba(165,31,67,.35);transform-style:preserve-3d}
+  #screen{position:absolute;left:20px;top:20px;width:600px;height:1300px;border-radius:66px;overflow:hidden;background:#0b0909}
+  #zoom{position:absolute;inset:0;transform-origin:50% 50%}
+  .layer{position:absolute;left:0;top:0;width:600px;opacity:0}
+  .layer img{width:600px;display:block}
+  #dim{position:absolute;inset:0;background:#000;opacity:0;pointer-events:none}
+  #island{position:absolute;left:50%;top:22px;width:170px;height:46px;margin-left:-85px;border-radius:30px;background:#000;z-index:5}
+  /* Tap (doigt) */
+  .tap{position:absolute;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;opacity:0;z-index:6}
+  .tap .dot{position:absolute;inset:20px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 30px rgba(255,255,255,.7)}
+  .tap .ring{position:absolute;inset:0;border-radius:50%;border:5px solid #fff}
+  /* WhatsApp (illustration) */
+  #wa{position:absolute;inset:0;background:#0b141a;opacity:0;font-family:Manrope}
+  #waTop{height:170px;background:#1f2c34;display:flex;align-items:flex-end;gap:18px;padding:0 28px 22px}
+  #waTop .av{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--glow));display:grid;place-items:center;font:900 30px "Big Shoulders";color:var(--gold)}
+  #waTop b{display:block;font:800 30px Manrope}#waTop small{font:500 22px Manrope;color:#8696a0}
+  #waBody{position:absolute;top:170px;bottom:0;left:0;right:0;padding:30px 24px;
+    background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.03),transparent 60%),#0b141a}
+  #waMsg{margin-left:auto;width:500px;background:#005c4b;border-radius:22px 6px 22px 22px;padding:20px 22px 40px;font:500 21px/1.42 Manrope;white-space:pre-wrap;position:relative;transform-origin:100% 0}
+  #waMsg .tick{position:absolute;right:16px;bottom:10px;font:700 18px Manrope;color:#53bdeb}
+  /* Bulles de questions */
+  .bub{position:absolute;padding:22px 30px;border-radius:30px;font:700 40px "Readex Pro";background:#202c33;color:#e9edef;box-shadow:0 20px 50px rgba(0,0,0,.5);opacity:0;z-index:20;white-space:nowrap}
+  .bub.r{background:#005c4b}
+  #notif{position:absolute;right:190px;top:430px;min-width:110px;height:110px;border-radius:60px;background:var(--glow);font:900 56px/110px "Big Shoulders";text-align:center;padding:0 20px;z-index:25;opacity:0;box-shadow:0 0 50px rgba(224,49,95,.8)}
+  /* Badges */
+  .badge{position:absolute;padding:20px 30px;border-radius:24px;background:rgba(21,17,19,.92);border:2px solid rgba(232,176,74,.45);font:700 36px "Readex Pro";direction:rtl;opacity:0;z-index:20;box-shadow:0 20px 60px rgba(0,0,0,.6);white-space:nowrap}
+  /* Sous-titres */
+  #cap{position:absolute;left:90px;right:90px;top:1450px;text-align:center;z-index:35}
+  #capIn{display:inline-block;padding:16px 30px;border-radius:26px;background:rgba(8,6,7,.78);backdrop-filter:blur(8px);font:700 54px/1.3 "Readex Pro";direction:rtl;border:2px solid rgba(255,255,255,.06)}
+  #capIn span{opacity:.55;transition:none}
+  #capIn span.on{opacity:1;color:#fff}
+  #capIn span.now{color:var(--gold);opacity:1}
+  /* Pastille url + signature */
+  #url{position:absolute;left:50%;top:1580px;transform:translateX(-50%);padding:18px 36px;border-radius:999px;background:var(--gold);color:#1a0d10;font:800 38px Manrope;opacity:0;z-index:30;white-space:nowrap}
+  /* Appel à l'action */
+  #cta{position:absolute;left:70px;right:70px;top:560px;height:1000px;opacity:0;z-index:45;text-align:center}
+  #ctaCard{position:absolute;inset:0;border-radius:60px;background:linear-gradient(160deg,rgba(42,18,25,.96),rgba(11,9,9,.96));border:3px solid rgba(232,176,74,.35);box-shadow:0 50px 160px rgba(0,0,0,.8),0 0 120px rgba(165,31,67,.35)}
+  #plane{position:absolute;left:50%;top:70px;width:170px;height:170px;margin-left:-85px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--glow));display:grid;place-items:center;box-shadow:0 0 70px rgba(224,49,95,.7)}
+  #ctaBig{position:absolute;left:30px;right:30px;top:290px;font:800 76px/1.35 "Readex Pro";direction:rtl}
+  .kw{display:inline-block;padding:0 26px;border-radius:22px;background:var(--gold);color:#1a0d10;font-family:"Big Shoulders";font-weight:900;direction:ltr}
+  #ctaSmall{position:absolute;left:0;right:0;top:530px;font:900 56px "Big Shoulders";letter-spacing:.05em;color:var(--gold)}
+  #dmBox{position:absolute;left:70px;right:70px;top:650px;height:120px;border-radius:60px;background:#1d181a;border:2px solid var(--line);display:flex;align-items:center;padding:0 16px 0 44px;justify-content:space-between}
+  #dmText{font:800 52px Manrope;letter-spacing:.06em}
+  #caret{display:inline-block;width:5px;height:54px;background:var(--gold);vertical-align:middle;margin-left:6px}
+  #send{width:92px;height:92px;border-radius:50%;background:var(--gold);display:grid;place-items:center}
+  #sign{position:absolute;left:0;right:0;top:830px;font:700 34px Manrope;color:#c7bcc0}
+  #sign b{color:var(--ink)}
+</style></head>
+<body><div id="stage">
+  <div class="halo" id="h1"></div><div class="halo" id="h2"></div><div class="halo" id="h3"></div>
+  <div id="grid"></div><div id="progress"></div>
+  <div id="top">
+    <div class="chip"><div class="logo">AL</div><span>Adam Lakhal · Sites web</span></div>
+    <div class="chip chip2">REVIEW · MAROC</div>
+  </div>
+  <div id="head"><div id="headAr"></div><div id="headFr"></div></div>
+  <div id="phoneWrap"><div id="phone">
+    <div id="screen">
+      <div id="zoom">
+        <div class="layer" id="L_hero"><img src="cap/home_hero.png"></div>
+        <div class="layer" id="L_long"><img src="cap/home_long.png"></div>
+        <div class="layer" id="L_v0"><img src="cap/veh_0.png"></div>
+        <div class="layer" id="L_v1"><img src="cap/veh_1.png"></div>
+        <div class="layer" id="L_v2"><img src="cap/veh_2.png"></div>
+        <div class="layer" id="L_vr"><img src="cap/veh_result_full.png"></div>
+        <div class="layer" id="L_oil"><img src="cap/huile_result.png"></div>
+        <div class="layer" id="L_prod"><img src="cap/prod2_compat.png"></div>
+        <div class="layer" id="L_added"><img src="cap/prod2_ajoute.png"></div>
+        <div class="layer" id="L_cart"><img src="cap/panier_send.png"></div>
+        <div class="layer" id="L_intr"><img src="cap/home_introuvable.png"></div>
+        <div id="wa"><div id="waTop"><div class="av">AR</div><div><b>AutoRefaatArt</b><small>WhatsApp</small></div></div>
+          <div id="waBody"><div id="waMsg"></div></div></div>
+        <div class="tap" id="tap"><div class="ring"></div><div class="dot"></div></div>
+      </div>
+      <div id="dim"></div>
+      <div id="island"></div>
+    </div>
+  </div></div>
+  <div id="notif">99+</div>
+  <div id="bubbles"></div>
+  <div class="badge" id="b0"></div><div class="badge" id="b1"></div><div class="badge" id="b2"></div>
+  <div class="badge" id="photo"></div>
+  <div id="url">🌐 autorefaatart.com</div>
+  <div id="cap"><div id="capIn"></div></div>
+  <div id="cta"><div id="ctaCard"></div>
+    <div id="plane"><svg width="86" height="86" viewBox="0 0 24 24" fill="none" stroke="#f4eee8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div>
+    <div id="ctaBig"></div><div id="ctaSmall"></div>
+    <div id="dmBox"><div><span id="dmText"></span><span id="caret"></span></div>
+      <div id="send"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="#1a0d10" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></div></div>
+    <div id="sign"></div>
+  </div>
+</div>
+<script>
+// ---------- Outils d'animation ----------
+const $ = id => document.getElementById(id);
+const clamp = (x,a=0,b=1) => Math.min(b, Math.max(a, x));
+const seg = (t,a,b) => clamp((t-a)/(b-a));                 // progression 0→1 entre a et b
+const eo = x => 1 - Math.pow(1-x, 3);                       // ease-out
+const eio = x => x<.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2, 3)/2; // ease-in-out
+const back = x => { const c=1.7; return 1 + (c+1)*Math.pow(x-1,3) + c*Math.pow(x-1,2); }; // rebond
+const S = 600/390;                                          // 1 px CSS du site = S px à l'écran du téléphone
+
+let TL, TX, LANG, chunks = [];
+window.setup = (tl, tx, lang, waText) => {
+  TL = tl; TX = tx; LANG = lang;
+  // bulles
+  const bb = $('bubbles');
+  const pos = [[90,620,0],[330,800,1],[110,990,0],[560,1160,1],[190,1330,0]];
+  TX.bubbles.forEach((b,i)=>{ const d=document.createElement('div'); d.className='bub'+(pos[i][2]?' r':''); d.id='bub'+i; d.textContent=b;
+    d.style.left=pos[i][0]+'px'; d.style.top=pos[i][1]+'px'; d.dir='auto'; bb.appendChild(d); });
+  [0,1,2].forEach(i=> $('b'+i).textContent = TX.badges[i]);
+  $('photo').textContent = TX.photo;
+  $('ctaBig').innerHTML = TX.cta_big; $('ctaSmall').textContent = TX.cta_small;
+  $('sign').innerHTML = '<b>Adam Lakhal</b> · Sites web & applis · Montréal &amp; Maroc';
+  $('headAr').style.direction = TX.dir; $('capIn').style.direction = TX.dir; $('ctaBig').style.direction = TX.dir; document.querySelectorAll('.badge').forEach(b=>b.style.direction=TX.dir);
+  // message WhatsApp : *gras* et _italique_
+  $('waMsg').innerHTML = waText.replace(/\*(.+?)\*/g,'<b>$1</b>').replace(/_(.+?)_/g,'<i>$1</i>') + '<span class="tick">13:42 ✓✓</span>';
+  // sous-titres : groupes de 3 mots
+  TL.lines.forEach(l => { for (let i=0;i<l.words.length;i+=3) chunks.push({line:l, words:l.words.slice(i,i+3)}); });
+  // événements sonores (taps, transitions, bulles) exportés pour le mixage
+  window.EVENTS = computeEvents();
+};
+const L = i => TL.lines[i];
+const sceneStart = i => i===0 ? 0 : L(i).start - 0.15;
+const sceneEnd = i => i===TL.lines.length-1 ? TL.total : L(i+1).start - 0.15;
+
+// Moments-clés de chaque scène (en secondes depuis le début de la scène)
+const K = {
+  veh:  {tap0:.35, s1:.75, tap1:1.15, s2:1.55, tap2:2.05, res:2.45, scroll:3.2},
+  oil:  {tap:.35, show:.75, zoom:1.3},
+  cmd:  {tap0:.7, added:1.0, cart:2.2, tap1:3.2, wa:3.6},
+};
+function computeEvents(){
+  const ev = [];
+  for (let i=1;i<TL.lines.length;i++) ev.push({t:sceneStart(i), k:'whoosh'});
+  [0,1,2,3,4].forEach(j=> ev.push({t:L(1).start + .1 + j*.95, k:'pop'}));
+  [0,1,2].forEach(j=> ev.push({t:L(2).start + 1.2 + j*1.6, k:'pop'}));
+  const v=sceneStart(3); ['tap0','tap1','tap2'].forEach(k=>ev.push({t:v+K.veh[k], k:'tap'}));
+  ev.push({t:sceneStart(4)+K.oil.tap, k:'tap'});
+  const c=sceneStart(5); ev.push({t:c+K.cmd.tap0,k:'tap'}); ev.push({t:c+K.cmd.tap1,k:'tap'}); ev.push({t:c+K.cmd.wa+.6,k:'send'});
+  ev.push({t:sceneStart(6)+1.4, k:'pop'});
+  ev.push({t:sceneStart(7)+.5, k:'pop'});
+  const k=sceneStart(8); ev.push({t:k+.2,k:'whoosh'}); [0,1,2,3].forEach(j=>ev.push({t:k+2.0+j*.22,k:'key'})); ev.push({t:k+3.3,k:'send'});
+  return ev.sort((a,b)=>a.t-b.t);
+}
+
+// ---------- Rendu d'une image ----------
+function layers(state){ // state = {id: {o, y}}  (y = défilement en px CSS du site)
+  document.querySelectorAll('.layer').forEach(el=>{ const s=state[el.id]; el.style.opacity = s? s.o : 0;
+    el.style.transform = s && s.y ? `translateY(${-s.y*S}px)` : 'none'; });
+}
+function tap(x,y,u){ // u = temps depuis le tap (s)
+  const el=$('tap'); if (u<-0.25 || u>0.6){ el.style.opacity=0; return; }
+  const a = u<0 ? seg(u,-.25,0) : 1-seg(u,.25,.6);
+  el.style.opacity=a; el.style.left=(x*S)+'px'; el.style.top=(y*S)+'px';
+  const r = el.querySelector('.ring'); const p = seg(u,0,.5);
+  r.style.transform=`scale(${.6+p*1.4})`; r.style.opacity = u<0?0:1-p;
+  el.querySelector('.dot').style.transform=`scale(${u<0?1:1-.25*Math.sin(Math.PI*seg(u,0,.25))})`;
+}
+function head(i, t){
+  const u = t - sceneStart(i), D = sceneEnd(i)-sceneStart(i);
+  const a = eo(seg(u,0,.45)) * (1 - seg(u, D-.2, D));
+  const ha=$('headAr'); if (ha.dataset.k!=i){ ha.textContent=TX.heads[i][0]; $('headFr').textContent=TX.heads[i][1]; let fs=66; ha.style.fontSize=fs+'px'; while(ha.scrollWidth>960 && fs>40){fs-=2; ha.style.fontSize=fs+'px';} ha.dataset.k=i; }
+  const h=$('head'); h.style.opacity=a; h.style.transform=`translateY(${(1-eo(seg(u,0,.45)))*40}px)`; h.style.filter=`blur(${(1-a)*8}px)`;
+}
+function captions(t){
+  let cur=null;
+  for (const c of chunks){ const st=c.words[0].t-.05; const en=Math.min(c.words[c.words.length-1].e+.35, c.line.end+.25);
+    if (t>=st && t<en) cur=c; }
+  const box=$('capIn');
+  if (!cur){ box.style.opacity=0; return; }
+  box.style.opacity=1;
+  box.innerHTML = cur.words.map(w=>`<span class="${t>=w.t ? (t<w.e+.05?'now':'on') : ''}">${w.w}</span>`).join(' ');
+  const p=eo(seg(t,cur.words[0].t-.05,cur.words[0].t+.12)); box.style.transform=`scale(${.92+.08*p})`;
+}
+
+window.render = t => {
+  const n = TL.lines.length; let sc = 0; for (let i=0;i<n;i++) if (t>=sceneStart(i)) sc=i;
+  const u = t - sceneStart(sc), D = sceneEnd(sc)-sceneStart(sc);
+  $('progress').style.width = (t/TL.total*100)+'%';
+  // fond qui respire
+  $('h1').style.transform=`translate(${Math.sin(t*.4)*80}px,${Math.cos(t*.3)*60}px)`;
+  $('h2').style.transform=`translate(${Math.cos(t*.35)*70}px,${Math.sin(t*.25)*80}px)`;
+  $('grid').style.backgroundPosition=`0 ${t*40}px`;
+  head(sc, t); captions(t);
+  // valeurs par défaut
+  let st={}, zoom={s:1,x:300,y:650}, ph={y:0,s:1,rx:0,ry:Math.sin(t*.6)*4,o:1,blur:0}, dim=0;
+  $('tap').style.opacity=0; $('wa').style.opacity=0; $('notif').style.opacity=0; $('url').style.opacity=0; $('cta').style.opacity=0;
+  document.querySelectorAll('.bub,.badge').forEach(b=>b.style.opacity=0);
+
+  if (sc===0){ // ACCROCHE : le téléphone arrive
+    const p=eo(seg(u,0,.9)); ph.y=(1-p)*900; ph.rx=(1-p)*35; ph.s=.85+.15*p;
+    st={L_hero:{o:1}}; zoom={s:1+u*.02,x:300,y:500};
+    if (u<.12){ $('stage').style.filter=`brightness(${1+ (1-u/.12)*1.2})`; } else $('stage').style.filter='none';
+  } else $('stage').style.filter='none';
+
+  if (sc===1){ // PROBLÈME : les questions s'accumulent
+    st={L_hero:{o:1}}; dim=.65*eo(seg(u,0,.4)); ph.s=1-.06*eo(seg(u,0,.5)); ph.blur=4*eo(seg(u,0,.5));
+    TX.bubbles.forEach((_,j)=>{ const b=$('bub'+j); const p=seg(u,.1+j*.95,.1+j*.95+.35); const out=seg(u,D-.3,D);
+      b.style.opacity=(p>0?1:0)*(1-out); b.style.transform=`scale(${back(p)}) translateY(${-u*6}px)`; });
+    const nb=$('notif'); const np=seg(u,.3,.6); nb.style.opacity=np*(1-seg(u,D-.3,D));
+    nb.textContent = Math.min(99, Math.floor(seg(u,.3,D-.6)*99)+3) + (u>D-.8?'+':'');
+    nb.style.transform=`scale(${back(np)*(1+.06*Math.sin(u*14))})`;
+  }
+  if (sc===2){ // INTRO : visite de l'accueil
+    const p=eio(seg(u,.4,D-.2)); st={L_long:{o:1,y:p*1840}};
+    const bpos=[[60,700],[400,960],[70,1220]];
+    [0,1,2].forEach(j=>{ const b=$('b'+j); const q=seg(u,1.2+j*1.6,1.2+j*1.6+.4); b.style.opacity=(q>0?1:0)*(1-seg(u,D-.25,D));
+      b.style.left=bpos[j][0]+'px'; b.style.top=bpos[j][1]+'px'; b.style.transform=`scale(${back(q)})`; });
+  }
+  if (sc===3){ // MON VÉHICULE
+    const k=K.veh;
+    st.L_v0={o:1}; st.L_v1={o:seg(u,k.s1-.1,k.s1+.1)}; st.L_v2={o:seg(u,k.s2-.1,k.s2+.1)};
+    const r=seg(u,k.res-.1,k.res+.15); st.L_vr={o:r, y:eio(seg(u,k.scroll,k.scroll+1.6))*500};
+    zoom={s:1+.12*eo(seg(u,0,.4))*(1-seg(u,k.res-.2,k.res+.2)),x:300,y:900};
+    if (u<k.tap1-.3) tap(195,521,u-k.tap0); else if (u<k.tap2-.3) tap(195,583,u-k.tap1); else tap(195,707,u-k.tap2);
+  }
+  if (sc===4){ // CONSEILLER HUILE
+    const k=K.oil; st={L_vr:{o:1,y:0}, L_oil:{o:seg(u,k.show-.1,k.show+.15)}};
+    tap(160,322,u-k.tap);
+    const z=eio(seg(u,k.zoom,k.zoom+.9)); zoom={s:1+.38*z, x:300, y:590*S};
+  }
+  if (sc===5){ // COMMANDE → WHATSAPP
+    const k=K.cmd; st={L_prod:{o:1}, L_added:{o:seg(u,k.added-.05,k.added+.1)}, L_cart:{o:seg(u,k.cart-.1,k.cart+.15)}};
+    if (u<k.cart) tap(257,441,u-k.tap0); else tap(195,722,u-k.tap1);
+    const w=seg(u,k.wa,k.wa+.3); $('wa').style.opacity=w;
+    const m=$('waMsg'); const q=seg(u,k.wa+.5,k.wa+.9); m.style.opacity=q; m.style.transform=`scale(${.7+.3*back(q)})`;
+    $('waBody').scrollTop=0; m.style.marginTop = (-eio(seg(u,k.wa+1.8,D-.3))*120)+'px';
+    zoom={s:1+.05*w,x:300,y:400};
+  }
+  if (sc===6){ // PIÈCE INTROUVABLE
+    st={L_intr:{o:1}}; const z=eio(seg(u,.2,1.3)); zoom={s:1+.25*z,x:300,y:520*S};
+    const b=$('photo'); const q=seg(u,1.4,1.8); b.style.opacity=(q>0?1:0)*(1-seg(u,D-.25,D));
+    b.style.left='110px'; b.style.top='820px'; b.style.transform=`scale(${back(q)}) rotate(${-2+2*q}deg)`;
+  }
+  if (sc===7){ // CONCLUSION
+    st={L_hero:{o:1}}; zoom={s:1.02+u*.01,x:300,y:500}; ph.s=1-.04*eo(seg(u,0,.5));
+    const q=seg(u,.5,.85); const url=$('url'); url.style.opacity=q; url.style.transform=`translateX(-50%) scale(${back(q)})`;
+  }
+  if (sc===8){ // APPEL À L'ACTION
+    st={L_hero:{o:1}}; const p=eo(seg(u,0,.6)); ph.s=1-.15*p; ph.o=1-.75*p; ph.blur=10*p; ph.y=60*p;
+    const c=$('cta'); const q=seg(u,.15,.65); c.style.opacity=q; c.style.transform=`translateY(${(1-eo(q))*120}px) scale(${.92+.08*back(q)})`;
+    $('plane').style.transform=`translateY(${Math.sin(u*4)*10}px) rotate(${Math.sin(u*3)*6}deg)`;
+    const word='SITE'; const typed=Math.max(0,Math.min(4,Math.floor((u-2.0)/.22)+1)); $('dmText').textContent=word.slice(0,typed);
+    $('caret').style.opacity = (Math.floor(u*2.2)%2)?1:0;
+    const sp=seg(u,3.3,3.6); $('send').style.transform=`scale(${1+.25*Math.sin(Math.PI*sp)})`;
+    $('send').style.boxShadow = u>2.9 ? `0 0 ${30+20*Math.sin(u*6)}px rgba(232,176,74,.8)` : 'none';
+    $('sign').style.opacity=seg(u,.8,1.2);
+    $('cap').style.top='1600px';
+  } else $('cap').style.top='1450px';
+
+  layers(st);
+  const z=$('zoom'); z.style.transformOrigin=`${zoom.x}px ${zoom.y}px`; z.style.transform=`scale(${zoom.s})`;
+  $('dim').style.opacity=dim;
+  const pw=$('phoneWrap'); pw.style.opacity=ph.o; pw.style.filter=ph.blur?`blur(${ph.blur}px)`:'none';
+  $('phone').style.transform=`translateY(${ph.y}px) scale(${ph.s}) rotateX(${ph.rx}deg) rotateY(${ph.ry}deg)`;
+};
+</script></body></html>
