@@ -32,21 +32,21 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);col
 .btn.cc{background:#2c2a2b;border:2px solid #cbb6a1}
 #back{position:absolute;inset:0;border-radius:104px;backface-visibility:hidden;transform:translateZ(-62px) rotateY(180deg);
   background:radial-gradient(ellipse at 65% 30%,rgba(255,255,255,.28),transparent 45%),linear-gradient(160deg,#e2cfbb 0%,#c9b19a 45%,#ad937c 100%);
-  border:4px solid #d9c5b1;box-shadow:inset 0 0 40px rgba(80,55,35,.25)}
+  border:4px solid #d9c5b1}
 #back .plateau{position:absolute;left:34px;top:34px;width:276px;height:276px;border-radius:76px;
-  background:linear-gradient(150deg,rgba(255,255,255,.30),rgba(120,95,75,.18));border:2px solid rgba(255,255,255,.35);
-  box-shadow:0 6px 18px rgba(70,45,25,.35),inset 0 2px 6px rgba(255,255,255,.4)}
+  background:linear-gradient(150deg,rgba(255,255,255,.30),rgba(120,95,75,.18));border:2px solid rgba(255,255,255,.35);}
 #back .lens{position:absolute;width:116px;height:116px;border-radius:50%;border:10px solid #cfb9a4;
-  background:radial-gradient(circle at 38% 32%,#5b6c9a 0%,#1d2340 22%,#05060b 55%,#000 100%);
-  box-shadow:0 5px 12px rgba(0,0,0,.45),inset 0 0 0 6px #121216}
-#back .lens::after{content:'';position:absolute;left:24px;top:20px;width:22px;height:14px;border-radius:50%;background:rgba(190,210,255,.55);filter:blur(1px)}
+  background:radial-gradient(circle at 38% 32%,#5b6c9a 0%,#1d2340 22%,#05060b 55%,#000 100%);}
+#back .lens::after{content:'';position:absolute;left:24px;top:20px;width:22px;height:14px;border-radius:50%;background:rgba(190,210,255,.55)}
 #back .flash{position:absolute;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,#fff8e8,#e8d6b8 60%,#bba58e);border:3px solid #d6c2ad}
 #back .lidar{position:absolute;width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#2a2a2e,#0a0a0c);border:3px solid #cfb9a4}
 #back .mic{position:absolute;width:10px;height:10px;border-radius:50%;background:#5a4636}
 #back .mono{position:absolute;left:0;right:0;top:600px;text-align:center;font:900 120px "Big Shoulders";color:rgba(255,255,255,.28);
   text-shadow:0 -2px 0 rgba(120,90,65,.35),0 2px 0 rgba(255,255,255,.35);letter-spacing:.04em}
 #slabs,#btns{position:absolute;inset:0;transform-style:preserve-3d}
-#front *,#back *{backface-visibility:hidden}
+.seg{position:absolute;left:0;top:0;transform-origin:0 0}
+#core{position:absolute;inset:2px;border-radius:102px;background:#2a221d;transform:translateZ(-31px)}
+#screen,#island,#back .plateau,#back .mono{backface-visibility:hidden}
 #front{position:absolute;inset:0;border-radius:104px;backface-visibility:hidden;background:#000;
   border:5px solid #cdb8a3;box-shadow:inset 0 0 0 3px #7d6a59,inset 0 0 0 9px #050505}
 #screen{position:absolute;left:16px;top:16px;width:598px;height:1311px;border-radius:88px;overflow:hidden;background:#0b0909}
@@ -111,7 +111,7 @@ html,body{width:1080px;height:1920px;overflow:hidden;background:var(--paper);col
   <div id="parts"></div>
   <div id="shadow"></div>
   <div id="rig">
-    <div id="slabs"></div>
+    <div id="core"></div><div id="slabs"></div>
     <div id="back"><div class="plateau">
         <div class="lens" style="left:20px;top:20px"></div><div class="lens" style="left:20px;top:140px"></div><div class="lens" style="left:140px;top:80px"></div>
         <div class="flash" style="left:212px;top:22px"></div><div class="lidar" style="left:212px;top:212px"></div><div class="mic" style="left:180px;top:226px"></div></div>
@@ -202,11 +202,22 @@ window.setup = (tl, rec) => {
   // --- sous-titres : groupes de 3 mots ---
   TL.lines.forEach(l => { for (let i=0;i<l.words.length;i+=3) chunks.push({line:l, words:l.words.slice(i,i+3)}); });
   // --- décor 3D : épaisseur du téléphone, particules, clavier, bulles ---
-  const sl = $('slabs'); for (let i=1;i<=20;i++){ const d=document.createElement('div'); d.className='slab'; d.style.transform=`translateZ(${-i*3}px)`; sl.appendChild(d); }
+  // épaisseur du téléphone (8,25 mm) : bande de titane faite de petites facettes qui suivent les coins arrondis
+  const W=640, H=1353, RD=104, T=60, band=$('slabs');
+  const seg = (x1,y1,x2,y2,z0,depth,cls,shade) => { const d=document.createElement('div'); const L=Math.hypot(x2-x1,y2-y1)+1.2;
+    d.className='seg '+(cls||''); d.style.width=L+'px'; d.style.height=depth+'px';
+    d.style.transform=`translate3d(${x1}px,${y1}px,${z0}px) rotateZ(${Math.atan2(y2-y1,x2-x1)}rad) rotateX(-90deg)`;
+    if (shade!==undefined) d.style.filter=''; d.style.background=shade; band.appendChild(d); };
+  const pts=[]; const arc=(cx,cy,a0,a1)=>{ for (let k=0;k<=8;k++){ const a=(a0+(a1-a0)*k/8)*Math.PI/180; pts.push([cx+RD*Math.cos(a), cy+RD*Math.sin(a)]); } };
+  arc(W-RD,RD,-90,0); arc(W-RD,H-RD,0,90); arc(RD,H-RD,90,180); arc(RD,RD,180,270);
+  for (let k=0;k<pts.length;k++){ const [x1,y1]=pts[k], [x2,y2]=pts[(k+1)%pts.length];
+    const nrm=Math.atan2(x2-x1, -(y2-y1));                       // direction vers l'extérieur
+    const l=0.72+0.28*Math.cos(nrm-(-2.3));                       // lumière venant d'en haut à gauche
+    seg(x1,y1,x2,y2,0,T,'', `linear-gradient(180deg,rgb(${235*l|0},${215*l|0},${195*l|0}),rgb(${175*l|0},${152*l|0},${132*l|0}) 50%,rgb(${225*l|0},${205*l|0},${185*l|0}))`); }
   // boutons : gauche = Action, volume +, volume − ; droite = côté, Commande de l'appareil photo
-  const B=[[-7,270,62,''],[-7,380,120,''],[-7,530,120,''],[638,410,190,''],[640,760,112,'cc']];
-  B.forEach(([x,y,h,cl])=>{ for (let z=10;z<=50;z+=3){ const d=document.createElement('div'); d.className='btn '+cl;
-    Object.assign(d.style,{left:x+'px',top:y+'px',height:h+'px',transform:`translateZ(${-z}px)`}); $('btns').appendChild(d); } });
+  [[0,270,62,-1],[0,380,120,-1],[0,530,120,-1],[W,410,190,1],[W,760,112,1]].forEach(([x,y,h,sd],k)=>{
+    const o=x+sd*7, c=k===4?'#2c2a2b':'linear-gradient(180deg,#e6d4c1,#b39b85)';
+    seg(o,y,o,y+h,-14,32,'',c); seg(x,y,o,y,-14,32,'','#b9a28c'); seg(o,y+h,x,y+h,-14,32,'','#b9a28c'); });
   const pp = $('parts'); for (let i=0;i<42;i++){ const d=document.createElement('div'); d.className='part'; const s=10+R()*26;
     d.dataset.x=R()*1080; d.dataset.y=200+R()*1700; d.dataset.z=-1300+R()*1100; d.dataset.s=s; d.dataset.v=10+R()*30;
     d.style.width=d.style.height=s+'px'; d.style.opacity=.25+R()*.5; pp.appendChild(d); }

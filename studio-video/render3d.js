@@ -18,9 +18,10 @@ const [mode, arg, fpsArg] = process.argv.slice(2); const FPS = +(fpsArg || 30);
   } else {
     fs.mkdirSync('out', { recursive: true });
     const N = Math.round(tl.total * FPS);
+    const F0 = +(process.env.F0 || 0), F1 = +(process.env.F1 || N);   // pour rendre en plusieurs morceaux en parallèle
     const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-c:v', 'mjpeg', '-i', '-',
       '-c:v', 'libx264', '-preset', 'slow', '-crf', '16', '-profile:v', 'high', '-pix_fmt', 'yuv420p', arg], { stdio: ['pipe', 'inherit', 'inherit'] });
-    for (let f = 0; f < N; f++) {
+    for (let f = F0; f < Math.min(F1, N); f++) {
       await p.evaluate(t => window.render(t), f / FPS);
       const buf = await p.screenshot({ type: 'jpeg', quality: 95 });
       if (!ff.stdin.write(buf)) await new Promise(r => ff.stdin.once('drain', r));

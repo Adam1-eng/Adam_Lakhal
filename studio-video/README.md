@@ -39,7 +39,7 @@ node record.js                       # 1. filme le site (1 minute)
 python3 get-fonts.py                 # 2. polices
 python3 voix_adam.py mon_vocal.m4a   # 3. TA voix  (ou : python3 tts.py && python3 timeline.py)
 node render3d.js preview 2,20,40     #    (optionnel) images de contrôle dans prev/
-node render3d.js video out/image.mp4 60   # 4. vidéo 60 i/s (≈ 15-20 min)
+./render_parallel.sh                 # 4. vidéo 60 i/s, rendue en 2 morceaux en parallèle (≈ 20 min)
 python3 audio3d.py && ./mux3d.sh review_autorefaatart   # 5. son → out/review_autorefaatart_voix.mp4
 ```
 
