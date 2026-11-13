@@ -1,0 +1,39 @@
+---
+// Signature manuscrite en fin de site. Se « dessine » à l'arrivée à l'écran.
+import '@fontsource/caveat/700.css';
+---
+<div class="sig reveal">
+  <p class="sig__label">Conçu, codé et signé à la main par</p>
+  <p class="sig__name">
+    Adam Lakhal<span class="sig__dot">.</span>
+    <svg class="sig__swash" viewBox="0 0 320 40" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M6 28 C 70 10, 140 36, 210 20 S 300 12, 314 22" />
+    </svg>
+  </p>
+  <p class="sig__role">Fondateur de Lakauraa · Montréal & Maroc</p>
+</div>
+
+<style>
+  .sig { display: grid; justify-items: center; gap: 0.35rem; text-align: center; margin: clamp(2.5rem, 6vw, 4rem) 0 clamp(2rem, 4vw, 3rem); }
+  .sig.reveal { opacity: 1; transform: none; filter: none; }
+  .sig__label, .sig__role { font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+  .sig__name {
+    position: relative;
+    font-family: 'Caveat', cursive; font-weight: 700;
+    font-size: clamp(2.8rem, 7vw, 4.2rem); line-height: 1.05;
+    color: var(--text);
+    padding: 0 0.3rem 0.5rem;
+    transform: rotate(-3deg);
+    clip-path: inset(-20% 100% -20% 0);
+    transition: clip-path 1.8s cubic-bezier(0.65, 0, 0.35, 1) 0.2s;
+  }
+  .sig__dot { color: var(--red); }
+  .sig__swash { position: absolute; left: 4%; right: 2%; bottom: -0.1rem; width: 94%; height: 0.55em; overflow: visible; }
+  .sig__swash path { fill: none; stroke: var(--blue); stroke-width: 3.5; stroke-linecap: round; stroke-dasharray: 360; stroke-dashoffset: 360; transition: stroke-dashoffset 1.2s var(--ease) 1.6s; }
+  .sig.is-in .sig__name, :global(.no-js) .sig__name { clip-path: inset(-20% -5% -20% 0); }
+  .sig.is-in .sig__swash path, :global(.no-js) .sig__swash path { stroke-dashoffset: 0; }
+  @media (prefers-reduced-motion: reduce) {
+    .sig__name { clip-path: none; }
+    .sig__swash path { stroke-dashoffset: 0; }
+  }
+</style>

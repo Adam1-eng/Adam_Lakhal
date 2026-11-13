@@ -3,10 +3,12 @@ import Logo from './Logo.astro';
 import Icon from './Icon.astro';
 import BrandIcon from './BrandIcon.astro';
 import SocialLinks from './SocialLinks.astro';
+import Signature from './Signature.astro';
 import { nav } from '../data/site';
 import { telHref, smsHref } from '../lib/content';
 const { contact, whatsapp } = Astro.locals.settings;
 const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
+const waLabel = [whatsapp.ma && 'Maroc', whatsapp.ca && 'Canada'].filter(Boolean).join(' / ');
 const year = new Date().getFullYear();
 const legal = [
   { label: 'Mentions légales', href: '/mentions-legales' },
@@ -45,7 +47,7 @@ const legal = [
       <div class="ftr__col">
         <h2>Contact</h2>
         <ul class="ftr__contact">
-          {hasWa && <li><button type="button" data-wa-open><BrandIcon name="whatsapp" /> WhatsApp (Maroc / Canada)</button></li>}
+          {hasWa && <li><button type="button" data-wa-open><BrandIcon name="whatsapp" /> WhatsApp ({waLabel})</button></li>}
           <li><a href={telHref(contact.phone)}><Icon name="phone" /> {contact.phone}</a></li>
           <li><a href={smsHref(contact.phone)}><Icon name="message" /> Texto au même numéro</a></li>
           <li><a href={`mailto:${contact.email}`}><Icon name="mail" /> {contact.email}</a></li>
@@ -63,6 +65,8 @@ const legal = [
     </div>
 
     <div class="ftr__word" aria-hidden="true">Lakauraa.</div>
+
+    <Signature />
 
     <div class="ftr__bottom">
       <p>© {year} Lakauraa · Adam Lakhal. Tous droits réservés.</p>
@@ -86,6 +90,7 @@ const legal = [
   .ftr__col h2 { font-family: var(--font-sans); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 1rem; }
   .ftr__col ul { list-style: none; padding: 0; display: grid; gap: 0.65rem; }
   .ftr__col a, .ftr__col span, .ftr__col button { color: var(--muted); font-size: 0.94rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.55rem; text-align: left; }
+  .ftr__col button { padding: 0; }
   .ftr__col a:hover, .ftr__col button:hover { color: var(--text); }
   .ftr__contact :global(svg) { width: 16px; height: 16px; flex: none; color: var(--accent); }
   .ftr__contact button :global(svg) { color: #25d366; }

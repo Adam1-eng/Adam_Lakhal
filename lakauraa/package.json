@@ -18,6 +18,7 @@
     "@astrojs/vercel": "^11.0.21",
     "@electric-sql/pglite": "^0.5.16",
     "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
     "@fontsource/space-grotesk": "^5.3.0",
     "@vercel/blob": "^2.9.0",
     "astro": "^7.4.11",

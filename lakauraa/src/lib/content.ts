@@ -24,7 +24,7 @@ export const defaultSettings: SiteSettings = {
   contact: { email: 'adamlakhal800@gmail.com', phone: '438-528-0259', city: 'Montréal', responseTime: 'moins de 24 h' },
   // Numéros WhatsApp au format international, chiffres seulement (ex. 212600000000 / 14385280259). Vides = masqués.
   whatsapp: {
-    ma: '',
+    ma: '212621971718',
     ca: '',
     message: 'Bonjour Adam, je vous contacte depuis le site Lakauraa. J’aimerais en savoir plus pour un site web.',
   },
