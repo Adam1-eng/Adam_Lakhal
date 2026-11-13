@@ -1,0 +1,37 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { asc, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { str } from '../../lib/admin';
+
+const db = await getDb();
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const id = str(fd, 'id');
+  const title = str(fd, 'title').slice(0, 80);
+  const text = str(fd, 'text').slice(0, 400);
+  const price = str(fd, 'price').slice(0, 40);
+  const points = str(fd, 'points').split('\n').map((x) => x.trim()).filter(Boolean).slice(0, 6).map((x) => x.slice(0, 60));
+  if (title.length < 2 || text.length < 10 || !price) {
+    return Astro.redirect('/admin/services?erreur=' + encodeURIComponent('Titre, texte et prix sont obligatoires.'), 303);
+  }
+  await db.update(schema.services).set({ title, text, price, points }).where(eq(schema.services.id, id));
+  return Astro.redirect('/admin/services?ok=' + encodeURIComponent(`« ${title} » enregistré.`), 303);
+}
+const services = await db.select().from(schema.services).orderBy(asc(schema.services.sort));
+---
+<AdminLayout title="Services" active="services">
+  <p class="muted-s">Ces textes apparaissent sur l’accueil (cartes « La solution ») et en tête de chaque bloc de la page Services. Les forfaits détaillés et les prix de la grille sont dans les conditions de vente.</p>
+  <div class="grid-2">
+    {services.map((s) => (
+      <form method="post" class="panel adm-form">
+        <input type="hidden" name="id" value={s.id} />
+        <div class="field"><label for={`t-${s.id}`}>Titre</label><input class="input" id={`t-${s.id}`} name="title" value={s.title} required maxlength="80" /></div>
+        <div class="field"><label for={`x-${s.id}`}>Texte</label><textarea class="input" id={`x-${s.id}`} name="text" required maxlength="400">{s.text}</textarea></div>
+        <div class="field"><label for={`p-${s.id}`}>Prix affiché</label><input class="input" id={`p-${s.id}`} name="price" value={s.price} required maxlength="40" /></div>
+        <div class="field"><label for={`pt-${s.id}`}>Points forts <span class="hint">(un par ligne, 6 max.)</span></label><textarea class="input" id={`pt-${s.id}`} name="points">{s.points.join('\n')}</textarea></div>
+        <div class="row row--end"><button class="btn btn--primary btn--xs" type="submit">Enregistrer</button></div>
+      </form>
+    ))}
+  </div>
+</AdminLayout>

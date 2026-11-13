@@ -1,6 +1,10 @@
 ---
 import Icon from './Icon.astro';
-import { site, offers } from '../data/site';
+import BrandIcon from './BrandIcon.astro';
+import { offers } from '../data/site';
+import { smsHref } from '../lib/content';
+const { contact, whatsapp } = Astro.locals.settings;
+const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 
 const types = ['Salon / beauté', 'Restaurant / traiteur', 'Garage / auto', 'Santé / bien-être', 'Services / rénovation', 'Boutique', 'Autre'];
 const besoins = [
@@ -10,8 +14,8 @@ const besoins = [
   { id: 'maquette', label: 'Juste voir une maquette' },
 ];
 ---
-<div class="cf card" data-contact>
-  <form class="cf__form" novalidate data-form action={`mailto:${site.email}`} method="post" enctype="text/plain">
+<div class="cf card" data-contact data-email={contact.email} data-sms={smsHref(contact.phone)}>
+  <form class="cf__form" novalidate data-form action={`mailto:${contact.email}`} method="post" enctype="text/plain">
     <div class="cf__progress" aria-hidden="true"><span data-bar></span></div>
 
     <fieldset class="field">
@@ -86,7 +90,8 @@ const besoins = [
     <p class="muted">Choisissez comment me l’envoyer : votre application s’ouvre avec le message déjà rédigé. Il ne reste qu’à appuyer sur « Envoyer ».</p>
     <pre class="cf__preview" data-preview></pre>
     <div class="cf__send">
-      <a class="btn btn--primary" data-send-mail href="#"><Icon name="mail" /> Envoyer par courriel</a>
+      {hasWa && <button type="button" class="btn btn--primary cf__wa" data-wa-open data-send-wa><BrandIcon name="whatsapp" /> Envoyer sur WhatsApp</button>}
+      <a class:list={['btn', hasWa ? 'btn--ghost' : 'btn--primary']} data-send-mail href="#"><Icon name="mail" /> Envoyer par courriel</a>
       <a class="btn btn--ghost" data-send-sms href="#"><Icon name="message" /> Envoyer par texto</a>
       <button type="button" class="btn btn--ghost" data-copy><Icon name="layers" /> <span>Copier le message</span></button>
     </div>
@@ -95,7 +100,6 @@ const besoins = [
 </div>
 
 <script>
-  import { site } from '../data/site';
 
   function initContact() {
     const root = document.querySelector<HTMLElement>('[data-contact]');
@@ -108,6 +112,9 @@ const besoins = [
     const mail = root.querySelector<HTMLAnchorElement>('[data-send-mail]')!;
     const sms = root.querySelector<HTMLAnchorElement>('[data-send-sms]')!;
     const copy = root.querySelector<HTMLButtonElement>('[data-copy]')!;
+    const waBtn = root.querySelector<HTMLButtonElement>('[data-send-wa]');
+    const EMAIL = root.dataset.email ?? '';
+    const SMS = root.dataset.sms ?? '';
 
     // Forfait présélectionné depuis ?forfait=pro
     const pre = new URLSearchParams(location.search).get('forfait');
@@ -173,9 +180,10 @@ const besoins = [
       }
       const { text, commerce } = buildMessage();
       preview.textContent = text;
-      mail.href = `mailto:${site.email}?subject=${encodeURIComponent(`Maquette gratuite – ${commerce}`)}&body=${encodeURIComponent(text)}`;
+      if (waBtn) waBtn.dataset.waMessage = text;
+      mail.href = `mailto:${EMAIL}?subject=${encodeURIComponent(`Maquette gratuite – ${commerce}`)}&body=${encodeURIComponent(text)}`;
       const sep = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? '&' : '?';
-      sms.href = `${site.smsHref}${sep}body=${encodeURIComponent(text)}`;
+      sms.href = `${SMS}${sep}body=${encodeURIComponent(text)}`;
       form.hidden = true;
       done.hidden = false;
       done.focus();
@@ -229,6 +237,8 @@ const besoins = [
   .cf__done h3 { font-size: 1.8rem; }
   .cf__preview { width: 100%; white-space: pre-wrap; font-family: var(--font-sans); font-size: 0.9rem; color: var(--muted); padding: 1rem 1.2rem; border-radius: 14px; background: rgb(0 0 0 / 0.3); border: 1px solid var(--line); }
   .cf__send { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .cf__wa { background: #25d366 !important; color: #062e16 !important; box-shadow: 0 10px 30px -10px rgb(37 211 102 / 0.6) !important; }
+  .cf__wa::before { display: none; }
   .cf__back { color: var(--muted); font-size: 0.9rem; }
   .cf__back:hover { color: var(--text); }
 </style>

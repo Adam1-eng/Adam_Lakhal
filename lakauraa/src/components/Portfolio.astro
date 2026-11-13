@@ -1,113 +1,116 @@
 ---
-import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
-import BrowserFrame from './BrowserFrame.astro';
-import PhoneFrame from './PhoneFrame.astro';
-import { caseStudies, maquettes, categoryLabel, groupLabel } from '../data/projets';
-import { site } from '../data/site';
+import ProjectMedia from './ProjectMedia.astro';
+import { categoriesFor, kindLabel, imageSrcset, type ProjectCard } from '../lib/content';
 
-interface Props { full?: boolean; limit?: number }
-const { full = false, limit = 5 } = Astro.props;
+interface Props { projects: ProjectCard[]; full?: boolean; limit?: number }
+const { projects, full = false, limit = 6 } = Astro.props;
 
-const featured = caseStudies[0];
-const others = caseStudies.slice(1);
-const list = full ? maquettes : maquettes.slice(0, limit);
-const groups = [...new Set(maquettes.map((m) => m.group))];
+// Vedette : le premier projet client mis en avant (sinon le premier projet)
+// Sur la page Réalisations, tout est dans la grille filtrable (le projet vedette en grande carte).
+const flagship = full ? undefined : projects.find((p) => p.kind === 'client' && p.featured) ?? projects.find((p) => p.kind === 'client') ?? projects[0];
+const rest = projects.filter((p) => p !== flagship);
+const wideId = full ? (projects.find((p) => p.kind === 'client' && p.featured) ?? projects.find((p) => p.kind === 'client'))?.id : undefined;
+const list = full ? rest : rest.slice(0, limit);
+const cats = categoriesFor(list);
+const year = (d: string) => d.slice(0, 4);
 ---
+{projects.length > 0 && (
 <section class="section pf" id="realisations" aria-label="Réalisations" data-filter-root>
   <div class="wrap">
     {!full && (
       <SectionHead eyebrow="Réalisations" title="Du vrai travail. Pas des promesses." aura="Pas des promesses." align="split"
-        lead={`Une boutique en ligne livrée et en ligne, un exemple complet et ${site.maquettesCount} maquettes réalisées pour des commerces d’ici.`}>
+        lead="Une boutique en ligne livrée et en ligne, un exemple complet et une sélection de maquettes réalisées pour des commerces d’ici.">
         <a href="/projets" class="btn btn--ghost btn--sm">Toutes les réalisations <Icon name="arrow" class="arrow" /></a>
       </SectionHead>
     )}
-
     {full && <h2 class="sr-only">Toutes les réalisations</h2>}
-    <!-- Projet vedette -->
-    <article class="card spot pf__feat reveal">
-      <div class="pf__feat-copy">
-        <div class="pf__meta">
-          <span class="chip chip--accent"><span class="pf__live"></span>{categoryLabel[featured.category]} · {featured.status}</span>
-          <span class="chip">{featured.place}</span>
+
+    {flagship && (
+      <article class="card spot pf__feat reveal">
+        <div class="pf__feat-copy">
+          <div class="pf__meta">
+            <span class="chip chip--accent">{flagship.kind === 'client' && <span class="pf__live"></span>}{kindLabel[flagship.kind]}{flagship.liveUrl.startsWith('http') && ' · En ligne'}</span>
+            {flagship.location && <span class="chip">{flagship.location}</span>}
+          </div>
+          <h3>{flagship.title}</h3>
+          {flagship.category && <p class="pf__sector">{flagship.category.name}</p>}
+          <p class="muted">{flagship.summary}</p>
+          <ul class="pf__stack">{flagship.technologies.slice(0, 6).map((t) => <li>{t}</li>)}</ul>
+          <div class="pf__actions">
+            <a href={`/projets/${flagship.slug}`} class="btn btn--light btn--sm" data-magnetic>Voir l’étude de cas <Icon name="arrow" class="arrow" /></a>
+            {flagship.liveUrl && <a href={flagship.liveUrl} class="link-arrow" target="_blank" rel="noopener">Visiter le site <Icon name="arrow-up-right" /></a>}
+          </div>
         </div>
-        <h3>{featured.name}</h3>
-        <p class="pf__sector">{featured.sector}</p>
-        <p class="muted">{featured.summary}</p>
-        <ul class="pf__stack">{featured.stack.slice(0, 5).map((t) => <li>{t}</li>)}</ul>
-        <div class="pf__actions">
-          <a href={`/projets/${featured.slug}`} class="btn btn--light btn--sm" data-magnetic>Lire l’étude de cas <Icon name="arrow" class="arrow" /></a>
-          {featured.url && <a href={featured.url} class="link-arrow" target="_blank" rel="noopener">Visiter le site <Icon name="arrow-up-right" /></a>}
+        <a href={`/projets/${flagship.slug}`} class="pf__feat-visual" data-tilt="4" aria-label={`Étude de cas ${flagship.title}`}>
+          <ProjectMedia project={flagship} sizes="(min-width: 1000px) 640px, 92vw" />
+        </a>
+      </article>
+    )}
+
+    {list.length > 0 && (
+      <>
+        <div class="pf__bar reveal">
+          {cats.length > 1 ? (
+            <div class="pf__filters" role="group" aria-label="Filtrer par catégorie">
+              <button type="button" data-filter="all" aria-pressed="true">Tout <span>{list.length}</span></button>
+              {cats.map((c) => <button type="button" data-filter={c.slug} aria-pressed="false">{c.name} <span>{c.count}</span></button>)}
+            </div>
+          ) : <span></span>}
+          <p class="pf__count" aria-live="polite" data-filter-count>{list.length} projet{list.length > 1 ? 's' : ''}</p>
         </div>
-      </div>
-      <a href={`/projets/${featured.slug}`} class="pf__feat-visual" data-tilt="4" aria-label={`Étude de cas ${featured.name}`}>
-        <BrowserFrame src={featured.cover} alt={`Page d’accueil de ${featured.name}`} url={featured.urlLabel} sizes="(min-width: 1000px) 640px, 92vw" />
-        <PhoneFrame src={featured.mobile} alt={`${featured.name} sur cellulaire`} class="pf__feat-phone" />
-      </a>
-    </article>
 
-    <!-- Filtres -->
-    <div class="pf__bar reveal">
-      <div class="pf__filters" role="group" aria-label="Filtrer les réalisations">
-        <button type="button" data-filter="all" aria-pressed="true">Tout</button>
-        <button type="button" data-filter="exemple" aria-pressed="false">Exemple</button>
-        <button type="button" data-filter="maquette" aria-pressed="false">Maquettes</button>
-        {full && groups.map((g) => <button type="button" data-filter={g} aria-pressed="false">{groupLabel[g]}</button>)}
-      </div>
-      <p class="pf__count" aria-live="polite" data-filter-count>{list.length + others.length} projets</p>
-    </div>
+        <ul class="pf__grid">
+          {list.map((p, i) => (
+            <li data-cat={p.category?.slug ?? 'autres'} class:list={['reveal', { 'pf__wide': p.id === wideId }]} style={`--i:${i % 3}`}>
+              <a href={`/projets/${p.slug}`} class="card spot pcard">
+                <div class="pcard__media">
+                  {p.cover && (
+                    <img src={p.cover.thumbUrl} srcset={imageSrcset(p.cover)} sizes="(min-width: 1100px) 380px, (min-width: 640px) 46vw, 92vw"
+                      width={p.cover.width} height={p.cover.height} alt={p.cover.caption || `Aperçu de ${p.title}`} loading="lazy" decoding="async" />
+                  )}
+                  {p.mobile && (
+                    <span class="pcard__phone" aria-hidden="true">
+                      <img src={p.mobile.thumbUrl} alt="" width={p.mobile.width} height={p.mobile.height} loading="lazy" decoding="async" />
+                    </span>
+                  )}
+                  <span class:list={['pcard__tag', `pcard__tag--${p.kind}`]}>{kindLabel[p.kind]}</span>
+                </div>
+                <div class="pcard__body">
+                  <p class="pcard__eyebrow">{p.category?.name}{p.location && ` · ${p.location}`}</p>
+                  <h3>{p.title}</h3>
+                  <p class="pcard__sum">{p.summary}</p>
+                  {p.id === wideId && p.technologies.length > 0 && <ul class="pf__stack pcard__stack">{p.technologies.slice(0, 5).map((t) => <li>{t}</li>)}</ul>}
+                  <div class="pcard__foot">
+                    <span class="pcard__year">{year(p.completedOn)}</span>
+                    <span class="pcard__go">Découvrir <span><Icon name="arrow-up-right" /></span></span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
 
-    <ul class="pf__grid">
-      {others.map((c) => (
-        <li data-cat={c.category}>
-          <a href={`/projets/${c.slug}`} class="card spot pcard">
-            <div class="pcard__shot">
-              <Image src={c.cover} alt={`Aperçu de ${c.name}`} widths={[400, 700]} sizes="(min-width: 1000px) 380px, (min-width: 640px) 46vw, 92vw" />
-              <span class="pcard__tag">{categoryLabel[c.category]}</span>
-            </div>
-            <div class="pcard__body">
-              <p class="pcard__sector">{c.sector}</p>
-              <h3>{c.name}</h3>
-              <p class="pcard__place">{c.place}</p>
-              <span class="pcard__go"><Icon name="arrow-up-right" /></span>
-            </div>
-          </a>
-        </li>
-      ))}
-      {list.map((m) => (
-        <li data-cat={`maquette ${m.group}`}>
-          <a href={m.url} target="_blank" rel="noopener" class="card spot pcard">
-            <div class="pcard__shot">
-              <Image src={m.desktop} alt={`Maquette du site ${m.name}`} widths={[400, 700]} sizes="(min-width: 1000px) 380px, (min-width: 640px) 46vw, 92vw" />
-              <span class="pcard__tag">Maquette</span>
-            </div>
-            <div class="pcard__body">
-              <p class="pcard__sector">{m.sector}</p>
-              <h3>{m.name}</h3>
-              <p class="pcard__place">{m.place}</p>
-              <span class="pcard__go"><Icon name="external" /></span>
-            </div>
-            <span class="sr-only">(ouvre la maquette dans un nouvel onglet)</span>
-          </a>
-        </li>
-      ))}
-    </ul>
+    {rest.some((p) => p.kind === 'maquette') && (
+      <p class="pf__note reveal">
+        <Icon name="eye" /> Les maquettes sont des démonstrations préparées gratuitement pour des commerces, avant toute commande. Chacune porte la mention « Maquette de démonstration » : ce ne sont pas leurs sites officiels.
+      </p>
+    )}
 
-    <p class="pf__note reveal">
-      <Icon name="eye" /> Les maquettes sont des démonstrations préparées pour des commerces, avant toute commande. Chacune porte la mention « Maquette de démonstration » : ce ne sont pas leurs sites officiels.
-    </p>
-
-    {!full && (
+    {!full && rest.length > list.length && (
       <div class="pf__more reveal">
-        <a href="/projets" class="btn btn--ghost">Voir les {site.maquettesCount} maquettes et projets <Icon name="arrow" class="arrow" /></a>
+        <a href="/projets" class="btn btn--ghost">Voir toutes les réalisations <Icon name="arrow" class="arrow" /></a>
       </div>
     )}
   </div>
 </section>
+)}
 
 <style>
-  .pf__feat { display: grid; gap: 2rem; padding: clamp(1.4rem, 3vw, 2.6rem); align-items: center; margin-bottom: 2.5rem; background: radial-gradient(80% 120% at 100% 0%, rgb(224 177 74 / 0.08), transparent 55%), radial-gradient(70% 90% at 0% 100%, rgb(139 92 246 / 0.12), transparent 60%), var(--surface); }
+  .pf__feat { display: grid; gap: 2rem; padding: clamp(1.4rem, 3vw, 2.6rem); align-items: center; margin-bottom: 3rem; background: radial-gradient(80% 120% at 100% 0%, rgb(224 177 74 / 0.08), transparent 55%), radial-gradient(70% 90% at 0% 100%, rgb(139 92 246 / 0.12), transparent 60%), var(--surface); }
   @media (min-width: 1000px) { .pf__feat { grid-template-columns: 0.85fr 1.15fr; gap: 3rem; } }
   .pf__feat-copy { display: grid; gap: 1rem; justify-items: start; }
   .pf__meta { display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -117,31 +120,53 @@ const groups = [...new Set(maquettes.map((m) => m.group))];
   .pf__stack { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
   .pf__stack li { font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 8px; border: 1px solid var(--line-2); color: var(--muted); }
   .pf__actions { display: flex; flex-wrap: wrap; gap: 1.2rem; align-items: center; margin-top: 0.5rem; }
-  .pf__feat-visual { position: relative; display: block; padding-right: 9%; padding-bottom: 6%; transition: transform 0.6s var(--ease); }
-  :global(.pf__feat-phone) { position: absolute; right: 0; bottom: 0; width: 26%; }
+  .pf__feat-visual { position: relative; display: block; transition: transform 0.6s var(--ease); }
 
   .pf__bar { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; }
-  .pf__filters { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .pf__filters button { padding: 0.5rem 1rem; border-radius: 999px; border: 1px solid var(--line-2); font-size: 0.88rem; font-weight: 500; color: var(--muted); transition: all 0.3s var(--ease); }
+  .pf__filters { display: flex; gap: 0.4rem; overflow-x: auto; scrollbar-width: none; max-width: 100%; padding: 2px; }
+  .pf__filters::-webkit-scrollbar { display: none; }
+  .pf__filters button { flex: none; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.55rem 1rem; border-radius: 999px; border: 1px solid var(--line-2); font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: all 0.3s var(--ease); min-height: 44px; }
+  .pf__filters button span { font-size: 0.75rem; padding: 0.05rem 0.45rem; border-radius: 999px; background: rgb(255 255 255 / 0.07); }
   .pf__filters button:hover { color: var(--text); border-color: rgb(255 255 255 / 0.25); }
   .pf__filters button[aria-pressed='true'] { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .pf__filters button[aria-pressed='true'] span { background: rgb(0 0 0 / 0.1); }
   .pf__count { font-size: 0.85rem; color: var(--dim); }
 
-  .pf__grid { list-style: none; padding: 0; display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+  .pf__grid { list-style: none; padding: 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
   .pf__grid li[hidden] { display: none; }
-  .pcard { display: block; height: 100%; transition: transform 0.5s var(--ease), border-color 0.4s; }
-  .pcard:hover { transform: translateY(-6px); border-color: var(--line-2); }
-  .pcard__shot { position: relative; overflow: hidden; aspect-ratio: 16 / 10; border-bottom: 1px solid var(--line); }
-  .pcard__shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 1.2s var(--ease), object-position 4s var(--ease); }
-  .pcard:hover .pcard__shot img { transform: scale(1.05); }
-  .pcard__tag { position: absolute; top: 0.8rem; left: 0.8rem; padding: 0.25rem 0.6rem; border-radius: 999px; background: rgb(7 7 11 / 0.75); backdrop-filter: blur(8px); font-size: 0.72rem; font-weight: 600; border: 1px solid var(--line-2); }
-  .pcard__body { position: relative; padding: 1.1rem 1.2rem 1.3rem; }
-  .pcard__sector { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-weight: 600; }
-  .pcard h3 { font-size: 1.2rem; margin-top: 0.3rem; letter-spacing: -0.02em; }
-  .pcard__place { font-size: 0.85rem; color: var(--dim); margin-top: 0.2rem; }
-  .pcard__go { position: absolute; right: 1.1rem; bottom: 1.2rem; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line-2); transition: all 0.4s var(--ease); }
+  @media (min-width: 1040px) {
+    .pf__wide { grid-column: span 2; }
+    .pf__wide .pcard { display: grid; grid-template-columns: 1.25fr 1fr; }
+    .pf__wide .pcard__media { aspect-ratio: 16 / 10; align-self: stretch; border-bottom: 0; border-right: 1px solid var(--line); }
+    .pf__wide .pcard__media > img { object-position: left top; }
+    .pf__wide .pcard__phone { display: none; }
+    .pf__wide .pcard__body { padding: 1.6rem; justify-content: center; }
+    .pf__wide .pcard h3 { font-size: 1.8rem; }
+    .pf__wide .pcard__sum { -webkit-line-clamp: 4; }
+  }
+  .pcard__stack { margin-top: 0.5rem; }
+  .pcard { display: flex; flex-direction: column; height: 100%; transition: transform 0.5s var(--ease), border-color 0.4s, box-shadow 0.5s var(--ease); }
+  .pcard:hover { transform: translateY(-6px); border-color: var(--line-2); box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.9), 0 0 0 1px rgb(167 139 250 / 0.15); }
+  .pcard__media { position: relative; overflow: hidden; aspect-ratio: 16 / 10; border-bottom: 1px solid var(--line); background: #0d0d14; }
+  .pcard__media > img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 1.2s var(--ease); }
+  .pcard:hover .pcard__media > img { transform: scale(1.04) translateY(-2%); }
+  .pcard__phone { position: absolute; right: 6%; bottom: -30%; width: 23%; padding: 3px; border-radius: 14px; background: linear-gradient(145deg, #3a3a4a, #15151d); box-shadow: 0 20px 40px -10px #000; transform: translateY(30%); opacity: 0; transition: transform 0.7s var(--ease), opacity 0.5s; }
+  .pcard__phone img { border-radius: 11px; aspect-ratio: 9 / 19.5; object-fit: cover; object-position: top; width: 100%; }
+  .pcard:hover .pcard__phone, .pcard:focus-visible .pcard__phone { transform: translateY(-38%); opacity: 1; }
+  @media (hover: none) { .pcard__phone { transform: translateY(-38%); opacity: 1; } }
+  .pcard__tag { position: absolute; top: 0.8rem; left: 0.8rem; padding: 0.28rem 0.65rem; border-radius: 999px; background: rgb(7 7 11 / 0.78); backdrop-filter: blur(8px); font-size: 0.72rem; font-weight: 600; border: 1px solid var(--line-2); }
+  .pcard__tag--client { color: #bbf7d0; border-color: rgb(74 222 128 / 0.4); }
+  .pcard__body { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; padding: 1.15rem 1.25rem 1.2rem; }
+  .pcard__eyebrow { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); font-weight: 600; }
+  .pcard h3 { font-size: 1.25rem; letter-spacing: -0.02em; }
+  .pcard__sum { color: var(--muted); font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pcard__foot { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 0.9rem; }
+  .pcard__year { font-size: 0.8rem; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .pcard__go { display: inline-flex; align-items: center; gap: 0.55rem; font-size: 0.86rem; font-weight: 600; color: var(--muted); transition: color 0.3s; }
+  .pcard__go span { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); transition: all 0.4s var(--ease); }
   .pcard__go :global(svg) { width: 15px; height: 15px; }
-  .pcard:hover .pcard__go { background: var(--aura-btn); border-color: transparent; transform: rotate(45deg); }
+  .pcard:hover .pcard__go { color: var(--text); }
+  .pcard:hover .pcard__go span { background: var(--aura-btn); border-color: transparent; transform: rotate(45deg); }
 
   .pf__note { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1.6rem; font-size: 0.85rem; color: var(--dim); max-width: 80ch; }
   .pf__note :global(svg) { width: 16px; height: 16px; flex: none; margin-top: 0.2rem; }

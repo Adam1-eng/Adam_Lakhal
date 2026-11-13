@@ -1,7 +1,10 @@
 ---
 import Icon from './Icon.astro';
 import SplitText from './SplitText.astro';
-import { site } from '../data/site';
+import BrandIcon from './BrandIcon.astro';
+import { telHref } from '../lib/content';
+const { contact, whatsapp } = Astro.locals.settings;
+const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 interface Props { title?: string; aura?: string; text?: string }
 const {
   title = 'Prêt à voir votre futur site ?',
@@ -18,10 +21,12 @@ const {
       <p class="lead">{text}</p>
       <div class="cta__actions">
         <a href="/contact" class="btn btn--primary" data-magnetic>Obtenir ma maquette gratuite <Icon name="arrow" class="arrow" /></a>
-        <a href={site.phoneHref} class="btn btn--ghost" data-magnetic><Icon name="phone" /> {site.phone}</a>
+        {hasWa
+          ? <button type="button" class="btn btn--ghost cta__wa" data-wa-open data-magnetic><BrandIcon name="whatsapp" /> Écrire sur WhatsApp</button>
+          : <a href={telHref(contact.phone)} class="btn btn--ghost" data-magnetic><Icon name="phone" /> {contact.phone}</a>}
       </div>
       <ul class="cta__checks">
-        <li><Icon name="check" /> Réponse en {site.responseTime}</li>
+        <li><Icon name="check" /> Réponse en {contact.responseTime}</li>
         <li><Icon name="check" /> Maquette avant paiement</li>
         <li><Icon name="check" /> Paiement en deux temps</li>
       </ul>
@@ -31,6 +36,7 @@ const {
 
 <style>
   .cta-s { padding-top: 0; }
+  .cta__wa :global(svg) { color: #25d366; width: 20px; height: 20px; }
   .cta {
     --ax: 50%; --ay: 0%;
     position: relative; isolation: isolate; overflow: hidden;

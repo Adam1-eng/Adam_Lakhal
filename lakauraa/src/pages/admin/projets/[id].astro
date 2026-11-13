@@ -1,0 +1,95 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ProjectForm from '../../../components/admin/ProjectForm.astro';
+import ImageManager from '../../../components/admin/ImageManager.astro';
+import Icon from '../../../components/Icon.astro';
+import { asc, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../../lib/db';
+import { parseProjectForm, firstError, uniqueProjectSlug, str } from '../../../lib/admin';
+import { setStatus, deleteProject } from '../../../lib/projects-admin';
+
+const id = Astro.params.id ?? '';
+const db = await getDb();
+const load = async () => (await db.select().from(schema.projects).where(eq(schema.projects.id, id)).limit(1))[0];
+let project = await load();
+if (!project) return Astro.redirect('/admin/projets?erreur=' + encodeURIComponent('Projet introuvable.'));
+
+let error = '';
+let formValues: Record<string, any> = project;
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const intent = str(fd, 'intent');
+  if (intent === 'delete') {
+    await deleteProject(id);
+    return Astro.redirect('/admin/projets?ok=' + encodeURIComponent(`« ${project.title} » a été supprimé.`), 303);
+  }
+  const parsed = parseProjectForm(fd);
+  if (!parsed.success) {
+    error = firstError(parsed.error);
+    formValues = { ...project, ...Object.fromEntries(fd), technologies: str(fd, 'technologies').split(',').map((t) => t.trim()).filter(Boolean), features: project.features, featured: fd.get('featured') === 'on' };
+  } else {
+    const { slug, ...data } = parsed.data;
+    const finalSlug = await uniqueProjectSlug(slug || data.title, id);
+    await db.update(schema.projects).set({ ...data, slug: finalSlug, updatedAt: new Date() }).where(eq(schema.projects.id, id));
+    let msg = 'Modifications enregistrées.';
+    if (intent === 'publish') {
+      const imgs = await db.select({ id: schema.projectImages.id }).from(schema.projectImages).where(eq(schema.projectImages.projectId, id)).limit(1);
+      if (!imgs.length) {
+        return Astro.redirect(`/admin/projets/${id}?erreur=${encodeURIComponent('Ajoutez au moins une image avant de publier.')}#images`, 303);
+      }
+      await setStatus(id, 'published');
+      msg = 'Projet publié : il apparaît maintenant sur le site.';
+    } else if (intent === 'unpublish') {
+      await setStatus(id, 'draft');
+      msg = 'Projet repassé en brouillon : il n’est plus visible sur le site.';
+    }
+    return Astro.redirect(`/admin/projets/${id}?ok=${encodeURIComponent(msg)}`, 303);
+  }
+}
+
+const [categories, images] = await Promise.all([
+  db.select().from(schema.categories).orderBy(asc(schema.categories.sort)),
+  db.select().from(schema.projectImages).where(eq(schema.projectImages.projectId, id)).orderBy(asc(schema.projectImages.sort)),
+]);
+const published = project.status === 'published';
+---
+<AdminLayout title={project.title} active="projets">
+  <div class="row" slot="actions">
+    <a href={`/admin/projets/${id}/apercu`} target="_blank" class="btn btn--ghost btn--sm"><Icon name="eye" /> Aperçu</a>
+    {published && <a href={`/projets/${project.slug}`} target="_blank" class="btn btn--ghost btn--sm hide-s"><Icon name="external" /> Sur le site</a>}
+  </div>
+
+  <div class="row">
+    <span class:list={['badge', published ? 'badge--pub' : 'badge--draft']}>{published ? 'Publié' : 'Brouillon'}</span>
+    {project.featured && <span class="badge badge--feat">★ Mis en avant</span>}
+    <span class="muted-s">Dernière modification : {project.updatedAt.toLocaleString('fr-CA', { dateStyle: 'medium', timeStyle: 'short' })}</span>
+  </div>
+
+  <nav class="tabs" aria-label="Sections du projet">
+    <a href="#infos">Informations</a><a href="#presentation">Présentation</a><a href="#images">Images ({images.length})</a><a href="#danger">Supprimer</a>
+  </nav>
+
+  <ProjectForm categories={categories} project={formValues} error={error} />
+  <ImageManager projectId={id} images={images} coverId={project.coverImageId} />
+
+  <section class="panel" id="danger">
+    <div class="panel__head"><div><h2>Supprimer le projet</h2><p>Le projet et toutes ses images seront supprimés définitivement.</p></div>
+      <form method="post" data-confirm={`Supprimer définitivement « ${project.title} » et toutes ses images ?`}>
+        <button class="btn btn--danger btn--sm" name="intent" value="delete" type="submit">Supprimer définitivement</button>
+      </form>
+    </div>
+  </section>
+
+  <div class="save-bar">
+    <span class="muted-s">Les images s’enregistrent automatiquement.</span>
+    <button type="submit" form="project-form" name="intent" value="save" class="btn btn--ghost btn--sm">Enregistrer</button>
+    {published
+      ? <button type="submit" form="project-form" name="intent" value="unpublish" class="btn btn--ghost btn--sm">Dépublier</button>
+      : <button type="submit" form="project-form" name="intent" value="publish" class="btn btn--primary btn--sm">Publier <Icon name="arrow" class="arrow" /></button>}
+  </div>
+</AdminLayout>
+
+<style>
+  @media (max-width: 520px) { .hide-s { display: none; } }
+</style>

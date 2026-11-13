@@ -1,7 +1,13 @@
 ---
 import Icon from './Icon.astro';
 import SplitText from './SplitText.astro';
-import { faq, site } from '../data/site';
+import BrandIcon from './BrandIcon.astro';
+import { telHref } from '../lib/content';
+import type { Faq } from '../lib/db/schema';
+interface Props { faqs: Faq[] }
+const { faqs } = Astro.props;
+const { contact, whatsapp } = Astro.locals.settings;
+const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 ---
 <section class="section" id="faq" aria-labelledby="faq-title">
   <div class="wrap fq">
@@ -10,19 +16,20 @@ import { faq, site } from '../data/site';
       <SplitText id="faq-title" class="h-l" text="Vous vous demandez peut-être…" aura="peut-être…" />
       <p class="lead reveal" style="--i:2">Les réponses claires aux questions qu’on me pose avant chaque projet. Une autre question ? Écrivez-moi.</p>
       <div class="fq__ask reveal" style="--i:3">
-        <a href={site.smsHref} class="btn btn--ghost btn--sm"><Icon name="message" /> Texto</a>
+        {hasWa ? <button type="button" class="btn btn--ghost btn--sm fq__wa" data-wa-open data-wa-message="Bonjour Adam, j’ai une question au sujet de votre offre de site web :"><BrandIcon name="whatsapp" /> WhatsApp</button>
+          : <a href={telHref(contact.phone)} class="btn btn--ghost btn--sm"><Icon name="phone" /> Appeler</a>}
         <a href="/contact" class="btn btn--ghost btn--sm">Contact <Icon name="arrow" class="arrow" /></a>
       </div>
     </div>
 
     <div class="fq__list" data-faq>
-      {faq.map((f, i) => (
+      {faqs.map((f, i) => (
         <details class="fq__item reveal" style={`--i:${Math.min(i, 4)}`} open={i === 0}>
           <summary>
-            <span>{f.q}</span>
+            <span>{f.question}</span>
             <span class="fq__icon" aria-hidden="true"><Icon name="plus" /></span>
           </summary>
-          <div class="faq__a"><p>{f.a}</p></div>
+          <div class="faq__a"><p>{f.answer}</p></div>
         </details>
       ))}
     </div>
@@ -33,7 +40,8 @@ import { faq, site } from '../data/site';
   .fq { display: grid; gap: 3rem; }
   @media (min-width: 980px) { .fq { grid-template-columns: 0.8fr 1.2fr; gap: 4rem; } .fq__side { position: sticky; top: calc(var(--header-h) + 3rem); align-self: start; } }
   .fq__side { display: grid; gap: 1.3rem; justify-items: start; }
-  .fq__ask { display: flex; gap: 0.6rem; }
+  .fq__ask { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .fq__wa :global(svg) { color: #25d366; }
   .fq__list { display: grid; gap: 0.7rem; }
   .fq__item { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); transition: border-color 0.3s, background 0.3s; }
   .fq__item:hover { border-color: var(--line-2); }

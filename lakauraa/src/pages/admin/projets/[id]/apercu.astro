@@ -1,0 +1,27 @@
+---
+// Aperçu exact de la fiche publique, même pour un brouillon (réservé aux administrateurs).
+import Base from '../../../../layouts/Base.astro';
+import ProjectDetail from '../../../../components/ProjectDetail.astro';
+import { eq } from 'drizzle-orm';
+import { getDb, schema } from '../../../../lib/db';
+import { getProjectBySlug, getSettings } from '../../../../lib/content';
+
+const db = await getDb();
+const [row] = await db.select().from(schema.projects).where(eq(schema.projects.id, Astro.params.id ?? '')).limit(1);
+if (!row) return Astro.redirect('/admin/projets');
+const project = await getProjectBySlug(row.slug, { includeDrafts: true });
+if (!project) return Astro.redirect('/admin/projets');
+Astro.locals.settings ??= await getSettings();
+---
+<Base title={`Aperçu · ${project.title}`} description={project.summary} noindex>
+  <div class="preview-bar" role="status">
+    <span><strong>Aperçu</strong> · {project.status === 'published' ? 'Publié' : 'Brouillon : invisible pour les visiteurs'}</span>
+    <a href={`/admin/projets/${project.id}`}>← Retour à la modification</a>
+  </div>
+  <ProjectDetail project={project} />
+</Base>
+
+<style>
+  .preview-bar { position: fixed; z-index: 95; left: 50%; bottom: 1rem; translate: -50% 0; display: flex; flex-wrap: wrap; gap: 0.5rem 1.2rem; align-items: center; justify-content: center; padding: 0.7rem 1.2rem; border-radius: 999px; background: #fcd34d; color: #1c1300; font-size: 0.9rem; box-shadow: 0 20px 40px -10px #000; max-width: calc(100% - 2rem); }
+  .preview-bar a { font-weight: 700; text-decoration: underline; }
+</style>

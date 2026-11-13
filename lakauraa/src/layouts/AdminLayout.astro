@@ -1,0 +1,95 @@
+---
+import '@fontsource-variable/inter';
+import '@fontsource/space-grotesk/500.css';
+import '@fontsource/space-grotesk/700.css';
+import '../styles/global.css';
+import '../styles/admin.css';
+import Icon from '../components/Icon.astro';
+import BrandIcon from '../components/BrandIcon.astro';
+
+interface Props { title: string; active?: string; bare?: boolean }
+const { title, active = '', bare = false } = Astro.props;
+const admin = Astro.locals.admin;
+const msg = Astro.url.searchParams.get('ok');
+const err = Astro.url.searchParams.get('erreur');
+const nav = [
+  { id: 'dashboard', label: 'Vue d’ensemble', href: '/admin', icon: 'layers' },
+  { id: 'projets', label: 'Projets', href: '/admin/projets', icon: 'pages' },
+  { id: 'nouveau', label: 'Ajouter un projet', href: '/admin/projets/nouveau', icon: 'plus' },
+  { id: 'categories', label: 'Catégories', href: '/admin/categories', icon: 'tag' },
+  { id: 'faq', label: 'FAQ', href: '/admin/faq', icon: 'message' },
+  { id: 'temoignages', label: 'Témoignages', href: '/admin/temoignages', icon: 'star' },
+  { id: 'services', label: 'Services', href: '/admin/services', icon: 'shop' },
+  { id: 'reseaux', label: 'Réseaux et WhatsApp', href: '/admin/reseaux', icon: 'whatsapp' },
+  { id: 'parametres', label: 'Paramètres', href: '/admin/parametres', icon: 'key' },
+];
+---
+<!doctype html>
+<html lang="fr-CA">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} · Admin Lakauraa</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="adm-body">
+    {bare ? <slot /> : (
+      <div class="adm">
+        <aside class="adm__side" id="adm-side" data-side>
+          <a href="/admin" class="adm__brand"><span class="adm__mark">L</span> Lakauraa <small>admin</small></a>
+          <nav aria-label="Administration">
+            <ul>
+              {nav.map((n) => (
+                <li>
+                  <a href={n.href} aria-current={active === n.id ? 'page' : undefined}>
+                    {n.icon === 'whatsapp' ? <BrandIcon name="whatsapp" /> : <Icon name={n.icon} />}
+                    {n.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <div class="adm__side-foot">
+            <a href="/" target="_blank" rel="noopener" class="adm__site"><Icon name="external" /> Voir le site</a>
+            <form method="post" action="/admin/logout"><button type="submit" class="adm__logout"><Icon name="arrow" /> Se déconnecter</button></form>
+          </div>
+        </aside>
+        <div class="adm__main">
+          <header class="adm__top">
+            <button type="button" class="adm__burger" aria-controls="adm-side" aria-expanded="false" data-side-toggle><Icon name="menu" /><span class="sr-only">Menu</span></button>
+            <h1>{title}</h1>
+            <div class="adm__user">
+              <slot name="actions" />
+              <span class="adm__avatar" title={admin?.email}>{(admin?.name || admin?.email || 'A').slice(0, 1).toUpperCase()}</span>
+            </div>
+          </header>
+          {msg && <p class="adm-toast adm-toast--ok" role="status"><Icon name="check" /> {msg}</p>}
+          {err && <p class="adm-toast adm-toast--err" role="alert"><Icon name="alert" /> {err}</p>}
+          <main class="adm__content"><slot /></main>
+        </div>
+        <div class="adm__scrim" data-side-scrim></div>
+      </div>
+    )}
+    <script>
+      const side = document.querySelector<HTMLElement>('[data-side]');
+      const btn = document.querySelector<HTMLButtonElement>('[data-side-toggle]');
+      const scrim = document.querySelector<HTMLElement>('[data-side-scrim]');
+      const set = (open: boolean) => { side?.classList.toggle('is-open', open); scrim?.classList.toggle('is-open', open); btn?.setAttribute('aria-expanded', String(open)); };
+      btn?.addEventListener('click', () => set(!side?.classList.contains('is-open')));
+      scrim?.addEventListener('click', () => set(false));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+      // Les messages de confirmation disparaissent seuls et l'URL est nettoyée
+      document.querySelectorAll('.adm-toast').forEach((t) => setTimeout(() => t.classList.add('is-gone'), 4500));
+      const u = new URL(location.href);
+      if (u.searchParams.has('ok') || u.searchParams.has('erreur')) { u.searchParams.delete('ok'); u.searchParams.delete('erreur'); history.replaceState(null, '', u); }
+      // Confirmation avant les actions destructrices
+      document.addEventListener('submit', (e) => {
+        const f = e.target as HTMLFormElement;
+        const btn = (e as SubmitEvent).submitter as HTMLElement | null;
+        const q = btn?.dataset.confirm || f.dataset.confirm;
+        if (q && !confirm(q)) e.preventDefault();
+      });
+    </script>
+  </body>
+</html>

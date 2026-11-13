@@ -1,0 +1,7 @@
+/// <reference types="astro/client" />
+declare namespace App {
+  interface Locals {
+    admin: import('./lib/auth').AdminUser | null;
+    settings: import('./lib/content').SiteSettings;
+  }
+}

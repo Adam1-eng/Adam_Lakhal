@@ -1,7 +1,9 @@
 ---
-// N'affiche rien tant qu'il n'y a pas de vrais avis dans src/data/site.ts
+// N'affiche rien tant qu'aucun vrai avis n'est publié depuis l'admin (Témoignages).
 import SectionHead from './SectionHead.astro';
-import { testimonials } from '../data/site';
+import type { Testimonial } from '../lib/db/schema';
+interface Props { testimonials: Testimonial[] }
+const { testimonials } = Astro.props;
 ---
 {testimonials.length > 0 && (
   <section class="section" aria-label="Avis clients">
@@ -11,7 +13,7 @@ import { testimonials } from '../data/site';
         {testimonials.map((t, i) => (
           <figure class="card spot tm reveal" style={`--i:${i}`}>
             <blockquote>« {t.quote} »</blockquote>
-            <figcaption><strong>{t.name}</strong><span>{t.business}</span></figcaption>
+            <figcaption><strong>{t.author}</strong>{t.business && <span>{t.business}</span>}{t.sourceUrl && <a href={t.sourceUrl} target="_blank" rel="noopener">Voir l’avis original</a>}</figcaption>
           </figure>
         ))}
       </div>

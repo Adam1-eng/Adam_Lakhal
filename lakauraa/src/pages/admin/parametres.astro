@@ -1,0 +1,144 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { asc, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { getSettings, saveSetting, type LegalSettings } from '../../lib/content';
+import { str } from '../../lib/admin';
+import { hashPassword, verifyPassword, passwordProblem, destroyAllSessions, createSession } from '../../lib/auth';
+
+const me = Astro.locals.admin!;
+const db = await getDb();
+const back = (k: 'ok' | 'erreur', m: string, hash = '') => Astro.redirect(`/admin/parametres?${k}=${encodeURIComponent(m)}${hash}`, 303);
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const action = str(fd, 'action');
+
+  if (action === 'legal') {
+    const legal: LegalSettings = {
+      ownerName: str(fd, 'ownerName').slice(0, 100),
+      businessName: str(fd, 'businessName').slice(0, 100),
+      legalStatus: str(fd, 'legalStatus').slice(0, 120),
+      registrationCa: str(fd, 'registrationCa').slice(0, 60),
+      registrationMa: str(fd, 'registrationMa').slice(0, 120),
+      address: str(fd, 'address').slice(0, 250),
+      privacyOfficer: str(fd, 'privacyOfficer').slice(0, 100),
+      privacyEmail: str(fd, 'privacyEmail').slice(0, 120),
+      updatedOn: str(fd, 'updatedOn').slice(0, 40),
+    };
+    await saveSetting('legal', legal);
+    return back('ok', 'Informations légales enregistrées.', '#legal');
+  }
+
+  if (action === 'password') {
+    const [row] = await db.select().from(schema.admins).where(eq(schema.admins.id, me.id)).limit(1);
+    const current = String(fd.get('current') ?? '');
+    const next = String(fd.get('next') ?? '');
+    if (!row || !(await verifyPassword(current, row.passwordHash))) return back('erreur', 'Mot de passe actuel incorrect.', '#securite');
+    const problem = passwordProblem(next);
+    if (problem) return back('erreur', problem, '#securite');
+    if (next !== String(fd.get('next2') ?? '')) return back('erreur', 'Les deux nouveaux mots de passe ne correspondent pas.', '#securite');
+    await db.update(schema.admins).set({ passwordHash: await hashPassword(next) }).where(eq(schema.admins.id, me.id));
+    // Déconnecte les autres appareils, garde la session courante
+    await destroyAllSessions(me.id);
+    await createSession(me.id, Astro.cookies, Astro.url.protocol === 'https:', Astro.request.headers.get('user-agent') ?? '');
+    return back('ok', 'Mot de passe modifié. Les autres appareils ont été déconnectés.', '#securite');
+  }
+
+  if (action === 'signout-all') {
+    await destroyAllSessions(me.id);
+    return Astro.redirect('/admin/login', 303);
+  }
+
+  if (action === 'add-admin') {
+    const email = str(fd, 'email').toLowerCase();
+    const pw = String(fd.get('password') ?? '');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return back('erreur', 'Courriel invalide.', '#admins');
+    const problem = passwordProblem(pw);
+    if (problem) return back('erreur', problem, '#admins');
+    const exists = await db.select().from(schema.admins).where(eq(schema.admins.email, email)).limit(1);
+    if (exists.length) return back('erreur', 'Ce courriel a déjà un accès.', '#admins');
+    await db.insert(schema.admins).values({ email, name: str(fd, 'name').slice(0, 80), passwordHash: await hashPassword(pw) });
+    return back('ok', `Accès créé pour ${email}.`, '#admins');
+  }
+
+  if (action === 'remove-admin') {
+    const id = str(fd, 'id');
+    if (id === me.id) return back('erreur', 'Vous ne pouvez pas supprimer votre propre accès.', '#admins');
+    await db.delete(schema.admins).where(eq(schema.admins.id, id));
+    return back('ok', 'Accès supprimé.', '#admins');
+  }
+}
+
+const [{ legal }, admins] = await Promise.all([getSettings(), db.select().from(schema.admins).orderBy(asc(schema.admins.createdAt))]);
+const legalFields: { k: keyof LegalSettings; label: string; hint?: string; ph?: string }[] = [
+  { k: 'ownerName', label: 'Nom du responsable' },
+  { k: 'businessName', label: 'Nom commercial' },
+  { k: 'legalStatus', label: 'Statut juridique', ph: 'ex. Travailleur autonome (entreprise individuelle)' },
+  { k: 'registrationCa', label: 'NEQ (Québec)', hint: 'si immatriculé' },
+  { k: 'registrationMa', label: 'Identifiants au Maroc', hint: 'ICE / IF / RC, si applicable' },
+  { k: 'address', label: 'Adresse professionnelle' },
+  { k: 'privacyOfficer', label: 'Responsable des renseignements personnels' },
+  { k: 'privacyEmail', label: 'Courriel pour la confidentialité' },
+  { k: 'updatedOn', label: 'Date de mise à jour des pages légales', ph: '13 novembre 2026' },
+];
+---
+<AdminLayout title="Paramètres" active="parametres">
+  <section class="panel" id="legal">
+    <div class="panel__head"><div><h2>Informations légales</h2><p>Utilisées dans les mentions légales, la politique de confidentialité et les conditions. Les champs vides s’affichent « À compléter » sur le site. Faites valider les pages légales par un juriste.</p></div></div>
+    <form method="post" class="adm-form">
+      <div class="grid-2">
+        {legalFields.map((f) => (
+          <div class="field">
+            <label for={`l-${f.k}`}>{f.label} {f.hint && <span class="hint">({f.hint})</span>}</label>
+            <input class="input" id={`l-${f.k}`} name={f.k} value={legal[f.k]} placeholder={f.ph} />
+          </div>
+        ))}
+      </div>
+      <div class="row row--end"><button class="btn btn--primary btn--sm" name="action" value="legal">Enregistrer</button></div>
+    </form>
+  </section>
+
+  <section class="panel" id="securite">
+    <div class="panel__head"><div><h2>Sécurité de votre compte</h2><p>Connecté en tant que <strong>{me.email}</strong>.</p></div></div>
+    <form method="post" class="adm-form">
+      <div class="grid-3">
+        <div class="field"><label for="cur">Mot de passe actuel</label><input class="input" id="cur" name="current" type="password" required autocomplete="current-password" /></div>
+        <div class="field"><label for="nw">Nouveau mot de passe</label><input class="input" id="nw" name="next" type="password" required minlength="12" autocomplete="new-password" /></div>
+        <div class="field"><label for="nw2">Confirmer</label><input class="input" id="nw2" name="next2" type="password" required autocomplete="new-password" /></div>
+      </div>
+      <div class="row row--end">
+        <button class="btn btn--ghost btn--sm" name="action" value="signout-all" formnovalidate data-confirm="Se déconnecter de tous les appareils ?">Déconnecter tous les appareils</button>
+        <button class="btn btn--primary btn--sm" name="action" value="password">Changer le mot de passe</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel" id="admins">
+    <div class="panel__head"><div><h2>Administrateurs</h2><p>Personnes autorisées à gérer le site.</p></div></div>
+    <ul class="checklist">
+      {admins.map((a) => (
+        <li>
+          <span>{a.name || a.email} <span class="muted-s">{a.email}{a.lastLoginAt && ` · dernière connexion ${a.lastLoginAt.toLocaleDateString('fr-CA')}`}</span></span>
+          {a.id !== me.id ? (
+            <form method="post" style="margin-left:auto" data-confirm={`Retirer l’accès de ${a.email} ?`}>
+              <input type="hidden" name="id" value={a.id} />
+              <button class="btn btn--danger btn--xs" name="action" value="remove-admin">Retirer</button>
+            </form>
+          ) : <span class="badge badge--feat" style="margin-left:auto">Vous</span>}
+        </li>
+      ))}
+    </ul>
+    <details>
+      <summary class="btn btn--ghost btn--xs">Ajouter un administrateur</summary>
+      <form method="post" class="adm-form" style="margin-top:1rem">
+        <div class="grid-3">
+          <div class="field"><label for="an">Nom</label><input class="input" id="an" name="name" /></div>
+          <div class="field"><label for="ae">Courriel</label><input class="input" id="ae" name="email" type="email" required /></div>
+          <div class="field"><label for="ap">Mot de passe provisoire</label><input class="input" id="ap" name="password" type="password" required minlength="12" autocomplete="new-password" /></div>
+        </div>
+        <div class="row row--end"><button class="btn btn--primary btn--sm" name="action" value="add-admin">Créer l’accès</button></div>
+      </form>
+    </details>
+  </section>
+</AdminLayout>

@@ -1,0 +1,61 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { verifyPassword, createSession, tooManyAttempts, recordAttempt, adminCount, hashPassword } from '../../lib/auth';
+import { str, isSafeNext, clientIp } from '../../lib/admin';
+
+if (Astro.locals.admin) return Astro.redirect('/admin');
+if ((await adminCount()) === 0) return Astro.redirect('/admin/setup');
+
+let error = '';
+let email = '';
+const next = Astro.url.searchParams.get('next');
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  email = str(fd, 'email').toLowerCase().slice(0, 200);
+  const password = String(fd.get('password') ?? '').slice(0, 200);
+  const ip = clientIp(Astro.request, Astro.clientAddress ?? 'local');
+  const keys = [`ip:${ip}`, `email:${email}`];
+
+  if (await tooManyAttempts(keys)) {
+    error = 'Trop de tentatives. Réessayez dans 15 minutes.';
+  } else {
+    const db = await getDb();
+    const [user] = await db.select().from(schema.admins).where(eq(schema.admins.email, email)).limit(1);
+    // Hachage factice si l’utilisateur n’existe pas : même temps de réponse (pas d’indice sur les comptes)
+    const ok = user ? await verifyPassword(password, user.passwordHash) : (await verifyPassword(password, await hashPassword('x'.repeat(12))), false);
+    if (ok && user) {
+      await recordAttempt(keys, true);
+      await db.update(schema.admins).set({ lastLoginAt: new Date() }).where(eq(schema.admins.id, user.id));
+      await createSession(user.id, Astro.cookies, Astro.url.protocol === 'https:', Astro.request.headers.get('user-agent') ?? '');
+      return Astro.redirect(isSafeNext(next) ? next! : '/admin');
+    }
+    await recordAttempt(keys, false);
+    error = 'Courriel ou mot de passe incorrect.';
+  }
+}
+---
+<AdminLayout title="Connexion" bare>
+  <main class="auth">
+    <form method="post" class="auth__card adm-form" novalidate>
+      <div>
+        <p class="eyebrow">Espace privé</p>
+      </div>
+      <h1>Connexion à l’administration</h1>
+      <p>Gérez vos projets, votre FAQ et vos coordonnées.</p>
+      {error && <p class="auth__err" role="alert">{error}</p>}
+      <div class="field">
+        <label for="email">Courriel</label>
+        <input class="input" id="email" name="email" type="email" autocomplete="username" required value={email} autofocus />
+      </div>
+      <div class="field">
+        <label for="password">Mot de passe</label>
+        <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+      </div>
+      <button class="btn btn--primary" type="submit">Se connecter</button>
+      <a href="/" class="muted-s">← Retour au site</a>
+    </form>
+  </main>
+</AdminLayout>

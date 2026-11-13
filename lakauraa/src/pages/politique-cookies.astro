@@ -1,0 +1,31 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+const sections = [
+  { id: 'principe', title: 'En bref' },
+  { id: 'liste', title: 'Ce qui est utilisé' },
+  { id: 'tiers', title: 'Services tiers' },
+  { id: 'gerer', title: 'Gérer vos préférences' },
+];
+---
+<LegalPage title="Politique relative aux cookies" description="Les cookies et le stockage local utilisés par le site Lakauraa." sections={sections}>
+  <h2 id="principe">En bref</h2>
+  <p>Le site Lakauraa n’utilise <strong>aucun cookie publicitaire ni outil de pistage</strong>. Seuls des éléments strictement nécessaires à son fonctionnement sont utilisés ; c’est pourquoi aucune bannière de consentement ne s’affiche. Si un outil optionnel (par exemple de mesure d’audience) est ajouté un jour, votre consentement sera demandé au préalable.</p>
+
+  <h2 id="liste">Ce qui est utilisé</h2>
+  <table>
+    <thead><tr><th>Nom</th><th>Type</th><th>Utilité</th><th>Durée</th></tr></thead>
+    <tbody>
+      <tr><td><code>lk_wa_line</code></td><td>Stockage local</td><td>Mémorise le numéro WhatsApp choisi (Maroc ou Canada)</td><td>Jusqu’à suppression</td></tr>
+      <tr><td><code>lk_consent</code></td><td>Stockage local</td><td>Mémorise vos préférences de confidentialité</td><td>Jusqu’à suppression</td></tr>
+      <tr><td><code>__Host-lk_admin</code></td><td>Cookie</td><td>Session sécurisée de l’espace administrateur (administrateurs seulement)</td><td>7 jours</td></tr>
+    </tbody>
+  </table>
+  <p>Le pays approximatif utilisé pour suggérer le numéro WhatsApp est fourni par l’hébergeur à partir de l’adresse IP ; il n’est ni stocké ni associé à votre identité.</p>
+
+  <h2 id="tiers">Services tiers</h2>
+  <p>Lorsque vous cliquez sur un lien WhatsApp, un réseau social ou un site externe, vous quittez Lakauraa : ces services appliquent leurs propres politiques de cookies.</p>
+
+  <h2 id="gerer">Gérer vos préférences</h2>
+  <p>Vous pouvez consulter vos préférences à tout moment : <button type="button" class="btn btn--ghost btn--sm" data-cookie-prefs>Ouvrir les préférences</button></p>
+  <p>Vous pouvez aussi effacer le stockage local depuis les réglages de votre navigateur.</p>
+</LegalPage>

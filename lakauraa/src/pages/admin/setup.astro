@@ -1,0 +1,72 @@
+---
+// Création du tout premier compte administrateur.
+// Disponible uniquement tant qu’aucun administrateur n’existe.
+// En production, il faut aussi le jeton secret ADMIN_SETUP_TOKEN (variable d’environnement Vercel).
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { timingSafeEqual } from 'node:crypto';
+import { getDb, schema, env } from '../../lib/db';
+import { adminCount, hashPassword, passwordProblem, createSession } from '../../lib/auth';
+import { str } from '../../lib/admin';
+
+if ((await adminCount()) > 0) return Astro.redirect('/admin/login');
+
+const requiredToken = env('ADMIN_SETUP_TOKEN') ?? '';
+const isProd = Boolean(env('VERCEL'));
+const blocked = isProd && !requiredToken;
+let error = '';
+let email = '';
+let name = '';
+
+const sameToken = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
+
+if (Astro.request.method === 'POST' && !blocked) {
+  const fd = await Astro.request.formData();
+  name = str(fd, 'name').slice(0, 80);
+  email = str(fd, 'email').toLowerCase().slice(0, 200);
+  const pw = String(fd.get('password') ?? '');
+  const pw2 = String(fd.get('password2') ?? '');
+  const token = str(fd, 'token');
+  if (requiredToken && !sameToken(token, requiredToken)) error = 'Jeton d’installation invalide.';
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) error = 'Courriel invalide.';
+  else if (passwordProblem(pw)) error = passwordProblem(pw)!;
+  else if (pw !== pw2) error = 'Les deux mots de passe ne correspondent pas.';
+  else if ((await adminCount()) > 0) return Astro.redirect('/admin/login');
+  else {
+    const db = await getDb();
+    const [admin] = await db.insert(schema.admins).values({ email, name, passwordHash: await hashPassword(pw) }).returning();
+    await createSession(admin.id, Astro.cookies, Astro.url.protocol === 'https:', Astro.request.headers.get('user-agent') ?? '');
+    return Astro.redirect('/admin?ok=' + encodeURIComponent('Compte créé. Bienvenue dans votre administration !'));
+  }
+}
+---
+<AdminLayout title="Installation" bare>
+  <main class="auth">
+    {blocked ? (
+      <div class="auth__card">
+        <h1>Installation verrouillée</h1>
+        <p>Pour créer le premier compte en production, ajoutez la variable d’environnement <code>ADMIN_SETUP_TOKEN</code> (une longue phrase secrète) dans Vercel, redéployez, puis revenez sur cette page.</p>
+      </div>
+    ) : (
+      <form method="post" class="auth__card adm-form" novalidate>
+        <p class="eyebrow">Première connexion</p>
+        <h1>Créer votre compte administrateur</h1>
+        <p>Ce compte vous permettra de gérer tout le contenu du site. Cette page disparaît dès que le compte est créé.</p>
+        {error && <p class="auth__err" role="alert">{error}</p>}
+        {requiredToken && (
+          <div class="field">
+            <label for="token">Jeton d’installation</label>
+            <input class="input" id="token" name="token" type="password" required autocomplete="off" />
+          </div>
+        )}
+        <div class="field"><label for="name">Votre nom</label><input class="input" id="name" name="name" value={name} autocomplete="name" /></div>
+        <div class="field"><label for="email">Courriel</label><input class="input" id="email" name="email" type="email" required value={email} autocomplete="username" /></div>
+        <div class="field">
+          <label for="password">Mot de passe <span class="hint">(12 caractères minimum, lettres et chiffres)</span></label>
+          <input class="input" id="password" name="password" type="password" required minlength="12" autocomplete="new-password" />
+        </div>
+        <div class="field"><label for="password2">Confirmer le mot de passe</label><input class="input" id="password2" name="password2" type="password" required autocomplete="new-password" /></div>
+        <button class="btn btn--primary" type="submit">Créer mon compte</button>
+      </form>
+    )}
+  </main>
+</AdminLayout>

@@ -6,24 +6,33 @@ import Pricing from '../components/Pricing.astro';
 import Process from '../components/Process.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
-import BrowserFrame from '../components/BrowserFrame.astro';
-import { services, site } from '../data/site';
-import { caseStudies, maquettes } from '../data/projets';
+import { getServices, getFaqs, getPublishedProjects, imageSrcset } from '../lib/content';
+import type { ProjectImage } from '../lib/db/schema';
 
-const visuals: Record<string, { img: typeof caseStudies[0]['cover']; url: string; alt: string; note: string; href: string }> = {
-  vitrine: { img: maquettes.find((m) => m.slug === 'bosscut')!.desktop, url: 'maquette-bosscut.vercel.app', alt: 'Maquette du site BossCut', note: 'Maquette · Barbier', href: '/projets' },
-  pro: { img: caseStudies[1].cover, url: 'Élan Coiffure (exemple)', alt: 'Exemple de site Élan Coiffure', note: 'Exemple · forfait Pro', href: '/projets/elan-coiffure' },
-  boutique: { img: caseStudies[0].gallery[2].img, url: 'autorefaatart.com', alt: 'Fiche produit de la boutique AutoRefaatArt', note: 'Projet client · AutoRefaatArt', href: '/projets/autorefaatart' },
-  entretien: { img: maquettes.find((m) => m.slug === 'plaisirs-gourmets')!.desktop, url: 'maquette-plaisirs-gourmets.vercel.app', alt: 'Maquette du site Plaisirs Gourmets', note: 'Maquette · Traiteur', href: '/projets' },
+const [services, faqs, projects] = await Promise.all([getServices(), getFaqs(), getPublishedProjects()]);
+const bySlug = (s: string) => projects.find((p) => p.slug === s);
+const pick = (slug: string, imgIndex = -1) => {
+  const p = bySlug(slug);
+  if (!p) return null;
+  return { project: p, img: p.cover as ProjectImage | null };
+};
+// Visuel d'illustration par service (projets réels uniquement ; masqué s'ils sont dépubliés)
+const visuals: Record<string, { slug: string; note: string } > = {
+  vitrine: { slug: 'maquette-bosscut', note: 'Maquette · Barbier' },
+  pro: { slug: 'elan-coiffure', note: 'Exemple · forfait Pro' },
+  boutique: { slug: 'autorefaatart', note: 'Projet client · AutoRefaatArt' },
+  entretien: { slug: 'maquette-plaisirs-gourmets', note: 'Maquette · Traiteur' },
 };
 const details: Record<string, string[]> = {
   vitrine: ['Design sur mesure à vos couleurs', 'Services, prix, heures et carte', 'Bouton d’appel toujours visible sur cellulaire', 'Liens Facebook, Instagram et itinéraire', '2 séries de révisions incluses'],
   pro: ['Jusqu’à 5 pages (accueil, services, galerie, à propos, contact)', 'Galerie photos et avis clients', 'Lien de réservation en ligne', 'Référencement Google de base', 'Fiche Google Business optimisée'],
   boutique: ['Catalogue, rayons, recherche et filtres', 'Panier et commande adaptée à vos clients (ex. WhatsApp)', 'Espace administrateur : prix, stock, photos', 'Bilingue si nécessaire', 'Soumission gratuite et détaillée'],
-  entretien: ['Hébergement et nom de domaine', 'Changements de prix, heures et photos par texto', 'Sauvegardes et sécurité', 'Sans contrat, annulable en tout temps'],
+  entretien: ['Hébergement et nom de domaine', 'Changements de prix, heures et photos sur simple message', 'Sauvegardes et sécurité', 'Sans contrat, annulable en tout temps'],
 };
+const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique: 'shop', entretien: 'care' };
+const settings = Astro.locals.settings;
 ---
-<Base title="Services et prix · Création de sites web à Montréal" description="Site vitrine dès 600 $, site complet 1 200 $, boutique en ligne sur mesure et entretien à 40 $/mois. Maquette gratuite avant de payer.">
+<Base faqs={faqs} title="Services et prix · Création de sites web à Montréal et au Maroc" description="Site vitrine dès 600 $, site complet 1 200 $, boutique en ligne sur mesure et entretien à 40 $/mois. Maquette gratuite avant de payer.">
   <PageHero eyebrow="Services" title="Un site qui travaille pour vous, même quand vous êtes fermé." aura="même quand vous êtes fermé."
     lead="Du site d’une page à la boutique en ligne, chaque projet est conçu autour d’un seul objectif : que vos clients vous trouvent, vous fassent confiance et vous appellent."
     crumbs={[{ label: 'Services' }]}>
@@ -36,24 +45,29 @@ const details: Record<string, string[]> = {
   <section class="section" aria-label="Détail des services">
     <div class="wrap svd">
       {services.map((s, i) => {
-        const v = visuals[s.id];
+        const v = visuals[s.id] ? pick(visuals[s.id].slug) : null;
         return (
           <article class:list={['svd__row', { 'svd__row--rev': i % 2 === 1 }]} id={s.id}>
             <div class="svd__copy">
               <span class="svd__num reveal">0{i + 1}</span>
-              <span class="icon-badge reveal"><Icon name={s.icon} /></span>
+              <span class="icon-badge reveal"><Icon name={icons[s.id] ?? 'spark'} /></span>
               <h2 class="h-m reveal">{s.title}</h2>
               <p class="lead reveal" style="--i:1">{s.text}</p>
-              <ul class="checks reveal" style="--i:2">{details[s.id].map((d) => <li>{d}</li>)}</ul>
+              {(details[s.id] ?? s.points).length > 0 && <ul class="checks reveal" style="--i:2">{(details[s.id] ?? s.points).map((d) => <li>{d}</li>)}</ul>}
               <div class="svd__foot reveal" style="--i:3">
                 <span class="chip chip--accent">{s.price}</span>
                 <a href={`/contact?forfait=${s.id === 'vitrine' ? 'essentiel' : s.id}`} class="link-arrow">En parler <Icon name="arrow-up-right" /></a>
               </div>
             </div>
-            <a href={v.href} class="svd__visual reveal reveal--scale" data-tilt="4">
-              <BrowserFrame src={v.img} alt={v.alt} url={v.url} />
-              <span class="svd__note">{v.note}</span>
-            </a>
+            {v?.img && (
+              <a href={`/projets/${v.project.slug}`} class="svd__visual reveal reveal--scale" data-tilt="4">
+                <figure class="browser">
+                  <div class="browser__bar" aria-hidden="true"><i></i><i></i><i></i><span class="browser__url">{v.project.title}</span></div>
+                  <img src={v.img.url} srcset={imageSrcset(v.img)} sizes="(min-width: 960px) 600px, 92vw" width={v.img.width} height={v.img.height} alt={`Aperçu : ${v.project.title}`} loading="lazy" decoding="async" />
+                </figure>
+                <span class="svd__note">{visuals[s.id].note}</span>
+              </a>
+            )}
           </article>
         );
       })}
@@ -62,8 +76,8 @@ const details: Record<string, string[]> = {
 
   <Pricing />
   <Process />
-  <Faq />
-  <Cta title="Pas sûr du forfait qui vous convient ?" aura="vous convient ?" text={`Décrivez-moi votre commerce en deux minutes. Je vous conseille honnêtement et je vous réponds en ${site.responseTime}.`} />
+  <Faq faqs={faqs} />
+  <Cta title="Pas sûr du forfait qui vous convient ?" aura="vous convient ?" text={`Décrivez-moi votre commerce en deux minutes. Je vous conseille honnêtement et je vous réponds en ${settings.contact.responseTime}.`} />
 </Base>
 
 <style>
@@ -77,6 +91,7 @@ const details: Record<string, string[]> = {
   .svd__num { position: absolute; right: 0; top: -1.5rem; font-family: var(--font-display); font-size: clamp(5rem, 10vw, 8rem); font-weight: 700; line-height: 1; color: transparent; -webkit-text-stroke: 1px rgb(255 255 255 / 0.08); pointer-events: none; }
   .svd__foot { display: flex; gap: 1.4rem; align-items: center; margin-top: 0.4rem; }
   .svd__visual { position: relative; display: block; transition: transform 0.6s var(--ease); }
+  .svd__visual img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
   .svd__visual::before { content: ''; position: absolute; inset: 10% 5%; z-index: -1; background: radial-gradient(closest-side, rgb(139 92 246 / 0.35), transparent); filter: blur(30px); }
   .svd__note { position: absolute; left: 1rem; bottom: -0.9rem; padding: 0.35rem 0.8rem; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line-2); font-size: 0.78rem; color: var(--muted); }
 </style>

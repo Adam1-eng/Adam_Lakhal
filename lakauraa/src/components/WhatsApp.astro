@@ -1,0 +1,211 @@
+---
+// WhatsApp intelligent : suggère le numéro marocain ou canadien selon le pays (IP), le visiteur choisit toujours.
+// Les numéros se règlent dans /admin → Réseaux et WhatsApp. Si aucun numéro n'est renseigné, rien ne s'affiche.
+import BrandIcon from './BrandIcon.astro';
+import Icon from './Icon.astro';
+interface Props { message?: string }
+const wa = Astro.locals.settings.whatsapp;
+const message = Astro.props.message || wa.message;
+const digits = (n: string) => n.replace(/\D/g, '');
+const fmt = (n: string) => {
+  const d = digits(n);
+  if (d.startsWith('212') && d.length === 12) return `+212 ${d.slice(3, 4)} ${d.slice(4, 6)} ${d.slice(6, 8)} ${d.slice(8, 10)} ${d.slice(10)}`;
+  if (d.startsWith('1') && d.length === 11) return `+1 ${d.slice(1, 4)}-${d.slice(4, 7)}-${d.slice(7)}`;
+  return `+${d}`;
+};
+const lines = [
+  { id: 'ma', flag: '🇲🇦', country: 'Maroc', number: digits(wa.ma) },
+  { id: 'ca', flag: '🇨🇦', country: 'Canada', number: digits(wa.ca) },
+].filter((l) => l.number.length >= 8);
+---
+{lines.length > 0 && (
+  <div class="wa" data-wa data-message={message}>
+    <button type="button" class="wa__fab" data-wa-open aria-haspopup="dialog" aria-controls="wa-sheet">
+      <BrandIcon name="whatsapp" />
+      <span class="wa__fab-label">WhatsApp</span>
+    </button>
+
+    <dialog class="wa__sheet" id="wa-sheet" aria-labelledby="wa-title">
+      <div class="wa__panel">
+        <header class="wa__head">
+          <span class="wa__logo"><BrandIcon name="whatsapp" /></span>
+          <div>
+            <h2 id="wa-title">Écrivez-moi sur WhatsApp</h2>
+            <p>Réponse en {Astro.locals.settings.contact.responseTime}, du lundi au samedi.</p>
+          </div>
+          <button type="button" class="wa__close" data-wa-close aria-label="Fermer"><Icon name="close" /></button>
+        </header>
+
+        <p class="wa__hint" data-wa-hint hidden></p>
+
+        <ul class="wa__list">
+          {lines.map((l) => (
+            <li>
+              <a class="wa__opt" data-wa-line={l.id} data-number={l.number} href={`https://wa.me/${l.number}?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener">
+                <span class="wa__flag" aria-hidden="true">{l.flag}</span>
+                <span class="wa__txt"><strong>Clients au {l.country}</strong><small>{fmt(l.number)}</small></span>
+                <span class="wa__badge" data-wa-badge hidden>Recommandé</span>
+                <Icon name="arrow-up-right" class="wa__go" />
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <details class="wa__msg">
+          <summary>Message envoyé (modifiable dans WhatsApp)</summary>
+          <p>{message}</p>
+        </details>
+      </div>
+    </dialog>
+  </div>
+)}
+
+<script>
+  type Line = 'ma' | 'ca';
+  const KEY = 'lk_wa_line';
+  const CA_TZ = /^America\/(Toronto|Montreal|Vancouver|Edmonton|Winnipeg|Halifax|Regina|St_Johns|Moncton|Whitehorse|Yellowknife|Iqaluit|Glace_Bay|Goose_Bay|Swift_Current|Dawson_Creek|Creston|Fort_Nelson|Inuvik|Rankin_Inlet|Resolute|Cambridge_Bay|Atikokan|Blanc-Sablon|Nipigon|Thunder_Bay|Rainy_River)$/;
+
+  let detected: Promise<Line | null> | null = null;
+  function detect(): Promise<Line | null> {
+    detected ??= (async () => {
+      try {
+        const saved = localStorage.getItem(KEY);
+        if (saved === 'ma' || saved === 'ca') return saved;
+      } catch {}
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 2500);
+        const r = await fetch('/api/geo', { signal: ctrl.signal });
+        clearTimeout(t);
+        const { country } = (await r.json()) as { country: string | null };
+        if (country === 'MA') return 'ma';
+        if (country === 'CA') return 'ca';
+        if (country) return null; // autre pays : on laisse choisir
+      } catch {}
+      // Secours si le pays est inconnu : fuseau horaire de l’appareil
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? '';
+      if (tz === 'Africa/Casablanca' || tz === 'Africa/El_Aaiun') return 'ma';
+      if (CA_TZ.test(tz)) return 'ca';
+      return null;
+    })();
+    return detected;
+  }
+
+  let currentOpen: ((msg?: string) => void) | null = null;
+  // Tous les boutons [data-wa-open] du site ouvrent ce choix (message personnalisé possible). Écouteur posé une seule fois.
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-wa-open]');
+    if (!btn || !currentOpen) return;
+    e.preventDefault();
+    currentOpen(btn.dataset.waMessage);
+  });
+
+  function init() {
+    const root = document.querySelector<HTMLElement>('[data-wa]');
+    if (!root) { currentOpen = null; return; }
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+    const dialog = root.querySelector<HTMLDialogElement>('dialog')!;
+    const hint = root.querySelector<HTMLElement>('[data-wa-hint]')!;
+    const opts = [...root.querySelectorAll<HTMLAnchorElement>('[data-wa-line]')];
+    const baseMsg = root.dataset.message ?? '';
+
+    const setMessage = (msg: string) => {
+      opts.forEach((o) => (o.href = `https://wa.me/${o.dataset.number}?text=${encodeURIComponent(msg)}`));
+      const p = root.querySelector('.wa__msg p');
+      if (p) p.textContent = msg;
+    };
+
+    const highlight = (line: Line | null) => {
+      opts.forEach((o) => {
+        const on = o.dataset.waLine === line;
+        o.classList.toggle('is-reco', on);
+        o.querySelector<HTMLElement>('[data-wa-badge]')!.hidden = !on;
+      });
+      // l’option recommandée passe en premier
+      const list = root.querySelector('.wa__list')!;
+      const reco = opts.find((o) => o.dataset.waLine === line);
+      if (reco) list.prepend(reco.parentElement!);
+      if (opts.length < 2) { hint.hidden = true; return; }
+      hint.hidden = false;
+      hint.textContent = line === 'ma'
+        ? 'Vous semblez être au Maroc : le numéro marocain est recommandé. Vous pouvez choisir l’autre.'
+        : line === 'ca'
+          ? 'Vous semblez être au Canada : le numéro canadien est recommandé. Vous pouvez choisir l’autre.'
+          : 'Choisissez le numéro qui vous convient le mieux.';
+    };
+
+    const open = async (msg?: string) => {
+      setMessage(msg || baseMsg);
+      const line = await detect();
+      highlight(line);
+      // Un seul numéro configuré : ouverture directe
+      if (opts.length === 1) { window.open(opts[0].href, '_blank', 'noopener'); return; }
+      dialog.showModal();
+      (dialog.querySelector('.is-reco') as HTMLElement ?? opts[0]).focus();
+    };
+
+    opts.forEach((o) => o.addEventListener('click', () => {
+      try { localStorage.setItem(KEY, o.dataset.waLine!); } catch {}
+      dialog.close();
+    }));
+    root.querySelector('[data-wa-close]')!.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
+
+    currentOpen = open;
+
+    detect();
+  }
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .wa__fab {
+    position: fixed; z-index: 80;
+    right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom));
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    height: 56px; padding: 0 1.1rem 0 1rem;
+    border-radius: 999px;
+    background: #25d366; color: #062e16;
+    font-weight: 700; font-size: 0.95rem;
+    box-shadow: 0 14px 34px -10px rgb(37 211 102 / 0.65), inset 0 1px 0 rgb(255 255 255 / 0.4);
+    transform: translateY(0) scale(1);
+    transition: transform 0.4s var(--ease), box-shadow 0.3s, background 0.3s;
+  }
+  .wa__fab::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; border: 2px solid rgb(37 211 102 / 0.5); animation: waPulse 2.6s var(--ease) infinite; pointer-events: none; }
+  @keyframes waPulse { 0% { opacity: 1; transform: scale(0.95); } 70%, 100% { opacity: 0; transform: scale(1.25); } }
+  .wa__fab:hover { transform: translateY(-3px); background: #2ee374; box-shadow: 0 20px 40px -12px rgb(37 211 102 / 0.8); }
+  .wa__fab :global(svg) { width: 26px; height: 26px; }
+  @media (max-width: 640px) {
+    .wa__fab { width: 56px; padding: 0; justify-content: center; }
+    .wa__fab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  }
+
+  .wa__sheet { padding: 0; border: 0; background: transparent; max-width: 100vw; max-height: 100vh; margin: auto auto 0 auto; width: 100%; }
+  @media (min-width: 640px) { .wa__sheet { margin: auto; width: min(440px, 100% - 2rem); } }
+  .wa__sheet::backdrop { background: rgb(4 4 8 / 0.65); backdrop-filter: blur(6px); }
+  .wa__sheet[open] .wa__panel { animation: waIn 0.5s var(--ease); }
+  @keyframes waIn { from { opacity: 0; transform: translateY(30px); } }
+  .wa__panel { display: grid; gap: 1.1rem; padding: 1.4rem 1.3rem calc(1.4rem + env(safe-area-inset-bottom)); border-radius: 24px 24px 0 0; background: var(--surface); border: 1px solid var(--line-2); color: var(--text); box-shadow: 0 -30px 80px -30px rgb(0 0 0 / 0.9); }
+  @media (min-width: 640px) { .wa__panel { border-radius: 24px; padding: 1.6rem; } }
+  .wa__head { display: grid; grid-template-columns: auto 1fr auto; gap: 0.9rem; align-items: center; }
+  .wa__logo { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: #25d366; color: #062e16; }
+  .wa__logo :global(svg) { width: 26px; height: 26px; }
+  .wa__head h2 { font-size: 1.2rem; letter-spacing: -0.02em; }
+  .wa__head p { font-size: 0.85rem; color: var(--muted); }
+  .wa__close { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line-2); color: var(--muted); }
+  .wa__close:hover { color: var(--text); }
+  .wa__close :global(svg) { width: 18px; height: 18px; }
+  .wa__hint { font-size: 0.88rem; color: var(--muted); padding: 0.7rem 0.9rem; border-radius: 12px; background: rgb(37 211 102 / 0.08); border: 1px solid rgb(37 211 102 / 0.2); }
+  .wa__list { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  .wa__opt { display: flex; align-items: center; gap: 0.9rem; padding: 0.95rem 1rem; border-radius: 16px; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.02); transition: border-color 0.3s, background 0.3s, transform 0.3s var(--ease); min-height: 64px; }
+  .wa__opt:hover, .wa__opt:focus-visible { border-color: rgb(37 211 102 / 0.6); background: rgb(37 211 102 / 0.07); transform: translateY(-2px); }
+  .wa__opt.is-reco { border-color: rgb(37 211 102 / 0.55); background: rgb(37 211 102 / 0.08); }
+  .wa__flag { font-size: 1.7rem; line-height: 1; }
+  .wa__txt { display: grid; flex: 1; }
+  .wa__txt small { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .wa__badge { font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 999px; background: #25d366; color: #062e16; }
+  :global(.wa__go) { width: 18px; height: 18px; color: var(--muted); }
+  .wa__msg summary { cursor: pointer; font-size: 0.82rem; color: var(--dim); }
+  .wa__msg p { margin-top: 0.5rem; font-size: 0.88rem; color: var(--muted); padding: 0.7rem 0.9rem; border-radius: 12px; background: rgb(0 0 0 / 0.25); }
+</style>

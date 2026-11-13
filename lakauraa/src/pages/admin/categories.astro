@@ -1,0 +1,94 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { asc, count, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { str, moveInList } from '../../lib/admin';
+import { slugify } from '../../lib/content';
+
+const db = await getDb();
+const all = () => db.select().from(schema.categories).orderBy(asc(schema.categories.sort), asc(schema.categories.createdAt));
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const action = str(fd, 'action');
+  const id = str(fd, 'id');
+  const name = str(fd, 'name').slice(0, 60);
+  const description = str(fd, 'description').slice(0, 300);
+  let msg = '';
+  let err = '';
+  if (action === 'create' || action === 'update') {
+    const slug = slugify(str(fd, 'slug') || name);
+    if (name.length < 2 || !slug) err = 'Nom de catégorie requis.';
+    else {
+      const clash = (await db.select().from(schema.categories).where(eq(schema.categories.slug, slug))).find((c) => c.id !== id);
+      if (clash) err = `L’adresse « ${slug} » est déjà utilisée par une autre catégorie.`;
+      else if (action === 'create') {
+        const list = await all();
+        await db.insert(schema.categories).values({ name, slug, description, sort: list.length });
+        msg = 'Catégorie ajoutée.';
+      } else {
+        await db.update(schema.categories).set({ name, slug, description }).where(eq(schema.categories.id, id));
+        msg = 'Catégorie enregistrée.';
+      }
+    }
+  } else if (action === 'up' || action === 'down') {
+    const list = moveInList(await all(), id, action);
+    for (const [i, c] of list.entries()) await db.update(schema.categories).set({ sort: i }).where(eq(schema.categories.id, c.id));
+    msg = 'Ordre mis à jour.';
+  } else if (action === 'delete') {
+    await db.delete(schema.categories).where(eq(schema.categories.id, id));
+    msg = 'Catégorie supprimée. Ses projets n’ont plus de catégorie.';
+  }
+  return Astro.redirect('/admin/categories?' + (err ? 'erreur=' + encodeURIComponent(err) : 'ok=' + encodeURIComponent(msg)), 303);
+}
+
+const cats = await all();
+const counts = await db.select({ id: schema.projects.categoryId, n: count() }).from(schema.projects).groupBy(schema.projects.categoryId);
+const pubCounts = await db.select({ id: schema.projects.categoryId, n: count() }).from(schema.projects).where(eq(schema.projects.status, 'published')).groupBy(schema.projects.categoryId);
+const n = (id: string) => counts.find((c) => c.id === id)?.n ?? 0;
+const np = (id: string) => pubCounts.find((c) => c.id === id)?.n ?? 0;
+---
+<AdminLayout title="Catégories" active="categories">
+  <section class="panel">
+    <div class="panel__head"><div><h2>Catégories du portfolio</h2><p>Sur le site, seules les catégories qui contiennent au moins un projet publié apparaissent dans les filtres.</p></div></div>
+    <div class="list-edit">
+      {cats.map((c, i) => (
+        <details>
+          <summary>
+            <strong>{c.name}</strong>
+            <span class:list={['badge', np(c.id) ? 'badge--pub' : 'badge--draft']}>{np(c.id) ? `${np(c.id)} publié${np(c.id) > 1 ? 's' : ''}` : 'masquée (vide)'}</span>
+            <span class="muted-s">{n(c.id)} au total</span>
+          </summary>
+          <form method="post" class="adm-form">
+            <input type="hidden" name="id" value={c.id} />
+            <div class="grid-2">
+              <div class="field"><label for={`n-${c.id}`}>Nom</label><input class="input" id={`n-${c.id}`} name="name" value={c.name} required maxlength="60" /></div>
+              <div class="field"><label for={`s-${c.id}`}>Adresse (filtre)</label><input class="input" id={`s-${c.id}`} name="slug" value={c.slug} maxlength="60" /></div>
+            </div>
+            <div class="field"><label for={`d-${c.id}`}>Description</label><textarea class="input" id={`d-${c.id}`} name="description" maxlength="300">{c.description}</textarea></div>
+            <div class="row row--end">
+              <button class="icon-btn" name="action" value="up" disabled={i === 0} aria-label="Monter"><Icon name="arrow-down" class="rot180" /></button>
+              <button class="icon-btn" name="action" value="down" disabled={i === cats.length - 1} aria-label="Descendre"><Icon name="arrow-down" /></button>
+              <button class="btn btn--danger btn--xs" name="action" value="delete" formnovalidate data-confirm={`Supprimer la catégorie « ${c.name} » ?`}>Supprimer</button>
+              <button class="btn btn--primary btn--xs" name="action" value="update">Enregistrer</button>
+            </div>
+          </form>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head"><h2>Nouvelle catégorie</h2></div>
+    <form method="post" class="adm-form">
+      <div class="grid-2">
+        <div class="field"><label for="new-name">Nom</label><input class="input" id="new-name" name="name" required maxlength="60" placeholder="ex. Applications web" /></div>
+        <div class="field"><label for="new-desc">Description <span class="hint">(facultatif)</span></label><input class="input" id="new-desc" name="description" maxlength="300" /></div>
+      </div>
+      <div class="row row--end"><button class="btn btn--primary btn--sm" name="action" value="create"><Icon name="plus" /> Ajouter</button></div>
+    </form>
+  </section>
+</AdminLayout>
+
+<style>:global(.rot180) { rotate: 180deg; }</style>

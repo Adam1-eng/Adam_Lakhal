@@ -1,0 +1,30 @@
+---
+// Affiche uniquement les réseaux renseignés dans l’admin (rien n’est inventé).
+import BrandIcon from './BrandIcon.astro';
+import { activeSocials } from '../lib/content';
+interface Props { variant?: 'icons' | 'pills'; class?: string; label?: string }
+const { variant = 'icons', class: cls = '', label = 'Réseaux sociaux' } = Astro.props;
+const list = activeSocials(Astro.locals.settings.socials);
+---
+{list.length > 0 && (
+  <ul class:list={['soc', `soc--${variant}`, cls]} aria-label={label}>
+    {list.map((s) => (
+      <li>
+        <a href={s.url} target="_blank" rel="noopener me" aria-label={variant === 'icons' ? `${s.label} (nouvel onglet)` : undefined}>
+          <BrandIcon name={s.id} />
+          {variant === 'pills' && <span>{s.label}</span>}
+        </a>
+      </li>
+    ))}
+  </ul>
+)}
+
+<style>
+  .soc { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .soc a { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.03); transition: color 0.3s, border-color 0.3s, background 0.3s, transform 0.4s var(--ease); }
+  .soc a:hover { color: var(--text); border-color: rgb(167 139 250 / 0.5); background: rgb(167 139 250 / 0.1); transform: translateY(-2px); }
+  .soc--icons a { justify-content: center; width: 42px; height: 42px; border-radius: 12px; }
+  .soc--icons :global(svg) { width: 19px; height: 19px; }
+  .soc--pills a { padding: 0.5rem 0.9rem 0.5rem 0.7rem; border-radius: 999px; font-size: 0.9rem; font-weight: 500; }
+  .soc--pills :global(svg) { width: 18px; height: 18px; }
+</style>

@@ -1,0 +1,76 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import Todo from '../components/Todo.astro';
+const { legal, contact } = Astro.locals.settings;
+const sections = [
+  { id: 'responsable', title: 'Responsable' },
+  { id: 'donnees', title: 'Renseignements recueillis' },
+  { id: 'finalites', title: 'Utilisation' },
+  { id: 'partage', title: 'Communication à des tiers' },
+  { id: 'transferts', title: 'Hébergement hors du Québec et du Maroc' },
+  { id: 'conservation', title: 'Conservation' },
+  { id: 'securite', title: 'Sécurité' },
+  { id: 'droits', title: 'Vos droits' },
+  { id: 'plainte', title: 'Plainte' },
+  { id: 'modifications', title: 'Modifications' },
+];
+---
+<LegalPage title="Politique de confidentialité" description="Comment Lakauraa traite vos renseignements personnels, au Canada et au Maroc." sections={sections}>
+  <p class="lg__note">Lakauraa recueille le moins de renseignements possible. Le site ne contient ni publicité ni outil de pistage, et le formulaire de contact n’enregistre rien sur nos serveurs : il prépare simplement un message que vous envoyez vous-même.</p>
+
+  <h2 id="responsable">Responsable de la protection des renseignements personnels</h2>
+  <p>Conformément à la <em>Loi sur la protection des renseignements personnels dans le secteur privé</em> du Québec (modifiée par la Loi 25), la personne responsable est :</p>
+  <dl>
+    <dt>Nom</dt><dd>{legal.privacyOfficer || legal.ownerName}</dd>
+    <dt>Courriel</dt><dd><a href={`mailto:${legal.privacyEmail || contact.email}`}>{legal.privacyEmail || contact.email}</a></dd>
+    <dt>Adresse</dt><dd><Todo value={legal.address} label="adresse postale professionnelle" /></dd>
+  </dl>
+  <p>Pour les personnes situées au Maroc, la présente politique vise également le respect de la loi n° 09-08 relative à la protection des personnes physiques à l’égard du traitement des données à caractère personnel.</p>
+
+  <h2 id="donnees">Renseignements recueillis</h2>
+  <h3>Lorsque vous me contactez</h3>
+  <p>Si vous m’écrivez par courriel, texto, WhatsApp ou téléphone (y compris à l’aide du formulaire, qui ouvre votre propre application), je reçois les renseignements que vous choisissez de transmettre : nom, nom du commerce, numéro de téléphone ou courriel et description du projet.</p>
+  <h3>Lors de votre visite</h3>
+  <ul>
+    <li><strong>Pays approximatif</strong>, déduit de votre adresse IP par l’hébergeur, uniquement pour vous suggérer le bon numéro WhatsApp (Maroc ou Canada). Il n’est ni enregistré ni associé à votre identité.</li>
+    <li><strong>Journaux techniques</strong> de l’hébergeur (adresse IP, navigateur, pages demandées), nécessaires à la sécurité et au bon fonctionnement du site.</li>
+    <li><strong>Préférences locales</strong> enregistrées dans votre navigateur : numéro WhatsApp choisi et choix de confidentialité (voir la <a href="/politique-cookies">politique relative aux cookies</a>).</li>
+  </ul>
+  <h3>Clients</h3>
+  <p>Pour réaliser un projet, je traite aussi les informations nécessaires à l’entente, à la facturation et à la création du site (coordonnées, contenus et photos fournis).</p>
+
+  <h2 id="finalites">Utilisation des renseignements</h2>
+  <ul>
+    <li>Répondre à vos demandes et préparer votre maquette ou votre soumission ;</li>
+    <li>Réaliser, livrer et entretenir votre site ;</li>
+    <li>Facturer et respecter les obligations comptables et fiscales ;</li>
+    <li>Assurer la sécurité du site.</li>
+  </ul>
+  <p>Je n’utilise pas vos renseignements à des fins de prospection sans votre consentement et je ne les vends jamais.</p>
+
+  <h2 id="partage">Communication à des tiers</h2>
+  <p>Vos renseignements ne sont communiqués qu’aux prestataires nécessaires au service :</p>
+  <ul>
+    <li><strong>Vercel Inc.</strong> : hébergement du site, journaux techniques et stockage des images ;</li>
+    <li><strong>Hébergeur de la base de données</strong> : contenus du site (aucune donnée de visiteur n’y est enregistrée) ;</li>
+    <li><strong>WhatsApp (Meta)</strong>, votre fournisseur de courriel ou d’opérateur mobile, lorsque vous choisissez de me contacter par ces moyens.</li>
+  </ul>
+
+  <h2 id="transferts">Hébergement hors du Québec et du Maroc</h2>
+  <p>Certains prestataires peuvent héberger des données à l’extérieur du Québec, du Canada ou du Maroc, notamment aux États-Unis. Avant d’y recourir, je m’assure qu’ils offrent une protection adéquate (engagements contractuels et mesures de sécurité reconnues).</p>
+
+  <h2 id="conservation">Conservation</h2>
+  <p>Les échanges liés à une demande sans suite sont conservés au plus 24 mois. Les documents liés à un contrat sont conservés pendant la durée exigée par les lois fiscales applicables. Les préférences enregistrées dans votre navigateur peuvent être effacées à tout moment depuis celui-ci.</p>
+
+  <h2 id="securite">Sécurité</h2>
+  <p>Le site est servi exclusivement en HTTPS. L’espace d’administration est protégé par mot de passe chiffré, session sécurisée et limitation des tentatives de connexion. L’accès aux renseignements est limité à ce qui est nécessaire.</p>
+
+  <h2 id="droits">Vos droits</h2>
+  <p>Vous pouvez à tout moment demander l’accès à vos renseignements, leur rectification, leur suppression ou retirer votre consentement, en écrivant à <a href={`mailto:${legal.privacyEmail || contact.email}`}>{legal.privacyEmail || contact.email}</a>. Je réponds dans un délai de 30 jours.</p>
+
+  <h2 id="plainte">Plainte</h2>
+  <p>Si vous n’êtes pas satisfait de ma réponse, vous pouvez vous adresser à la <strong>Commission d’accès à l’information du Québec</strong> (cai.gouv.qc.ca), au <strong>Commissariat à la protection de la vie privée du Canada</strong> (priv.gc.ca) ou, au Maroc, à la <strong>Commission nationale de contrôle de la protection des données à caractère personnel (CNDP)</strong> (cndp.ma).</p>
+
+  <h2 id="modifications">Modifications</h2>
+  <p>Cette politique peut être mise à jour. La date de dernière mise à jour figure en haut de la page.</p>
+</LegalPage>

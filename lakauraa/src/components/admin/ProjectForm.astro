@@ -1,0 +1,109 @@
+---
+import type { Project, Category } from '../../lib/db/schema';
+interface Props { project?: Partial<Project>; categories: Category[]; error?: string; id?: string }
+const { project: p = {}, categories, error, id = 'project-form' } = Astro.props;
+const features = (p.features ?? []).map((f) => (f.text ? `${f.title} : ${f.text}` : f.title)).join('\n');
+const kinds = [
+  { v: 'client', l: 'Projet client' },
+  { v: 'personnel', l: 'Projet personnel' },
+  { v: 'exemple', l: 'Exemple (fictif)' },
+  { v: 'maquette', l: 'Maquette de démonstration' },
+];
+---
+<form method="post" id={id} class="adm-form" novalidate data-project-form>
+  {error && <p class="adm-toast adm-toast--err" role="alert" style="margin:0">{error}</p>}
+
+  <section class="panel" id="infos">
+    <div class="panel__head"><h2>Informations générales</h2></div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="f-title">Nom du projet <span class="hint">(obligatoire)</span></label>
+        <input class="input" id="f-title" name="title" required maxlength="120" value={p.title ?? ''} data-title />
+      </div>
+      <div class="field">
+        <label for="f-client">Nom du client <span class="hint">(facultatif)</span></label>
+        <input class="input" id="f-client" name="client" maxlength="120" value={p.client ?? ''} />
+      </div>
+      <div class="field">
+        <label for="f-slug">Adresse de la page <span class="hint">/projets/…</span></label>
+        <input class="input" id="f-slug" name="slug" maxlength="80" value={p.slug ?? ''} placeholder="générée à partir du nom" pattern="[a-z0-9-]*" data-slug />
+      </div>
+      <div class="field">
+        <label for="f-date">Date de réalisation</label>
+        <input class="input" id="f-date" name="completedOn" value={p.completedOn ?? ''} placeholder="2026 ou 2026-05" maxlength="7" />
+      </div>
+      <div class="field">
+        <label for="f-location">Lieu</label>
+        <input class="input" id="f-location" name="location" maxlength="120" value={p.location ?? ''} placeholder="Montréal, Zemamra (Maroc)…" />
+      </div>
+      <div class="field">
+        <label for="f-tech">Technologies <span class="hint">(séparées par des virgules)</span></label>
+        <input class="input" id="f-tech" name="technologies" value={(p.technologies ?? []).join(', ')} placeholder="Astro, Next.js, WhatsApp…" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-summary">Description courte <span class="hint">(affichée sur les cartes, 400 caractères max.)</span></label>
+      <textarea class="input" id="f-summary" name="summary" maxlength="400" data-count>{p.summary ?? ''}</textarea>
+      <p class="muted-s" data-count-out></p>
+    </div>
+    <div class="field">
+      <label for="f-body">Description détaillée <span class="hint">(paragraphes séparés par une ligne vide)</span></label>
+      <textarea class="input input--tall" id="f-body" name="body" maxlength="8000">{p.body ?? ''}</textarea>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label for="f-challenge">Le défi</label><textarea class="input" id="f-challenge" name="challenge" maxlength="1500">{p.challenge ?? ''}</textarea></div>
+      <div class="field"><label for="f-solution">La solution</label><textarea class="input" id="f-solution" name="solution" maxlength="1500">{p.solution ?? ''}</textarea></div>
+    </div>
+    <div class="field">
+      <label for="f-features">Fonctionnalités clés <span class="hint">(une par ligne : « Titre : description »)</span></label>
+      <textarea class="input" id="f-features" name="features" placeholder="Panier : commande envoyée sur WhatsApp">{features}</textarea>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label for="f-live">URL du site en ligne</label><input class="input" id="f-live" name="liveUrl" value={p.liveUrl ?? ''} placeholder="https://…" inputmode="url" /></div>
+      <div class="field"><label for="f-gh">Lien GitHub</label><input class="input" id="f-gh" name="githubUrl" value={p.githubUrl ?? ''} placeholder="https://github.com/…" inputmode="url" /></div>
+      <div class="field"><label for="f-video">Vidéo de démonstration <span class="hint">(lien .mp4, facultatif)</span></label><input class="input" id="f-video" name="videoUrl" value={p.videoUrl ?? ''} placeholder="https://…/demo.mp4" inputmode="url" /></div>
+    </div>
+  </section>
+
+  <section class="panel" id="presentation">
+    <div class="panel__head"><h2>Présentation</h2><p>Où et comment le projet apparaît sur le site.</p></div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="f-cat">Catégorie</label>
+        <select class="input" id="f-cat" name="categoryId">
+          <option value="">— Aucune —</option>
+          {categories.map((c) => <option value={c.id} selected={p.categoryId === c.id}>{c.name}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-kind">Type de réalisation</label>
+        <select class="input" id="f-kind" name="kind">
+          {kinds.map((k) => <option value={k.v} selected={(p.kind ?? 'client') === k.v}>{k.l}</option>)}
+        </select>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" name="featured" checked={p.featured ?? false} /> Mettre en avant sur la page d’accueil</label>
+    <p class="muted-s">L’image principale et les images visibles se choisissent dans la section Images.</p>
+  </section>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-project-form]').forEach((form) => {
+    const title = form.querySelector<HTMLInputElement>('[data-title]')!;
+    const slug = form.querySelector<HTMLInputElement>('[data-slug]')!;
+    let touched = Boolean(slug.value);
+    const slugify = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 70);
+    slug.addEventListener('input', () => { touched = true; slug.value = slugify(slug.value); });
+    title.addEventListener('input', () => { if (!touched) slug.placeholder = slugify(title.value) || 'générée à partir du nom'; });
+    const ta = form.querySelector<HTMLTextAreaElement>('[data-count]');
+    const out = form.querySelector<HTMLElement>('[data-count-out]');
+    const upd = () => { if (ta && out) out.textContent = `${ta.value.length} / 400`; };
+    ta?.addEventListener('input', upd); upd();
+    // Avertit si l’on quitte la page avec des modifications non enregistrées
+    let dirty = false;
+    form.addEventListener('input', () => (dirty = true));
+    form.addEventListener('submit', () => (dirty = false));
+    document.querySelectorAll(`[form="${form.id}"]`).forEach((b) => b.addEventListener('click', () => (dirty = false)));
+    window.addEventListener('beforeunload', (e) => { if (dirty) e.preventDefault(); });
+  });
+</script>

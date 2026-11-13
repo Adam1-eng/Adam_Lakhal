@@ -1,0 +1,39 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import Todo from '../components/Todo.astro';
+const { legal, contact } = Astro.locals.settings;
+const sections = [
+  { id: 'editeur', title: 'Éditeur du site' },
+  { id: 'hebergement', title: 'Hébergement' },
+  { id: 'propriete', title: 'Propriété intellectuelle' },
+  { id: 'maquettes', title: 'Maquettes de démonstration' },
+  { id: 'contact', title: 'Contact' },
+];
+---
+<LegalPage title="Mentions légales" description="Informations sur l’éditeur et l’hébergeur du site Lakauraa." sections={sections}>
+  <h2 id="editeur">Éditeur du site</h2>
+  <dl>
+    <dt>Nom commercial</dt><dd>{legal.businessName || 'Lakauraa'}</dd>
+    <dt>Responsable</dt><dd>{legal.ownerName || 'Adam Lakhal'}</dd>
+    <dt>Statut juridique</dt><dd><Todo value={legal.legalStatus} label="ex. travailleur autonome / entreprise individuelle" /></dd>
+    <dt>Immatriculation (Québec)</dt><dd><Todo value={legal.registrationCa} label="NEQ, si l’entreprise est immatriculée" /></dd>
+    <dt>Identifiants (Maroc)</dt><dd><Todo value={legal.registrationMa} label="ICE / IF / RC, si applicable" /></dd>
+    <dt>Adresse</dt><dd><Todo value={legal.address} label="adresse postale professionnelle" /></dd>
+    <dt>Courriel</dt><dd><a href={`mailto:${contact.email}`}>{contact.email}</a></dd>
+    <dt>Téléphone</dt><dd>{contact.phone}</dd>
+    <dt>Directeur de la publication</dt><dd>{legal.ownerName || 'Adam Lakhal'}</dd>
+  </dl>
+
+  <h2 id="hebergement">Hébergement</h2>
+  <p>Le site est hébergé par <strong>Vercel Inc.</strong>, 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis (vercel.com). Les images du portfolio sont stockées sur le service Vercel Blob et les contenus du site dans une base de données PostgreSQL hébergée par un prestataire infonuagique.</p>
+
+  <h2 id="propriete">Propriété intellectuelle</h2>
+  <p>La structure, le design, les textes et le code du site Lakauraa sont la propriété de {legal.ownerName || 'Adam Lakhal'}, sauf mention contraire. Toute reproduction ou réutilisation sans autorisation écrite est interdite.</p>
+  <p>Les captures d’écran de projets clients sont publiées avec leur accord ou à partir de sites accessibles publiquement. Les noms et marques des clients appartiennent à leurs titulaires respectifs.</p>
+
+  <h2 id="maquettes">Maquettes de démonstration</h2>
+  <p>Certaines réalisations présentées sont des <strong>maquettes de démonstration</strong>, préparées gratuitement pour des commerces avant toute commande. Elles portent la mention « Maquette de démonstration » et ne constituent pas le site officiel de ces entreprises. Les noms, logos et photographies éventuellement utilisés restent la propriété de leurs titulaires. Un commerce qui souhaite le retrait de sa maquette peut l’obtenir sur simple demande à <a href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
+
+  <h2 id="contact">Contact</h2>
+  <p>Pour toute question concernant le site : <a href={`mailto:${contact.email}`}>{contact.email}</a> ou {contact.phone}.</p>
+</LegalPage>

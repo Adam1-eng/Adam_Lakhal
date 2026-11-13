@@ -1,0 +1,41 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import ProjectForm from '../../../components/admin/ProjectForm.astro';
+import Icon from '../../../components/Icon.astro';
+import { asc, min } from 'drizzle-orm';
+import { getDb, schema } from '../../../lib/db';
+import { parseProjectForm, firstError, uniqueProjectSlug } from '../../../lib/admin';
+
+const db = await getDb();
+const categories = await db.select().from(schema.categories).orderBy(asc(schema.categories.sort));
+let error = '';
+let values: Record<string, any> = { kind: 'client' };
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const parsed = parseProjectForm(fd);
+  if (!parsed.success) {
+    error = firstError(parsed.error);
+    values = Object.fromEntries(fd) as Record<string, any>;
+    values.technologies = String(values.technologies ?? '').split(',').map((t: string) => t.trim()).filter(Boolean);
+    values.features = [];
+    values.featured = fd.get('featured') === 'on';
+  } else {
+    const { slug, ...data } = parsed.data;
+    const [{ m }] = await db.select({ m: min(schema.projects.sort) }).from(schema.projects);
+    const [row] = await db
+      .insert(schema.projects)
+      .values({ ...data, slug: await uniqueProjectSlug(slug || data.title), status: 'draft', sort: (m ?? 0) - 1 })
+      .returning();
+    return Astro.redirect(`/admin/projets/${row.id}?ok=${encodeURIComponent('Brouillon créé. Ajoutez maintenant vos images.')}#images`, 303);
+  }
+}
+---
+<AdminLayout title="Ajouter un projet" active="nouveau">
+  <ProjectForm categories={categories} project={values} error={error} />
+  <div class="save-bar">
+    <span class="muted-s">Étape 1 sur 2 : les images s’ajoutent à l’étape suivante.</span>
+    <a href="/admin/projets" class="btn btn--ghost btn--sm">Annuler</a>
+    <button type="submit" form="project-form" class="btn btn--primary btn--sm">Créer le brouillon et ajouter les images <Icon name="arrow" class="arrow" /></button>
+  </div>
+</AdminLayout>

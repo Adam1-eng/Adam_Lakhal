@@ -1,4 +1,5 @@
-// Informations authentiques de la marque. Une seule source de vérité pour tout le site.
+// Données fixes du site (textes de sections). Les contenus modifiables — projets, FAQ, services,
+// témoignages, coordonnées, WhatsApp, réseaux — sont gérés dans l’admin (/admin) et stockés en base.
 
 export const site = {
   name: 'Lakauraa',
@@ -100,50 +101,6 @@ export const problems = [
   },
 ];
 
-export type Service = {
-  id: string;
-  title: string;
-  text: string;
-  price: string;
-  points: string[];
-  icon: 'page' | 'pages' | 'shop' | 'care';
-};
-
-export const services: Service[] = [
-  {
-    id: 'vitrine',
-    title: 'Site vitrine une page',
-    text: 'Tout ce qu’un client veut savoir, au même endroit : services, prix, heures, photos et un bouton pour vous appeler.',
-    price: 'Dès 600 $',
-    points: ['Prêt en 1 à 2 semaines', 'Parfait sur cellulaire', 'Bouton appel et itinéraire'],
-    icon: 'page',
-  },
-  {
-    id: 'pro',
-    title: 'Site complet multi-pages',
-    text: 'Pour les commerces qui veulent être trouvés sur Google et convaincre : galerie, avis, réservation en ligne.',
-    price: '1 200 $',
-    points: ['Jusqu’à 5 pages', 'Référencement local', 'Fiche Google Business'],
-    icon: 'pages',
-  },
-  {
-    id: 'boutique',
-    title: 'Boutique en ligne sur mesure',
-    text: 'Catalogue, panier, espace administrateur, commande sur WhatsApp : conçue autour de la façon dont vos clients achètent.',
-    price: 'Sur soumission',
-    points: ['Catalogue et recherche', 'Espace admin simple', 'Paiement adapté à vos clients'],
-    icon: 'shop',
-  },
-  {
-    id: 'entretien',
-    title: 'Entretien et mises à jour',
-    text: 'Un texto suffit : je change vos prix, vos heures ou vos photos. Hébergement, sauvegardes et sécurité inclus.',
-    price: '40 $ / mois',
-    points: ['Sans contrat', 'Hébergement inclus', 'Changements rapides'],
-    icon: 'care',
-  },
-];
-
 export const capabilities = [
   'Design sur mesure',
   'Adapté au cellulaire',
@@ -218,45 +175,6 @@ export const process = [
   },
 ];
 
-export const faq = [
-  {
-    q: 'Combien coûte un site web ?',
-    a: 'Le forfait Essentiel (une page) est à 600 $ et le forfait Pro (jusqu’à 5 pages) à 1 200 $, avant taxes. Une boutique en ligne se fait sur soumission. La soumission est gratuite.',
-  },
-  {
-    q: 'Combien de temps ça prend ?',
-    a: 'Entre une et deux semaines en général, selon la rapidité à recevoir vos textes et vos photos.',
-  },
-  {
-    q: 'Et si la maquette ne me plaît pas ?',
-    a: 'La maquette est gratuite et sans engagement. Si elle ne vous convient pas, vous ne payez rien. Sinon, on l’ajuste ensemble.',
-  },
-  {
-    q: 'Je n’ai pas de photos ni de textes. C’est un problème ?',
-    a: 'Non. Je peux rédiger les textes avec vous et utiliser vos photos Facebook ou Instagram, avec votre accord.',
-  },
-  {
-    q: 'Comment se passe le paiement ?',
-    a: 'En deux temps : 40 % au départ, le reste à la mise en ligne. Chaque projet est encadré par une entente écrite.',
-  },
-  {
-    q: 'Est-ce que je pourrai modifier mon site moi-même ?',
-    a: 'Avec le forfait Entretien, vous m’envoyez un texto et je fais les changements. Si vous préférez gérer vous-même, on peut choisir une solution facile à modifier.',
-  },
-  {
-    q: 'Le site m’appartient-il ?',
-    a: 'Oui. Le nom de domaine et le contenu sont à vous, même si vous arrêtez l’entretien.',
-  },
-  {
-    q: 'Vous êtes étudiant : est-ce sérieux ?',
-    a: `Oui. J’étudie en développement web au ${site.school}, ce qui me permet d’offrir des prix accessibles. Vous voyez la maquette avant de payer quoi que ce soit, et chaque projet fait l’objet d’une entente écrite.`,
-  },
-  {
-    q: 'Travaillez-vous seulement à Montréal ?',
-    a: 'Je suis basé à Montréal et je peux vous rencontrer en personne, mais je travaille aussi à distance : ma boutique AutoRefaatArt a été réalisée pour un commerce au Maroc.',
-  },
-];
-
 export const audiences = [
   'Salons de coiffure',
   'Barbiers',
@@ -271,7 +189,3 @@ export const audiences = [
   'Rénovation',
   'Événements',
 ];
-
-// Témoignages : à remplir UNIQUEMENT avec de vrais avis clients.
-// Tant que la liste est vide, la section ne s'affiche pas.
-export const testimonials: { quote: string; name: string; business: string }[] = [];

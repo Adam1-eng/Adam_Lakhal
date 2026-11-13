@@ -1,0 +1,6 @@
+---
+// Affiche la valeur si elle est renseignée dans l’admin, sinon un repère « À compléter » bien visible.
+interface Props { value?: string; label: string }
+const { value, label } = Astro.props;
+---
+{value?.trim() ? <>{value}</> : <span class="todo">[À compléter : {label}]</span>}

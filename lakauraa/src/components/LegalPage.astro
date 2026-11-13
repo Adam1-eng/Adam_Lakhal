@@ -1,0 +1,63 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+interface Props { title: string; description: string; sections: { id: string; title: string }[] }
+const { title, description, sections } = Astro.props;
+const legal = Astro.locals.settings.legal;
+---
+<Base title={title} description={description}>
+  <PageHero eyebrow="Informations légales" title={title} crumbs={[{ label: title }]}>
+    <p class="lg__updated reveal" style="--i:3">Dernière mise à jour : {legal.updatedOn || '13 novembre 2026'}</p>
+  </PageHero>
+  <section class="section lg-s">
+    <div class="wrap lg">
+      <nav class="lg__toc" aria-label="Sommaire">
+        <p>Sommaire</p>
+        <ol>{sections.map((s) => <li><a href={`#${s.id}`}>{s.title}</a></li>)}</ol>
+        <div class="lg__other">
+          <p>Autres documents</p>
+          <ul>
+            <li><a href="/mentions-legales">Mentions légales</a></li>
+            <li><a href="/confidentialite">Confidentialité</a></li>
+            <li><a href="/conditions-utilisation">Conditions d’utilisation</a></li>
+            <li><a href="/conditions-vente">Conditions de vente</a></li>
+            <li><a href="/politique-cookies">Cookies</a></li>
+          </ul>
+        </div>
+      </nav>
+      <article class="lg__body">
+        <slot />
+      </article>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lg-s { padding-top: clamp(3rem, 6vw, 4rem); }
+  .lg__updated { font-size: 0.9rem; color: var(--dim); }
+  .lg { display: grid; gap: 2.5rem; }
+  @media (min-width: 960px) { .lg { grid-template-columns: 260px 1fr; gap: 4rem; } .lg__toc { position: sticky; top: calc(var(--header-h) + 1.5rem); align-self: start; } }
+  .lg__toc { display: grid; gap: 1.5rem; font-size: 0.9rem; }
+  .lg__toc p { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.6rem; font-weight: 600; }
+  .lg__toc ol, .lg__toc ul { list-style: none; padding: 0; display: grid; gap: 0.45rem; }
+  .lg__toc a { color: var(--muted); transition: color 0.2s; }
+  .lg__toc a:hover { color: var(--text); }
+  @media (max-width: 959px) { .lg__toc { padding: 1.2rem; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); } .lg__other { display: none; } }
+  .lg__body { max-width: 74ch; color: #cfd0de; font-size: 1.02rem; }
+  .lg__body :global(h2) { font-size: clamp(1.35rem, 2.4vw, 1.7rem); color: var(--text); margin: 2.8rem 0 1rem; scroll-margin-top: calc(var(--header-h) + 1.5rem); letter-spacing: -0.025em; }
+  .lg__body :global(h2:first-child) { margin-top: 0; }
+  .lg__body :global(h3) { font-size: 1.1rem; color: var(--text); margin: 1.6rem 0 0.6rem; letter-spacing: -0.015em; }
+  .lg__body :global(p), .lg__body :global(ul), .lg__body :global(ol) { margin-bottom: 1rem; }
+  .lg__body :global(ul), .lg__body :global(ol) { padding-left: 1.3rem; display: grid; gap: 0.4rem; }
+  .lg__body :global(a) { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .lg__body :global(strong) { color: var(--text); }
+  .lg__body :global(dl) { display: grid; grid-template-columns: minmax(140px, auto) 1fr; gap: 0.6rem 1.2rem; padding: 1.2rem 1.4rem; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); margin-bottom: 1.2rem; }
+  .lg__body :global(dt) { color: var(--dim); font-size: 0.9rem; }
+  .lg__body :global(dd) { color: var(--text); }
+  .lg__body :global(table) { width: 100%; border-collapse: collapse; margin-bottom: 1.2rem; font-size: 0.92rem; }
+  .lg__body :global(th), .lg__body :global(td) { text-align: left; padding: 0.7rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .lg__body :global(th) { color: var(--dim); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; }
+  .lg__body :global(.todo) { background: rgb(251 191 36 / 0.14); color: #fcd34d; border: 1px dashed rgb(251 191 36 / 0.5); border-radius: 6px; padding: 0.05rem 0.4rem; font-size: 0.92em; }
+  .lg__body :global(.lg__note) { padding: 1rem 1.2rem; border-left: 3px solid var(--accent); background: rgb(167 139 250 / 0.07); border-radius: 0 12px 12px 0; color: var(--muted); font-size: 0.95rem; }
+  @media (max-width: 600px) { .lg__body :global(dl) { grid-template-columns: 1fr; gap: 0.2rem; } .lg__body :global(dd) { margin-bottom: 0.6rem; } }
+</style>

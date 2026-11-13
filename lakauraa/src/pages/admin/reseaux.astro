@@ -1,0 +1,83 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import BrandIcon from '../../components/BrandIcon.astro';
+import { getSettings, saveSetting, socialLabels, type SocialSettings } from '../../lib/content';
+import { str } from '../../lib/admin';
+
+const placeholders: Record<keyof SocialSettings, string> = {
+  instagram: 'https://www.instagram.com/votre-compte',
+  tiktok: 'https://www.tiktok.com/@votre-compte',
+  linkedin: 'https://www.linkedin.com/in/votre-profil',
+  github: 'https://github.com/votre-compte',
+  facebook: 'https://www.facebook.com/votre-page',
+  youtube: 'https://www.youtube.com/@votre-chaine',
+};
+const keys = Object.keys(socialLabels) as (keyof SocialSettings)[];
+const digits = (s: string) => s.replace(/\D/g, '');
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const errors: string[] = [];
+  const ma = digits(str(fd, 'wa_ma'));
+  const ca = digits(str(fd, 'wa_ca'));
+  if (ma && !/^212[5-7]\d{8}$/.test(ma)) errors.push('Numéro marocain invalide : format attendu +212 6XX XX XX XX.');
+  if (ca && !/^1\d{10}$/.test(ca)) errors.push('Numéro canadien invalide : format attendu +1 XXX XXX XXXX.');
+  const socials = {} as SocialSettings;
+  for (const k of keys) {
+    const v = str(fd, k);
+    if (v && !/^https:\/\/[^\s<>"']+$/i.test(v)) errors.push(`${socialLabels[k]} : le lien doit commencer par https://`);
+    socials[k] = v.slice(0, 300);
+  }
+  const email = str(fd, 'email');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) errors.push('Courriel de contact invalide.');
+  if (errors.length) return Astro.redirect('/admin/reseaux?erreur=' + encodeURIComponent(errors.join(' ')), 303);
+
+  await saveSetting('whatsapp', { ma, ca, message: str(fd, 'wa_message').slice(0, 400) || 'Bonjour Adam, je vous contacte depuis le site Lakauraa.' });
+  await saveSetting('socials', socials);
+  await saveSetting('contact', { email, phone: str(fd, 'phone').slice(0, 30), city: str(fd, 'city').slice(0, 60) || 'Montréal', responseTime: str(fd, 'responseTime').slice(0, 40) || 'moins de 24 h' });
+  return Astro.redirect('/admin/reseaux?ok=' + encodeURIComponent('Coordonnées enregistrées. Le site est à jour.'), 303);
+}
+const s = await getSettings();
+---
+<AdminLayout title="Réseaux et WhatsApp" active="reseaux">
+  <form method="post" class="adm-form">
+    <section class="panel">
+      <div class="panel__head"><div><h2><BrandIcon name="whatsapp" /> WhatsApp intelligent</h2><p>Les visiteurs au Maroc se voient proposer le numéro marocain, ceux au Canada le numéro canadien, les autres choisissent. Laissez vide pour masquer une ligne ; si les deux sont vides, WhatsApp n’apparaît pas sur le site.</p></div></div>
+      <div class="grid-2">
+        <div class="field"><label for="wa_ma">🇲🇦 Numéro WhatsApp Maroc</label><input class="input" id="wa_ma" name="wa_ma" value={s.whatsapp.ma ? '+' + s.whatsapp.ma : ''} placeholder="+212 6XX XX XX XX" inputmode="tel" autocomplete="off" /></div>
+        <div class="field"><label for="wa_ca">🇨🇦 Numéro WhatsApp Canada</label><input class="input" id="wa_ca" name="wa_ca" value={s.whatsapp.ca ? '+' + s.whatsapp.ca : ''} placeholder="+1 438 528 0259" inputmode="tel" autocomplete="off" /></div>
+      </div>
+      <div class="field"><label for="wa_message">Message prérempli</label><textarea class="input" id="wa_message" name="wa_message" maxlength="400">{s.whatsapp.message}</textarea><p class="muted-s">Sur une fiche projet, le message mentionne automatiquement le projet consulté.</p></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head"><div><h2>Réseaux sociaux</h2><p>Seuls les réseaux renseignés s’affichent (pied de page, menu mobile, À propos, Contact).</p></div></div>
+      <div class="grid-2">
+        {keys.map((k) => (
+          <div class="field">
+            <label for={`so-${k}`}><BrandIcon name={k} /> {socialLabels[k]}</label>
+            <input class="input" id={`so-${k}`} name={k} value={s.socials[k]} placeholder={placeholders[k]} inputmode="url" />
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head"><h2>Coordonnées</h2></div>
+      <div class="grid-2">
+        <div class="field"><label for="email">Courriel</label><input class="input" id="email" name="email" type="email" value={s.contact.email} required /></div>
+        <div class="field"><label for="phone">Téléphone (appel et texto)</label><input class="input" id="phone" name="phone" value={s.contact.phone} inputmode="tel" /></div>
+        <div class="field"><label for="city">Ville</label><input class="input" id="city" name="city" value={s.contact.city} /></div>
+        <div class="field"><label for="responseTime">Délai de réponse affiché</label><input class="input" id="responseTime" name="responseTime" value={s.contact.responseTime} /></div>
+      </div>
+    </section>
+
+    <div class="save-bar"><button class="btn btn--primary btn--sm" type="submit">Enregistrer</button></div>
+  </form>
+</AdminLayout>
+
+<style>
+  .panel__head h2, .field label { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .panel__head h2 :global(svg) { width: 22px; height: 22px; color: #25d366; }
+  .field label :global(svg) { width: 16px; height: 16px; }
+</style>

@@ -3,12 +3,15 @@ import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
 import Portfolio from '../../components/Portfolio.astro';
 import Cta from '../../components/Cta.astro';
-import { site } from '../../data/site';
+import { getPublishedProjects } from '../../lib/content';
+const projects = await getPublishedProjects();
 ---
-<Base title="Réalisations · Projets et maquettes de sites web" description={`Boutique en ligne AutoRefaatArt, exemple de site de salon et ${site.maquettesCount} maquettes de sites web pour des commerces de Montréal.`}>
+<Base title="Réalisations · Sites web, boutiques en ligne et maquettes" description="Boutique en ligne AutoRefaatArt, exemple de site de salon et une sélection de maquettes de sites web pour des commerces de Montréal.">
   <PageHero eyebrow="Réalisations" title="Des sites pensés pour faire venir des clients." aura="faire venir des clients."
-    lead={`Une boutique en ligne livrée, un exemple complet et une sélection de mes ${site.maquettesCount} maquettes : barbiers, garages, traiteurs, spas, photographes…`}
+    lead="Projets livrés, exemples et une sélection de mes meilleures maquettes. Ouvrez une fiche pour découvrir toutes les captures, la version cellulaire et les détails."
     crumbs={[{ label: 'Réalisations' }]} />
-  <Portfolio full />
+  {projects.length > 0
+    ? <Portfolio projects={projects} full />
+    : <section class="section"><div class="wrap"><p class="lead">Les réalisations arrivent bientôt.</p></div></section>}
   <Cta title="Votre commerce pourrait être le prochain." aura="le prochain." text="Je prépare votre maquette gratuitement, à partir de votre page Facebook, Instagram ou Google. Vous la voyez avant de décider quoi que ce soit." />
 </Base>

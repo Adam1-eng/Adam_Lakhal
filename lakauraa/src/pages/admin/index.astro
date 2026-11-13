@@ -1,0 +1,89 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { count, desc, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { getSettings, activeSocials } from '../../lib/content';
+
+const db = await getDb();
+const [[pub], [draft], [feat], [faqN], [testiN], recent, settings] = await Promise.all([
+  db.select({ n: count() }).from(schema.projects).where(eq(schema.projects.status, 'published')),
+  db.select({ n: count() }).from(schema.projects).where(eq(schema.projects.status, 'draft')),
+  db.select({ n: count() }).from(schema.projects).where(eq(schema.projects.featured, true)),
+  db.select({ n: count() }).from(schema.faqs),
+  db.select({ n: count() }).from(schema.testimonials).where(eq(schema.testimonials.published, true)),
+  db.select().from(schema.projects).orderBy(desc(schema.projects.updatedAt)).limit(5),
+  getSettings(),
+]);
+const empty = pub.n + draft.n === 0;
+const l = settings.legal;
+const checks = [
+  { ok: Boolean(settings.whatsapp.ma), label: 'Numéro WhatsApp Maroc (+212)', href: '/admin/reseaux' },
+  { ok: Boolean(settings.whatsapp.ca), label: 'Numéro WhatsApp Canada (+1)', href: '/admin/reseaux' },
+  { ok: activeSocials(settings.socials).length > 0, label: 'Liens vers vos réseaux sociaux', href: '/admin/reseaux' },
+  { ok: Boolean(l.legalStatus), label: 'Statut juridique (mentions légales)', href: '/admin/parametres#legal' },
+  { ok: Boolean(l.address), label: 'Adresse professionnelle (mentions légales et confidentialité)', href: '/admin/parametres#legal' },
+  { ok: testiN.n > 0, label: 'Au moins un vrai témoignage client publié', href: '/admin/temoignages' },
+];
+---
+<AdminLayout title="Vue d’ensemble" active="dashboard">
+  <a href="/admin/projets/nouveau" class="btn btn--primary btn--sm" slot="actions"><Icon name="plus" /> <span class="hide-s">Ajouter un projet</span></a>
+
+  {empty && (
+    <section class="panel panel--accent">
+      <div class="panel__head"><div><h2>Base de données vide</h2><p>Importez le contenu de départ : AutoRefaatArt, Élan Coiffure, 8 maquettes, la FAQ et les services.</p></div></div>
+      <form method="post" action="/api/admin/seed"><button class="btn btn--primary btn--sm" type="submit">Importer le contenu de départ</button></form>
+    </section>
+  )}
+
+  <section class="grid-3" aria-label="Chiffres clés">
+    <div class="kpi"><strong>{pub.n}</strong><span>projets publiés</span></div>
+    <div class="kpi"><strong>{draft.n}</strong><span>brouillons</span></div>
+    <div class="kpi"><strong>{feat.n}</strong><span>mis en avant sur l’accueil</span></div>
+    <div class="kpi"><strong>{faqN.n}</strong><span>questions dans la FAQ</span></div>
+  </section>
+
+  <div class="grid-2">
+    <section class="panel">
+      <div class="panel__head"><h2>Derniers projets modifiés</h2><a href="/admin/projets" class="link-arrow">Tout voir <Icon name="arrow" /></a></div>
+      {recent.length ? (
+        <ul class="checklist">
+          {recent.map((p) => (
+            <li>
+              <span class:list={['badge', p.status === 'published' ? 'badge--pub' : 'badge--draft']}>{p.status === 'published' ? 'Publié' : 'Brouillon'}</span>
+              <span>{p.title}</span>
+              <a href={`/admin/projets/${p.id}`}>Modifier</a>
+            </li>
+          ))}
+        </ul>
+      ) : <p class="muted-s">Aucun projet pour l’instant.</p>}
+    </section>
+
+    <section class="panel">
+      <div class="panel__head"><h2>À compléter</h2><p>{checks.filter((c) => c.ok).length}/{checks.length} terminé</p></div>
+      <ul class="checklist">
+        {checks.map((c) => (
+          <li class={c.ok ? 'is-ok' : 'is-todo'}>
+            <Icon name={c.ok ? 'check' : 'alert'} /> {c.label}
+            {!c.ok && <a href={c.href}>Compléter</a>}
+          </li>
+        ))}
+      </ul>
+      <p class="muted-s">Les pages légales sont des modèles adaptés à votre activité : faites-les valider par un juriste.</p>
+    </section>
+  </div>
+
+  <section class="panel">
+    <div class="panel__head"><h2>Ajouter une réalisation en 4 étapes</h2></div>
+    <ol class="checklist">
+      <li><Icon name="plus" /> Cliquez sur « Ajouter un projet » et remplissez le nom, la description et les technologies.</li>
+      <li><Icon name="layers" /> Importez vos captures (ordinateur et cellulaire), glissez pour les ordonner, choisissez l’image principale.</li>
+      <li><Icon name="eye" /> Prévisualisez la fiche projet.</li>
+      <li><Icon name="check" /> Cliquez sur « Publier » : le projet apparaît sur le site en quelques secondes.</li>
+    </ol>
+  </section>
+</AdminLayout>
+
+<style>
+  @media (max-width: 520px) { .hide-s { display: none; } }
+</style>

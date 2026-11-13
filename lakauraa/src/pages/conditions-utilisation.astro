@@ -1,0 +1,34 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import Todo from '../components/Todo.astro';
+const { contact } = Astro.locals.settings;
+const sections = [
+  { id: 'objet', title: 'Objet' },
+  { id: 'acces', title: 'Accès au site' },
+  { id: 'contenu', title: 'Contenu et propriété' },
+  { id: 'responsabilite', title: 'Responsabilité' },
+  { id: 'liens', title: 'Liens externes' },
+  { id: 'droit', title: 'Droit applicable' },
+];
+---
+<LegalPage title="Conditions générales d’utilisation" description="Règles d’utilisation du site Lakauraa." sections={sections}>
+  <h2 id="objet">Objet</h2>
+  <p>Les présentes conditions encadrent l’utilisation du site Lakauraa, qui présente les services de création de sites web d’Adam Lakhal ainsi que des réalisations et maquettes. En naviguant sur le site, vous acceptez ces conditions.</p>
+
+  <h2 id="acces">Accès au site</h2>
+  <p>Le site est accessible gratuitement. Je m’efforce de le maintenir disponible, mais il peut être interrompu pour maintenance ou pour des raisons indépendantes de ma volonté. L’espace d’administration est strictement réservé aux personnes autorisées ; toute tentative d’accès non autorisé est interdite.</p>
+
+  <h2 id="contenu">Contenu et propriété intellectuelle</h2>
+  <p>Les textes, visuels, maquettes et le code du site sont protégés. Vous pouvez les consulter et partager des liens vers le site, mais pas les copier ni les réutiliser à des fins commerciales sans autorisation écrite.</p>
+  <p>Les informations (prix, délais, services) sont fournies à titre indicatif. Seules la soumission et l’entente écrite signées font foi pour un projet.</p>
+
+  <h2 id="responsabilite">Responsabilité</h2>
+  <p>Je m’efforce de publier des informations exactes et à jour, sans pouvoir garantir l’absence d’erreur. Je ne pourrai être tenu responsable d’un dommage indirect résultant de l’utilisation du site ou de son indisponibilité, dans les limites permises par la loi.</p>
+
+  <h2 id="liens">Liens externes</h2>
+  <p>Le site contient des liens vers des sites tiers (projets clients, maquettes, réseaux sociaux, WhatsApp). Je ne contrôle pas leur contenu ni leurs pratiques de confidentialité.</p>
+
+  <h2 id="droit">Droit applicable</h2>
+  <p>Les présentes conditions sont régies par les lois applicables au Québec et au Canada, sans préjudice des droits impératifs dont bénéficie l’utilisateur dans son pays de résidence. <Todo label="tribunal compétent à faire valider par un juriste" /></p>
+  <p>Questions : <a href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
+</LegalPage>

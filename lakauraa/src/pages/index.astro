@@ -11,17 +11,20 @@ import Process from '../components/Process.astro';
 import Testimonials from '../components/Testimonials.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
+import { getFaqs, getServices, getTestimonials, getPublishedProjects } from '../lib/content';
+
+const [faqs, services, testimonials, featured] = await Promise.all([getFaqs(), getServices(), getTestimonials(), getPublishedProjects({ featured: true })]);
 ---
-<Base title="Lakauraa · Création de sites web pour commerces à Montréal" includeFaqSchema>
+<Base title="Lakauraa · Création de sites web pour commerces à Montréal et au Maroc" faqs={faqs}>
   <Hero />
   <Marquee />
   <Problems />
-  <Services />
+  <Services services={services} />
   <Engagements />
   <Stats />
-  <Portfolio />
+  <Portfolio projects={featured} limit={6} />
   <Process />
-  <Testimonials />
-  <Faq />
+  <Testimonials testimonials={testimonials} />
+  <Faq faqs={faqs} />
   <Cta />
 </Base>

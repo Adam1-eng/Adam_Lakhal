@@ -6,7 +6,10 @@ import SectionHead from '../components/SectionHead.astro';
 import Stats from '../components/Stats.astro';
 import Engagements from '../components/Engagements.astro';
 import Cta from '../components/Cta.astro';
+import SocialLinks from '../components/SocialLinks.astro';
 import { site } from '../data/site';
+import { telHref } from '../lib/content';
+const { contact } = Astro.locals.settings;
 
 const values = [
   { icon: 'heart', title: 'Honnêteté', text: 'Des prix affichés, une entente écrite et une maquette avant tout paiement. Si un site ne vous apporte rien, je vous le dis.' },
@@ -30,11 +33,11 @@ const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'T
         </div>
         <ul class="ab__facts">
           <li><Icon name="school" /> Développement web · {site.school}</li>
-          <li><Icon name="pin" /> Basé à {site.city}, projets à distance</li>
+          <li><Icon name="pin" /> Basé à {site.city} · clients au Canada et au Maroc</li>
           <li><Icon name="layers" /> {site.maquettesCount} maquettes réalisées</li>
           <li><Icon name="shop" /> Boutique en ligne livrée au Maroc</li>
         </ul>
-        <a href={site.phoneHref} class="btn btn--light btn--sm"><Icon name="phone" /> {site.phone}</a>
+        <div class="ab__actions"><a href={telHref(contact.phone)} class="btn btn--light btn--sm"><Icon name="phone" /> {contact.phone}</a><SocialLinks /></div>
       </div>
 
       <div class="ab__text">
@@ -75,7 +78,7 @@ const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'T
   </section>
 
   <Engagements />
-  <Cta title="On fait connaissance ?" aura="connaissance ?" text={`Un appel de 15 minutes suffit pour comprendre votre commerce. Appelez-moi, texto ou courriel : je réponds en ${site.responseTime}.`} />
+  <Cta title="On fait connaissance ?" aura="connaissance ?" text={`Un appel de 15 minutes suffit pour comprendre votre commerce. Appelez-moi, texto ou courriel : je réponds en ${contact.responseTime}.`} />
 </Base>
 
 <style>
@@ -84,6 +87,7 @@ const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'T
   .ab__card { padding: 2rem; display: grid; gap: 1.4rem; justify-items: start; transition: transform 0.6s var(--ease); background: radial-gradient(90% 60% at 0% 0%, rgb(139 92 246 / 0.25), transparent 60%), var(--surface); }
   .ab__mono { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; font-family: var(--font-display); font-size: clamp(5rem, 12vw, 8rem); font-weight: 700; letter-spacing: -0.06em; background: radial-gradient(circle at 30% 30%, rgb(167 139 250 / 0.35), transparent 60%), radial-gradient(circle at 80% 80%, rgb(232 121 249 / 0.3), transparent 55%), #0d0c18; border: 1px solid var(--line-2); }
   .ab__mono { background-clip: padding-box; color: rgb(255 255 255 / 0.9); text-shadow: 0 10px 40px rgb(167 139 250 / 0.6); }
+  .ab__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; }
   .ab__name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; }
   .ab__facts { list-style: none; padding: 0; display: grid; gap: 0.7rem; width: 100%; }
   .ab__facts li { display: flex; align-items: center; gap: 0.7rem; font-size: 0.92rem; color: var(--muted); padding-bottom: 0.7rem; border-bottom: 1px solid var(--line); }

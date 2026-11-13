@@ -1,0 +1,88 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { asc, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { str, bool, moveInList } from '../../lib/admin';
+
+const db = await getDb();
+const all = () => db.select().from(schema.testimonials).orderBy(asc(schema.testimonials.sort), asc(schema.testimonials.createdAt));
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const action = str(fd, 'action');
+  const id = str(fd, 'id');
+  const values = {
+    quote: str(fd, 'quote').slice(0, 800),
+    author: str(fd, 'author').slice(0, 80),
+    business: str(fd, 'business').slice(0, 120),
+    sourceUrl: /^https?:\/\//.test(str(fd, 'sourceUrl')) ? str(fd, 'sourceUrl').slice(0, 400) : '',
+    published: bool(fd, 'published'),
+  };
+  let msg = '';
+  let err = '';
+  if (action === 'create' || action === 'update') {
+    if (values.quote.length < 10 || values.author.length < 2) err = 'Le témoignage et le nom de la personne sont obligatoires.';
+    else if (action === 'create') { await db.insert(schema.testimonials).values({ ...values, sort: (await all()).length }); msg = 'Témoignage ajouté.'; }
+    else { await db.update(schema.testimonials).set(values).where(eq(schema.testimonials.id, id)); msg = 'Témoignage enregistré.'; }
+  } else if (action === 'up' || action === 'down') {
+    const list = moveInList(await all(), id, action);
+    for (const [i, t] of list.entries()) await db.update(schema.testimonials).set({ sort: i }).where(eq(schema.testimonials.id, t.id));
+    msg = 'Ordre mis à jour.';
+  } else if (action === 'delete') {
+    await db.delete(schema.testimonials).where(eq(schema.testimonials.id, id));
+    msg = 'Témoignage supprimé.';
+  }
+  return Astro.redirect('/admin/temoignages?' + (err ? 'erreur=' + encodeURIComponent(err) : 'ok=' + encodeURIComponent(msg)), 303);
+}
+const list = await all();
+---
+<AdminLayout title="Témoignages" active="temoignages">
+  <section class="panel panel--accent">
+    <div class="panel__head"><div><h2>Uniquement de vrais avis</h2><p>Ajoutez seulement des témoignages authentiques, avec l’accord de la personne (idéalement copiés d’un avis Google). La section « Avis clients » apparaît sur l’accueil dès qu’un témoignage est visible.</p></div></div>
+  </section>
+
+  {list.length > 0 && (
+    <section class="panel">
+      <div class="panel__head"><h2>{list.length} témoignage{list.length > 1 ? 's' : ''}</h2></div>
+      <div class="list-edit">
+        {list.map((t, i) => (
+          <details>
+            <summary><strong>{t.author}{t.business && ` · ${t.business}`}</strong><span class:list={['badge', t.published ? 'badge--pub' : 'badge--draft']}>{t.published ? 'Visible' : 'Masqué'}</span></summary>
+            <form method="post" class="adm-form">
+              <input type="hidden" name="id" value={t.id} />
+              <div class="field"><label for={`q-${t.id}`}>Témoignage</label><textarea class="input" id={`q-${t.id}`} name="quote" required maxlength="800">{t.quote}</textarea></div>
+              <div class="grid-3">
+                <div class="field"><label for={`a-${t.id}`}>Nom</label><input class="input" id={`a-${t.id}`} name="author" value={t.author} required maxlength="80" /></div>
+                <div class="field"><label for={`b-${t.id}`}>Commerce</label><input class="input" id={`b-${t.id}`} name="business" value={t.business} maxlength="120" /></div>
+                <div class="field"><label for={`u-${t.id}`}>Lien vers l’avis original</label><input class="input" id={`u-${t.id}`} name="sourceUrl" value={t.sourceUrl} placeholder="https://…" /></div>
+              </div>
+              <label class="check"><input type="checkbox" name="published" checked={t.published} /> Visible sur le site</label>
+              <div class="row row--end">
+                <button class="icon-btn" name="action" value="up" disabled={i === 0} aria-label="Monter"><Icon name="arrow-down" class="rot180" /></button>
+                <button class="icon-btn" name="action" value="down" disabled={i === list.length - 1} aria-label="Descendre"><Icon name="arrow-down" /></button>
+                <button class="btn btn--danger btn--xs" name="action" value="delete" formnovalidate data-confirm="Supprimer ce témoignage ?">Supprimer</button>
+                <button class="btn btn--primary btn--xs" name="action" value="update">Enregistrer</button>
+              </div>
+            </form>
+          </details>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="panel">
+    <div class="panel__head"><h2>Nouveau témoignage</h2></div>
+    <form method="post" class="adm-form">
+      <div class="field"><label for="nq">Témoignage</label><textarea class="input" id="nq" name="quote" required maxlength="800"></textarea></div>
+      <div class="grid-3">
+        <div class="field"><label for="na">Nom</label><input class="input" id="na" name="author" required maxlength="80" /></div>
+        <div class="field"><label for="nb">Commerce</label><input class="input" id="nb" name="business" maxlength="120" /></div>
+        <div class="field"><label for="nu">Lien vers l’avis original</label><input class="input" id="nu" name="sourceUrl" placeholder="https://…" /></div>
+      </div>
+      <label class="check"><input type="checkbox" name="published" /> Visible sur le site</label>
+      <div class="row row--end"><button class="btn btn--primary btn--sm" name="action" value="create"><Icon name="plus" /> Ajouter</button></div>
+    </form>
+  </section>
+</AdminLayout>
+<style>:global(.rot180) { rotate: 180deg; }</style>

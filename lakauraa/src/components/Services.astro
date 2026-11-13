@@ -1,9 +1,11 @@
 ---
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
-import { services, capabilities } from '../data/site';
-interface Props { showAllLink?: boolean }
-const { showAllLink = true } = Astro.props;
+import { capabilities } from '../data/site';
+import type { Service } from '../lib/db/schema';
+interface Props { services: Service[]; showAllLink?: boolean }
+const { services, showAllLink = true } = Astro.props;
+const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique: 'shop', entretien: 'care' };
 ---
 <section class="section section--alt" id="solutions" aria-label="Services">
   <div class="wrap">
@@ -12,9 +14,9 @@ const { showAllLink = true } = Astro.props;
 
     <div class="sv__grid">
       {services.map((s, i) => (
-        <a href={`/services#${s.id}`} class:list={['card spot sv reveal', { 'sv--wide': i === 2 }]} style={`--i:${i}`}>
+        <a href={`/services#${s.id}`} class="card spot sv reveal" style={`--i:${i}`}>
           <div class="sv__head">
-            <span class="icon-badge"><Icon name={s.icon} /></span>
+            <span class="icon-badge"><Icon name={icons[s.id] ?? 'spark'} /></span>
             <span class="sv__num">0{i + 1}</span>
           </div>
           <h3>{s.title}</h3>

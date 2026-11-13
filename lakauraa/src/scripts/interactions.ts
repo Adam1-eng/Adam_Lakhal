@@ -284,6 +284,22 @@ function initProgress() {
   on(window, 'scroll', () => { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
 }
 
+/* ---------- Vidéos : lecture seulement à l’écran, jamais si animations réduites ---------- */
+function initVideos() {
+  const vids = document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]');
+  if (!vids.length) return;
+  if (reduced()) { vids.forEach((v) => (v.controls = true)); return; }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const v = e.target as HTMLVideoElement;
+      if (e.isIntersecting) v.play().catch(() => (v.controls = true));
+      else v.pause();
+    });
+  }, { threshold: 0.35 });
+  vids.forEach((v) => io.observe(v));
+  cleanups.push(() => io.disconnect());
+}
+
 function init() {
   cleanups.forEach((c) => c());
   cleanups = [];
@@ -299,6 +315,7 @@ function init() {
   initFilters();
   initFaq();
   initProgress();
+  initVideos();
 }
 
 document.addEventListener('astro:page-load', init);

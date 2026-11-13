@@ -1,7 +1,13 @@
 ---
 import Logo from './Logo.astro';
 import Icon from './Icon.astro';
-import { nav, site } from '../data/site';
+import BrandIcon from './BrandIcon.astro';
+import SocialLinks from './SocialLinks.astro';
+import { nav } from '../data/site';
+import { telHref } from '../lib/content';
+const { contact, whatsapp } = Astro.locals.settings;
+const phoneHref = telHref(contact.phone);
+const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 
 const path = Astro.url.pathname.replace(/\/$/, '') || '/';
 const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
@@ -22,9 +28,9 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     </nav>
 
     <div class="hdr__actions">
-      <a class="hdr__phone" href={site.phoneHref} aria-label={`Appeler au ${site.phone}`}>
+      <a class="hdr__phone" href={phoneHref} aria-label={`Appeler au ${contact.phone}`}>
         <Icon name="phone" />
-        <span>{site.phone}</span>
+        <span>{contact.phone}</span>
       </a>
       <a href="/contact" class="btn btn--primary btn--sm hdr__cta" data-magnetic>
         Maquette gratuite
@@ -52,10 +58,12 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     </nav>
     <div class="mmenu__foot" style={`--i:${nav.length}`}>
       <a href="/contact" class="btn btn--primary">Obtenir ma maquette gratuite <Icon name="arrow" class="arrow" /></a>
-      <div class="mmenu__contact">
-        <a href={site.phoneHref}><Icon name="phone" /> {site.phone}</a>
-        <a href={`mailto:${site.email}`}><Icon name="mail" /> Courriel</a>
+      <div class="mmenu__quick">
+        {hasWa && <button type="button" class="mmenu__q mmenu__q--wa" data-wa-open><BrandIcon name="whatsapp" /> WhatsApp</button>}
+        <a class="mmenu__q" href={phoneHref}><Icon name="phone" /> Appeler</a>
+        <a class="mmenu__q" href={`mailto:${contact.email}`}><Icon name="mail" /> Courriel</a>
       </div>
+      <SocialLinks />
     </div>
   </div>
 </header>
@@ -150,7 +158,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   .mmenu nav a[aria-current='page'] { color: var(--accent-2); }
   .mmenu__num { font-family: var(--font-sans); font-size: 0.8rem; color: var(--dim); font-weight: 500; letter-spacing: 0; }
   .mmenu__foot { display: grid; gap: 1.2rem; }
-  .mmenu__contact { display: flex; gap: 1.5rem; color: var(--muted); }
-  .mmenu__contact a { display: inline-flex; gap: 0.5rem; align-items: center; }
-  .mmenu__contact :global(svg) { width: 18px; height: 18px; }
+  .mmenu__quick { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 0.5rem; }
+  .mmenu__q { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; min-height: 64px; border-radius: 16px; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.03); font-size: 0.85rem; font-weight: 600; }
+  .mmenu__q :global(svg) { width: 20px; height: 20px; }
+  .mmenu__q--wa { color: #25d366; border-color: rgb(37 211 102 / 0.35); background: rgb(37 211 102 / 0.08); }
 </style>

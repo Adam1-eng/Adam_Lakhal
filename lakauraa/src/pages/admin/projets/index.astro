@@ -1,0 +1,163 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import Icon from '../../../components/Icon.astro';
+import { asc, eq, inArray } from 'drizzle-orm';
+import { getDb, schema } from '../../../lib/db';
+import { kindLabel } from '../../../lib/content';
+import { str } from '../../../lib/admin';
+import { deleteProject, setStatus, setFeatured, moveProject } from '../../../lib/projects-admin';
+
+const db = await getDb();
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const id = str(fd, 'id');
+  const action = str(fd, 'action');
+  const back = '/admin/projets' + (str(fd, 'qs') ? `?${str(fd, 'qs')}&` : '?');
+  const [p] = await db.select().from(schema.projects).where(eq(schema.projects.id, id)).limit(1);
+  if (!p) return Astro.redirect(back + 'erreur=' + encodeURIComponent('Projet introuvable.'), 303);
+  let msg = '';
+  if (action === 'publish') { await setStatus(id, 'published'); msg = `« ${p.title} » est publié.`; }
+  else if (action === 'unpublish') { await setStatus(id, 'draft'); msg = `« ${p.title} » repasse en brouillon.`; }
+  else if (action === 'feature') { await setFeatured(id, !p.featured); msg = p.featured ? 'Retiré de l’accueil.' : 'Mis en avant sur l’accueil.'; }
+  else if (action === 'up' || action === 'down') { await moveProject(id, action); msg = 'Ordre mis à jour.'; }
+  else if (action === 'delete') { await deleteProject(id); msg = `« ${p.title} » a été supprimé.`; }
+  return Astro.redirect(back + 'ok=' + encodeURIComponent(msg), 303);
+}
+
+const q = (Astro.url.searchParams.get('q') ?? '').trim().toLowerCase();
+const status = Astro.url.searchParams.get('statut') ?? '';
+const cat = Astro.url.searchParams.get('categorie') ?? '';
+const [projects, cats] = await Promise.all([
+  db.select().from(schema.projects).orderBy(asc(schema.projects.sort), asc(schema.projects.createdAt)),
+  db.select().from(schema.categories).orderBy(asc(schema.categories.sort)),
+]);
+const covers = projects.length
+  ? await db.select().from(schema.projectImages).where(inArray(schema.projectImages.projectId, projects.map((p) => p.id)))
+  : [];
+const coverOf = (p: (typeof projects)[0]) => covers.find((c) => c.id === p.coverImageId) ?? covers.find((c) => c.projectId === p.id);
+const filtered = projects.filter((p) =>
+  (!q || `${p.title} ${p.client} ${p.location}`.toLowerCase().includes(q)) &&
+  (!status || p.status === status) &&
+  (!cat || p.categoryId === cat));
+const isFiltered = Boolean(q || status || cat);
+const qs = new URLSearchParams([...Astro.url.searchParams].filter(([k]) => ['q', 'statut', 'categorie'].includes(k))).toString();
+---
+<AdminLayout title="Projets" active="projets">
+  <a href="/admin/projets/nouveau" class="btn btn--primary btn--sm" slot="actions"><Icon name="plus" /> Ajouter</a>
+
+  <form class="panel adm-form" method="get" role="search">
+    <div class="grid-3">
+      <div class="field"><label for="q">Rechercher</label><input class="input" id="q" name="q" type="search" value={q} placeholder="Nom, client, ville…" /></div>
+      <div class="field"><label for="statut">Statut</label>
+        <select class="input" id="statut" name="statut">
+          <option value="">Tous</option>
+          <option value="published" selected={status === 'published'}>Publiés</option>
+          <option value="draft" selected={status === 'draft'}>Brouillons</option>
+        </select>
+      </div>
+      <div class="field"><label for="categorie">Catégorie</label>
+        <select class="input" id="categorie" name="categorie">
+          <option value="">Toutes</option>
+          {cats.map((c) => <option value={c.id} selected={cat === c.id}>{c.name}</option>)}
+        </select>
+      </div>
+    </div>
+    <div class="row row--end">
+      {isFiltered && <a href="/admin/projets" class="btn btn--ghost btn--xs">Effacer les filtres</a>}
+      <button class="btn btn--light btn--xs" type="submit">Filtrer</button>
+    </div>
+  </form>
+
+  <section class="panel">
+    <div class="panel__head">
+      <div><h2>{filtered.length} projet{filtered.length > 1 ? 's' : ''}</h2>
+      <p>{isFiltered ? 'Filtres actifs : le glisser-déposer est désactivé.' : 'Glissez les lignes (⠿) pour changer l’ordre d’affichage sur le site.'}</p></div>
+      <span class="muted-s" data-order-status aria-live="polite"></span>
+    </div>
+    {filtered.length === 0 ? (
+      <div class="empty"><p>Aucun projet ne correspond.</p><a href="/admin/projets/nouveau" class="btn btn--primary btn--sm"><Icon name="plus" /> Ajouter un projet</a></div>
+    ) : (
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead><tr><th scope="col"><span class="sr-only">Ordre</span></th><th scope="col">Projet</th><th scope="col">Catégorie</th><th scope="col">Statut</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+          <tbody data-sortable={isFiltered ? undefined : 'projects'}>
+            {filtered.map((p) => {
+              const c = coverOf(p);
+              return (
+                <tr data-id={p.id} draggable={isFiltered ? undefined : 'true'}>
+                  <td>{!isFiltered && <span class="handle" aria-hidden="true">⠿</span>}</td>
+                  <td>
+                    <div class="tbl__proj">
+                      {c ? <img class="tbl__thumb" src={c.thumbUrl} alt="" loading="lazy" /> : <span class="tbl__thumb"></span>}
+                      <div><strong><a href={`/admin/projets/${p.id}`}>{p.title}</a></strong><small>{kindLabel[p.kind]}{p.location && ` · ${p.location}`}</small></div>
+                    </div>
+                  </td>
+                  <td>{cats.find((x) => x.id === p.categoryId)?.name ?? <span class="muted-s">—</span>}</td>
+                  <td>
+                    <div class="row">
+                      <span class:list={['badge', p.status === 'published' ? 'badge--pub' : 'badge--draft']}>{p.status === 'published' ? 'Publié' : 'Brouillon'}</span>
+                      {p.featured && <span class="badge badge--feat">★ Accueil</span>}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="tbl__actions">
+                      <form method="post"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="qs" value={qs} />
+                        <button class="icon-btn" name="action" value="up" title="Monter" aria-label={`Monter ${p.title}`}><Icon name="arrow-down" class="rot180" /></button>
+                        <button class="icon-btn" name="action" value="down" title="Descendre" aria-label={`Descendre ${p.title}`}><Icon name="arrow-down" /></button>
+                        <button class="icon-btn" name="action" value="feature" title={p.featured ? 'Retirer de l’accueil' : 'Mettre en avant sur l’accueil'} aria-label={p.featured ? `Retirer ${p.title} de l’accueil` : `Mettre ${p.title} en avant`} aria-pressed={p.featured ? 'true' : 'false'}><Icon name="star" /></button>
+                        {p.status === 'published'
+                          ? <button class="btn btn--ghost btn--xs" name="action" value="unpublish">Dépublier</button>
+                          : <button class="btn btn--light btn--xs" name="action" value="publish">Publier</button>}
+                      </form>
+                      <a class="icon-btn" href={`/admin/projets/${p.id}`} title="Modifier" aria-label={`Modifier ${p.title}`}><Icon name="care" /></a>
+                      <a class="icon-btn" href={`/admin/projets/${p.id}/apercu`} target="_blank" title="Aperçu" aria-label={`Aperçu de ${p.title}`}><Icon name="eye" /></a>
+                      <form method="post" data-confirm={`Supprimer définitivement « ${p.title} » et toutes ses images ?`}>
+                        <input type="hidden" name="id" value={p.id} /><input type="hidden" name="qs" value={qs} />
+                        <button class="icon-btn icon-btn--danger" name="action" value="delete" title="Supprimer" aria-label={`Supprimer ${p.title}`}><Icon name="close" /></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </section>
+</AdminLayout>
+
+<script>
+  // Glisser-déposer des lignes pour réordonner (souris) ; boutons ↑ ↓ pour clavier et mobile.
+  const body = document.querySelector<HTMLElement>('[data-sortable="projects"]');
+  const status = document.querySelector<HTMLElement>('[data-order-status]');
+  if (body) {
+    let dragged: HTMLElement | null = null;
+    body.addEventListener('dragstart', (e) => {
+      dragged = (e.target as HTMLElement).closest('tr');
+      dragged?.classList.add('is-dragging');
+      e.dataTransfer?.setData('text/plain', dragged?.dataset.id ?? '');
+    });
+    body.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      const over = (e.target as HTMLElement).closest('tr');
+      if (!over || !dragged || over === dragged) return;
+      const r = over.getBoundingClientRect();
+      over.parentElement!.insertBefore(dragged, e.clientY > r.top + r.height / 2 ? over.nextSibling : over);
+    });
+    body.addEventListener('dragend', async () => {
+      dragged?.classList.remove('is-dragging');
+      dragged = null;
+      const ids = [...body.querySelectorAll<HTMLElement>('tr[data-id]')].map((r) => r.dataset.id);
+      if (status) status.textContent = 'Enregistrement…';
+      const res = await fetch('/api/admin/projects/order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids }) });
+      if (status) status.textContent = res.ok ? '✓ Ordre enregistré' : 'Erreur : ordre non enregistré';
+    });
+  }
+</script>
+
+<style>
+  :global(.rot180) { rotate: 180deg; }
+  .tbl__proj a:hover { text-decoration: underline; }
+</style>

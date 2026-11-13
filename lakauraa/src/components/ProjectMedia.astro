@@ -1,0 +1,35 @@
+---
+// Visuel principal d'un projet : cadre navigateur (vidéo si disponible, sinon image) + téléphone.
+import { imageSrcset, type ProjectCard } from '../lib/content';
+interface Props { project: ProjectCard; sizes?: string; eager?: boolean }
+const { project: p, sizes = '(min-width: 1000px) 640px, 92vw', eager = false } = Astro.props;
+const host = p.liveUrl ? p.liveUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, '') || 'aperçu' : p.slug;
+---
+<div class:list={['pm', { 'pm--phone': Boolean(p.mobile) }]}>
+  <figure class="browser pm__browser">
+    <div class="browser__bar" aria-hidden="true"><i></i><i></i><i></i><span class="browser__url">{p.liveUrl.startsWith('/') ? 'Exemple' : host}</span></div>
+    {p.videoUrl ? (
+      <video class="pm__video" muted loop playsinline preload="none" poster={p.videoPoster || p.cover?.url} data-autoplay aria-label={`Démonstration animée de ${p.title}`}>
+        {p.videoUrl.startsWith('/videos/') && p.videoUrl.endsWith('.mp4') && <source src={p.videoUrl.replace(/\.mp4$/, '.webm')} type="video/webm" />}
+        <source src={p.videoUrl} type={p.videoUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
+      </video>
+    ) : p.cover && (
+      <img src={p.cover.url} srcset={imageSrcset(p.cover)} sizes={sizes} width={p.cover.width} height={p.cover.height}
+        alt={p.cover.caption || `Aperçu de ${p.title}`} loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : 'auto'} decoding="async" />
+    )}
+  </figure>
+  {p.mobile && (
+    <figure class="phone pm__phone">
+      <div class="phone__screen">
+        <img src={p.mobile.thumbUrl} width={p.mobile.width} height={p.mobile.height} alt={`${p.title} sur cellulaire`} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+      </div>
+    </figure>
+  )}
+</div>
+
+<style>
+  .pm { position: relative; }
+  .pm--phone { padding-right: 9%; padding-bottom: 6%; }
+  .pm__video, .pm__browser img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; display: block; background: #0d0d14; }
+  .pm__phone { position: absolute; right: 0; bottom: 0; width: 24%; }
+</style>

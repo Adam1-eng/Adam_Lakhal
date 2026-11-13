@@ -1,0 +1,78 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { asc, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { str, bool, moveInList } from '../../lib/admin';
+
+const db = await getDb();
+const all = () => db.select().from(schema.faqs).orderBy(asc(schema.faqs.sort), asc(schema.faqs.createdAt));
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const action = str(fd, 'action');
+  const id = str(fd, 'id');
+  const question = str(fd, 'question').slice(0, 200);
+  const answer = str(fd, 'answer').slice(0, 2000);
+  let msg = '';
+  let err = '';
+  if (action === 'create' || action === 'update') {
+    if (question.length < 5 || answer.length < 5) err = 'La question et la réponse sont obligatoires.';
+    else if (action === 'create') {
+      const list = await all();
+      await db.insert(schema.faqs).values({ question, answer, published: bool(fd, 'published'), sort: list.length });
+      msg = 'Question ajoutée.';
+    } else {
+      await db.update(schema.faqs).set({ question, answer, published: bool(fd, 'published') }).where(eq(schema.faqs.id, id));
+      msg = 'Question enregistrée.';
+    }
+  } else if (action === 'up' || action === 'down') {
+    const list = moveInList(await all(), id, action);
+    for (const [i, f] of list.entries()) await db.update(schema.faqs).set({ sort: i }).where(eq(schema.faqs.id, f.id));
+    msg = 'Ordre mis à jour.';
+  } else if (action === 'delete') {
+    await db.delete(schema.faqs).where(eq(schema.faqs.id, id));
+    msg = 'Question supprimée.';
+  }
+  return Astro.redirect('/admin/faq?' + (err ? 'erreur=' + encodeURIComponent(err) : 'ok=' + encodeURIComponent(msg)), 303);
+}
+const faqs = await all();
+---
+<AdminLayout title="FAQ" active="faq">
+  <section class="panel">
+    <div class="panel__head"><div><h2>{faqs.length} questions</h2><p>Affichées sur l’accueil, la page Services et la page Contact, dans cet ordre.</p></div></div>
+    <div class="list-edit">
+      {faqs.map((f, i) => (
+        <details>
+          <summary>
+            <span class="muted-s">{i + 1}.</span>
+            <strong>{f.question}</strong>
+            <span class:list={['badge', f.published ? 'badge--pub' : 'badge--draft']}>{f.published ? 'Visible' : 'Masquée'}</span>
+          </summary>
+          <form method="post" class="adm-form">
+            <input type="hidden" name="id" value={f.id} />
+            <div class="field"><label for={`q-${f.id}`}>Question</label><input class="input" id={`q-${f.id}`} name="question" value={f.question} required maxlength="200" /></div>
+            <div class="field"><label for={`a-${f.id}`}>Réponse</label><textarea class="input" id={`a-${f.id}`} name="answer" required maxlength="2000">{f.answer}</textarea></div>
+            <label class="check"><input type="checkbox" name="published" checked={f.published} /> Visible sur le site</label>
+            <div class="row row--end">
+              <button class="icon-btn" name="action" value="up" disabled={i === 0} aria-label="Monter"><Icon name="arrow-down" class="rot180" /></button>
+              <button class="icon-btn" name="action" value="down" disabled={i === faqs.length - 1} aria-label="Descendre"><Icon name="arrow-down" /></button>
+              <button class="btn btn--danger btn--xs" name="action" value="delete" formnovalidate data-confirm="Supprimer cette question ?">Supprimer</button>
+              <button class="btn btn--primary btn--xs" name="action" value="update">Enregistrer</button>
+            </div>
+          </form>
+        </details>
+      ))}
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel__head"><h2>Nouvelle question</h2></div>
+    <form method="post" class="adm-form">
+      <div class="field"><label for="nq">Question</label><input class="input" id="nq" name="question" required maxlength="200" /></div>
+      <div class="field"><label for="na">Réponse</label><textarea class="input" id="na" name="answer" required maxlength="2000"></textarea></div>
+      <label class="check"><input type="checkbox" name="published" checked /> Visible sur le site</label>
+      <div class="row row--end"><button class="btn btn--primary btn--sm" name="action" value="create"><Icon name="plus" /> Ajouter</button></div>
+    </form>
+  </section>
+</AdminLayout>
+<style>:global(.rot180) { rotate: 180deg; }</style>

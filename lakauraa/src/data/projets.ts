@@ -105,6 +105,7 @@ export const caseStudies: CaseStudy[] = [
   },
 ];
 
+// Vitrine animée du hero (images optimisées au build). Le portfolio, lui, est géré dans l’admin.
 // Maquettes de démonstration : préparées pour des commerces, chaque page en ligne
 // porte la mention « Maquette de démonstration — ce n'est pas le site officiel ».
 export type Maquette = {
@@ -126,22 +127,6 @@ const raw: Omit<Maquette, 'desktop' | 'mobile' | 'url'>[] = [
   { slug: 'bosscut', name: 'BossCut', sector: 'Barbier', place: 'Saint-Hubert', group: 'beaute' },
   { slug: 'plaisirs-gourmets', name: 'Plaisirs Gourmets', sector: 'Traiteur', place: 'Montréal', group: 'resto' },
   { slug: 'lily-photo', name: 'Lily Photo & Vidéo', sector: 'Photographe', place: 'Saint-Laurent', group: 'photo' },
-  { slug: 'joyeuses-celebrations', name: 'Joyeuses Célébrations', sector: 'Décoration d’événements', place: 'Montréal', group: 'services' },
-  { slug: 'chic-canin', name: 'Chic Canin', sector: 'Toilettage', place: 'Montréal-Nord', group: 'animaux' },
-  { slug: 'masso-tomizawa', name: 'Massothérapie Tomizawa', sector: 'Massothérapie', place: 'Saint-Hubert', group: 'beaute' },
-  { slug: 'atelier-peintres', name: 'L’Atelier des Peintres', sector: 'Peinture en bâtiment', place: 'Montréal', group: 'services' },
-  { slug: 'metropolar', name: 'Salon Metropolar', sector: 'Barbier', place: 'Plateau-Mont-Royal', group: 'beaute' },
-  { slug: 'les-maitres-traiteurs', name: 'Les Maîtres Traiteurs', sector: 'Traiteur', place: 'Notre-Dame-de-Grâce', group: 'resto' },
-  { slug: 'renovation-paul-garneau', name: 'Rénovation Paul Garneau', sector: 'Rénovation', place: 'Sud-Ouest', group: 'services' },
-  { slug: 'kalems-photo', name: 'KaLeM’S Photographe', sector: 'Photographe', place: 'Longueuil', group: 'photo' },
-  { slug: 'the-powder-room', name: 'The Powder Room', sector: 'Salon de coiffure', place: 'Plateau-Mont-Royal', group: 'beaute' },
-  { slug: 'spa-griffe', name: 'Spa Griffé', sector: 'Toilettage', place: 'Longueuil', group: 'animaux' },
-  { slug: 'lashes-by-g', name: 'Lashes By G', sector: 'Extensions de cils', place: 'Longueuil', group: 'beaute' },
-  { slug: 'mtlnails', name: 'MTLNails', sector: 'Salon d’ongles', place: 'Cartierville', group: 'beaute' },
-  { slug: 'lorena-studio', name: 'Lorena Studio', sector: 'Salon de coiffure', place: 'Saint-Léonard', group: 'beaute' },
-  { slug: 'peignes-et-poils', name: 'Peignes et Poils', sector: 'Toilettage', place: 'Boucherville', group: 'animaux' },
-  { slug: 'beyoutiful-luxe', name: 'BeYoutiful Luxe', sector: 'Extensions de cils', place: 'Saint-Hubert', group: 'beaute' },
-  { slug: 'salon-de-belle', name: 'Au salon de Belle', sector: 'Salon d’ongles', place: 'Verdun', group: 'beaute' },
 ];
 
 export const maquettes: Maquette[] = raw.map((m) => ({
