@@ -25,7 +25,7 @@ export const defaultSettings: SiteSettings = {
   // Numéros WhatsApp au format international, chiffres seulement (ex. 212600000000 / 14385280259). Vides = masqués.
   whatsapp: {
     ma: '212621971718',
-    ca: '',
+    ca: '14385280259',
     message: 'Bonjour Adam, je vous contacte depuis le site Lakauraa. J’aimerais en savoir plus pour un site web.',
   },
   socials: { instagram: '', tiktok: '', linkedin: '', github: '', facebook: '', youtube: '' },
