@@ -49,8 +49,8 @@ const besoins = [
       <div class="cf__chips">
         {offers.map((o) => (
           <label class="cf__chip">
-            <input type="radio" name="forfait" value={o.id} data-label={`${o.name} (${o.price}${o.unit ? ' ' + o.unit : ''})`} />
-            <span>{o.name} · {o.price}{o.unit ? ` ${o.unit}` : ''}</span>
+            <input type="radio" name="forfait" value={o.id} data-label={`${o.name} (${[o.from, o.price].filter(Boolean).join(' ')})`} />
+            <span>{o.name} · {[o.from, o.price].filter(Boolean).join(' ')}</span>
           </label>
         ))}
         <label class="cf__chip">

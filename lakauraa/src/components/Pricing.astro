@@ -14,13 +14,13 @@ import { offers } from '../data/site';
           {o.featured && <span class="pc__badge">Le plus choisi</span>}
           <h3>{o.name}</h3>
           <p class="pc__pitch">{o.pitch}</p>
-          <p class="pc__price"><span>{o.price}</span>{o.unit && <small>{o.unit}</small>}</p>
+          <p class="pc__price">{o.from && <small class="pc__from">{o.from}</small>}<span>{o.price}</span>{o.unit && <small>{o.unit}</small>}</p>
           <ul class="checks">{o.features.map((f) => <li>{f}</li>)}</ul>
           <a href={`/contact?forfait=${o.id}`} class:list={['btn', o.featured ? 'btn--primary' : 'btn--ghost']} data-magnetic>{o.cta} <Icon name="arrow" class="arrow" /></a>
         </article>
       ))}
     </div>
-    <p class="pc__note reveal">Prix avant taxes, à titre indicatif. Boutique en ligne ou besoin particulier : soumission gratuite selon vos besoins.</p>
+    <p class="pc__note reveal">Sites à partir de 600 $ avant taxes. Les autres projets sont réalisés sur devis gratuit, selon le travail demandé.</p>
   </div>
 </section>
 
@@ -32,12 +32,13 @@ import { offers } from '../data/site';
   .pc .checks { flex: 1; margin-bottom: 0.6rem; }
   .pc h3 { font-size: 1.5rem; }
   .pc__pitch { color: var(--muted); font-size: 0.94rem; min-height: 3em; }
-  .pc__price { display: flex; align-items: baseline; gap: 0.4rem; padding-block: 0.6rem 1rem; border-bottom: 1px solid var(--line); }
+  .pc__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem; padding-block: 0.6rem 1rem; border-bottom: 1px solid var(--line); }
   .pc__price span { font-family: var(--font-display); font-size: 3rem; font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
   .pc__price small { color: var(--muted); }
+  .pc__from { flex-basis: 100%; font-size: 0.85rem; }
   .pc--featured { border-color: rgb(30 107 255 / 0.45); background: radial-gradient(120% 70% at 50% 0%, rgb(30 107 255 / 0.22), transparent 60%), var(--surface); box-shadow: 0 40px 80px -40px rgb(30 107 255 / 0.6); }
   @media (min-width: 900px) { .pc--featured { transform: translateY(-14px); } .pc--featured:hover { transform: translateY(-20px); } }
-  .pc--featured .pc__price span { background: var(--aura); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .pc--featured .pc__price span { color: var(--blue); }
   .pc__badge { position: absolute; top: 1.4rem; right: 1.4rem; padding: 0.3rem 0.7rem; border-radius: 999px; background: var(--red); color: #fff; font-size: 0.75rem; font-weight: 700; }
   .pc .btn { width: 100%; }
   .pc__note { text-align: center; margin-top: 2rem; color: var(--dim); font-size: 0.88rem; }

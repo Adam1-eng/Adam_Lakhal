@@ -38,10 +38,9 @@ const business = {
   founder: { '@type': 'Person', name: site.owner },
   areaServed: { '@type': 'City', name: 'Montréal' },
   address: { '@type': 'PostalAddress', addressLocality: 'Montréal', addressRegion: 'QC', addressCountry: 'CA' },
-  priceRange: '600 $ – 1 200 $',
+  priceRange: 'À partir de 600 $',
   makesOffer: [
-    { '@type': 'Offer', name: 'Site Essentiel', price: '600', priceCurrency: 'CAD' },
-    { '@type': 'Offer', name: 'Site Pro', price: '1200', priceCurrency: 'CAD' },
+    { '@type': 'Offer', name: 'Site web', priceSpecification: { '@type': 'PriceSpecification', minPrice: '600', priceCurrency: 'CAD' } },
   ],
 };
 const faqSchema = {

@@ -26,13 +26,13 @@ const visuals: Record<string, { slug: string; note: string } > = {
 const details: Record<string, string[]> = {
   vitrine: ['Design sur mesure à vos couleurs', 'Services, prix, heures et carte', 'Bouton d’appel toujours visible sur cellulaire', 'Liens Facebook, Instagram et itinéraire', '2 séries de révisions incluses'],
   pro: ['Jusqu’à 5 pages (accueil, services, galerie, à propos, contact)', 'Galerie photos et avis clients', 'Lien de réservation en ligne', 'Référencement Google de base', 'Fiche Google Business optimisée'],
-  boutique: ['Catalogue, rayons, recherche et filtres', 'Panier et commande adaptée à vos clients (ex. WhatsApp)', 'Espace administrateur : prix, stock, photos', 'Bilingue si nécessaire', 'Soumission gratuite et détaillée'],
+  boutique: ['Catalogue, rayons, recherche et filtres', 'Panier et commande adaptée à vos clients (ex. WhatsApp)', 'Espace administrateur : prix, stock, photos', 'Bilingue si nécessaire', 'Devis gratuit et détaillé'],
   entretien: ['Hébergement et nom de domaine', 'Changements de prix, heures et photos sur simple message', 'Sauvegardes et sécurité', 'Sans contrat, annulable en tout temps'],
 };
 const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique: 'shop', entretien: 'care' };
 const settings = Astro.locals.settings;
 ---
-<Base faqs={faqs} title="Services et prix · Création de sites web à Montréal et au Maroc" description="Site vitrine dès 600 $, site complet 1 200 $, boutique en ligne sur mesure et entretien à 40 $/mois. Maquette gratuite avant de payer.">
+<Base faqs={faqs} title="Services et prix · Création de sites web à Montréal et au Maroc" description="Sites web à partir de 600 $. Site complet, boutique en ligne et entretien sur devis gratuit, selon votre projet. Maquette gratuite avant de payer.">
   <PageHero eyebrow="Services" title="Un site qui travaille pour vous, même quand vous êtes fermé." aura="même quand vous êtes fermé."
     lead="Du site d’une page à la boutique en ligne, chaque projet est conçu autour d’un seul objectif : que vos clients vous trouvent, vous fassent confiance et vous appellent."
     crumbs={[{ label: 'Services' }]}>

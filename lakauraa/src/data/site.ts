@@ -8,7 +8,7 @@ export const site = {
   tagline: 'Sites web pour commerces locaux',
   description:
     "Lakauraa crée des sites web rapides, élégants et abordables pour les commerces de Montréal : salons, restos, garages, spas, photographes et travailleurs autonomes. Maquette gratuite avant de payer.",
-  url: 'https://adam-lakhal-web.vercel.app',
+  url: 'https://lakauraa.vercel.app',
   phone: '438-528-0259',
   phoneHref: 'tel:+14385280259',
   smsHref: 'sms:+14385280259',
@@ -31,6 +31,8 @@ export type Offer = {
   id: string;
   name: string;
   price: string;
+  /** Petit texte au-dessus du prix (ex. « À partir de ») */
+  from?: string;
   unit?: string;
   pitch: string;
   features: string[];
@@ -42,6 +44,7 @@ export const offers: Offer[] = [
   {
     id: 'essentiel',
     name: 'Essentiel',
+    from: 'À partir de',
     price: '600 $',
     pitch: 'Une page complète pour être présent en ligne, sans complication.',
     features: [
@@ -55,7 +58,7 @@ export const offers: Offer[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: '1 200 $',
+    price: 'Sur devis',
     pitch: 'Pour se démarquer et attirer de nouveaux clients chaque semaine.',
     features: [
       "Jusqu'à 5 pages",
@@ -70,8 +73,7 @@ export const offers: Offer[] = [
   {
     id: 'entretien',
     name: 'Entretien',
-    price: '40 $',
-    unit: '/ mois',
+    price: 'Sur devis',
     pitch: "Je m'occupe de tout, vous vous occupez de vos clients.",
     features: [
       'Hébergement et nom de domaine',
@@ -126,7 +128,7 @@ export const engagements = [
   {
     icon: 'tag',
     title: 'Des prix clairs',
-    text: 'Des forfaits affichés, une soumission gratuite et une entente écrite. Aucune mauvaise surprise.',
+    text: 'Un prix de départ clair, un devis gratuit selon votre projet et une entente écrite. Aucune mauvaise surprise.',
   },
   {
     icon: 'split',

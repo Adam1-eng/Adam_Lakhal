@@ -6,7 +6,7 @@ const { contact, legal } = Astro.locals.settings;
 const sections = [
   { id: 'champ', title: 'Champ d’application' },
   { id: 'services', title: 'Services et forfaits' },
-  { id: 'maquette', title: 'Maquette gratuite et soumission' },
+  { id: 'maquette', title: 'Maquette gratuite et devis' },
   { id: 'prix', title: 'Prix et taxes' },
   { id: 'paiement', title: 'Paiement' },
   { id: 'realisation', title: 'Réalisation et révisions' },
@@ -23,25 +23,25 @@ const sections = [
 
   <h2 id="services">Services et forfaits</h2>
   <table>
-    <thead><tr><th>Forfait</th><th>Prix indicatif</th><th>Contenu principal</th></tr></thead>
+    <thead><tr><th>Forfait</th><th>Prix</th><th>Contenu principal</th></tr></thead>
     <tbody>
-      {offers.map((o) => <tr><td><strong>{o.name}</strong></td><td>{o.price}{o.unit ? ` ${o.unit}` : ''}</td><td>{o.features.join(' · ')}</td></tr>)}
+      {offers.map((o) => <tr><td><strong>{o.name}</strong></td><td>{[o.from, o.price].filter(Boolean).join(' ')}</td><td>{o.features.join(' · ')}</td></tr>)}
     </tbody>
   </table>
-  <p>Les boutiques en ligne et projets particuliers font l’objet d’une soumission personnalisée.</p>
+  <p>Hormis le prix de départ du forfait Essentiel, les prix sont établis sur devis, selon le travail demandé.</p>
 
-  <h2 id="maquette">Maquette gratuite et soumission</h2>
-  <p>Avant tout engagement, je peux préparer une maquette gratuite. Elle n’engage pas le client et ne donne lieu à aucun paiement si le projet ne se poursuit pas. La soumission précise le contenu, le prix, la devise et l’échéancier ; elle est valable 30 jours.</p>
+  <h2 id="maquette">Maquette gratuite et devis</h2>
+  <p>Avant tout engagement, je peux préparer une maquette gratuite. Elle n’engage pas le client et ne donne lieu à aucun paiement si le projet ne se poursuit pas. Le devis précise le contenu, le prix, la devise et l’échéancier ; il est valable 30 jours.</p>
 
   <h2 id="prix">Prix et taxes</h2>
-  <p>Les prix affichés sur le site sont en dollars canadiens, avant taxes. Pour les clients au Maroc, le montant et la devise sont indiqués dans la soumission. Les taxes applicables sont ajoutées selon la situation fiscale du prestataire et du client. <Todo label="numéros de TPS/TVQ, si inscrit" /></p>
+  <p>Les prix affichés sur le site sont en dollars canadiens, avant taxes. Pour les clients au Maroc, le montant et la devise sont indiqués dans le devis. Les taxes applicables sont ajoutées selon la situation fiscale du prestataire et du client. <Todo label="numéros de TPS/TVQ, si inscrit" /></p>
 
   <h2 id="paiement">Paiement</h2>
   <ul>
     <li><strong>40 %</strong> à la signature de l’entente, pour lancer le projet ;</li>
     <li><strong>60 %</strong> à la mise en ligne du site.</li>
   </ul>
-  <p>Les moyens de paiement acceptés sont précisés dans la soumission. <Todo label="moyens de paiement acceptés (virement, Interac, etc.)" /></p>
+  <p>Les moyens de paiement acceptés sont précisés dans le devis. <Todo label="moyens de paiement acceptés (virement, Interac, etc.)" /></p>
 
   <h2 id="realisation">Réalisation et révisions</h2>
   <p>Le délai indicatif d’un site vitrine est d’une à deux semaines à compter de la réception des contenus (textes, photos, accès). Le forfait Essentiel comprend 2 séries de révisions ; les demandes supplémentaires ou hors périmètre peuvent faire l’objet d’un ajustement de prix, accepté au préalable par le client. Le client est responsable des contenus qu’il fournit et garantit en détenir les droits.</p>
@@ -50,7 +50,7 @@ const sections = [
   <p>Après paiement complet, le client est propriétaire de son nom de domaine et des contenus de son site, même s’il met fin à l’entretien. Je conserve le droit de présenter le projet dans mon portfolio, sauf demande contraire du client.</p>
 
   <h2 id="entretien">Forfait Entretien</h2>
-  <p>Le forfait Entretien (40 $ par mois) comprend l’hébergement, le nom de domaine, les sauvegardes, la sécurité et les changements courants (prix, heures, photos). Il est sans contrat et peut être annulé en tout temps ; l’annulation prend effet à la fin du mois en cours. Les services tiers (hébergeur, registraire) peuvent avoir leurs propres conditions.</p>
+  <p>Le forfait Entretien (sur devis) comprend l’hébergement, le nom de domaine, les sauvegardes, la sécurité et les changements courants (prix, heures, photos). Il est sans contrat et peut être annulé en tout temps ; l’annulation prend effet à la fin du mois en cours. Les services tiers (hébergeur, registraire) peuvent avoir leurs propres conditions.</p>
 
   <h2 id="resiliation">Annulation</h2>
   <p>Le client peut mettre fin au projet à tout moment par écrit. L’acompte couvre le travail déjà réalisé ; tout travail supplémentaire effectué au-delà de l’acompte peut être facturé au prorata, selon l’entente.</p>

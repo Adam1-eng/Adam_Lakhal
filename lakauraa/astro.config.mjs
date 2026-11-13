@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
 
 export default defineConfig({
-  site: 'https://adam-lakhal-web.vercel.app',
+  site: 'https://lakauraa.vercel.app',
   output: 'server',
   adapter: vercel({ maxDuration: 30 }),
   integrations: [react(), sitemap({ filter: (page) => !page.includes('/admin') })],

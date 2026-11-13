@@ -15,6 +15,13 @@
       "when": 1794542006251,
       "tag": "0001_project_video",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794552897906,
+      "tag": "0002_prix_sur_devis",
+      "breakpoints": true
     }
   ]
 }
