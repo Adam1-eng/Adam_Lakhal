@@ -23,8 +23,8 @@ const { eyebrow, title, aura, lead, crumbs = [] } = Astro.props;
 
 <style>
   .ph { --ax: 70%; --ay: 20%; position: relative; isolation: isolate; overflow: hidden; padding: calc(var(--header-h) + clamp(3.5rem, 9vw, 7rem)) 0 clamp(3rem, 7vw, 5rem); border-bottom: 1px solid var(--line); }
-  .ph__bg { position: absolute; inset: 0; z-index: -1; background: radial-gradient(600px circle at var(--ax) var(--ay), rgb(232 121 249 / 0.1), transparent 60%); }
-  .ph__blob { position: absolute; width: 600px; height: 600px; right: -150px; top: -260px; border-radius: 50%; background: radial-gradient(circle, rgb(124 58 237 / 0.5), transparent 65%); filter: blur(70px); }
+  .ph__bg { position: absolute; inset: 0; z-index: -1; background: radial-gradient(600px circle at var(--ax) var(--ay), rgb(224 18 47 / 0.1), transparent 60%); }
+  .ph__blob { position: absolute; width: 600px; height: 600px; right: -150px; top: -260px; border-radius: 50%; background: radial-gradient(circle, rgb(30 107 255 / 0.5), transparent 65%); filter: blur(70px); }
   .ph__inner { display: grid; gap: 1.4rem; justify-items: start; }
   .ph__inner :global(h1) { max-width: 16ch; }
   .ph__crumbs ol { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--dim); }

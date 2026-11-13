@@ -22,8 +22,8 @@ import { process } from '../data/site';
 </section>
 
 <style>
-  .pr { overflow: hidden; background: linear-gradient(180deg, var(--bg), #0b0a18 50%, var(--bg)); }
-  .pr__glow { position: absolute; width: 700px; height: 700px; right: -250px; top: 10%; border-radius: 50%; background: radial-gradient(circle, rgb(139 92 246 / 0.18), transparent 65%); filter: blur(40px); }
+  .pr { overflow: hidden; background: linear-gradient(180deg, var(--bg), #0d0d12 50%, var(--bg)); }
+  .pr__glow { position: absolute; width: 700px; height: 700px; right: -250px; top: 10%; border-radius: 50%; background: radial-gradient(circle, rgb(30 107 255 / 0.18), transparent 65%); filter: blur(40px); }
   .pr__list { --p: 0; position: relative; list-style: none; padding: 0; display: grid; gap: 2.4rem; }
   @media (min-width: 900px) { .pr__list { grid-template-columns: repeat(4, 1fr); gap: 2rem; } }
   .pr__line { position: absolute; background: var(--line-2); border-radius: 2px; }
@@ -46,7 +46,7 @@ import { process } from '../data/site';
     transition: background 0.5s var(--ease), color 0.5s, box-shadow 0.5s, border-color 0.5s;
     margin-bottom: 0.8rem; position: relative; z-index: 1;
   }
-  .pr__step.is-on .pr__dot { background: var(--aura-btn); color: #fff; border-color: transparent; box-shadow: 0 0 0 6px rgb(139 92 246 / 0.15), 0 10px 30px -8px rgb(192 38 211 / 0.7); }
+  .pr__step.is-on .pr__dot { background: var(--aura-btn); color: #fff; border-color: transparent; box-shadow: 0 0 0 6px rgb(30 107 255 / 0.15), 0 10px 30px -8px rgb(224 18 47 / 0.7); }
   .pr__meta { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); font-weight: 600; }
   .pr__step h3 { font-size: 1.35rem; letter-spacing: -0.025em; }
   .pr__step p { color: var(--muted); font-size: 0.95rem; }

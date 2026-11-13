@@ -188,7 +188,7 @@ const paragraphs = p.body.split(/\n{2,}/).map((x) => x.trim()).filter(Boolean);
   .cs__links { display: flex; flex-wrap: wrap; gap: 0.7rem; }
   .cs__hero-visual { padding-top: clamp(3rem, 6vw, 4rem); }
   .cs__stage { position: relative; transition: transform 0.6s var(--ease); }
-  .cs__stage::before { content: ''; position: absolute; inset: 5%; z-index: -1; background: radial-gradient(closest-side, rgb(139 92 246 / 0.35), transparent); filter: blur(40px); }
+  .cs__stage::before { content: ''; position: absolute; inset: 5%; z-index: -1; background: radial-gradient(closest-side, rgb(30 107 255 / 0.35), transparent); filter: blur(40px); }
   .cs__story { display: grid; gap: 3rem; }
   @media (min-width: 900px) { .cs__story { grid-template-columns: 1fr 1fr; gap: 4rem; } .cs__block--full { grid-column: 1 / -1; } }
   .cs__block { display: grid; gap: 1.2rem; justify-items: start; }
@@ -213,7 +213,7 @@ const paragraphs = p.body.split(/\n{2,}/).map((x) => x.trim()).filter(Boolean);
   .cs__phones .phone { width: min(240px, 42vw); }
   .cs__phones img { width: 100%; aspect-ratio: 9 / 19.5; object-fit: cover; object-position: top; }
   .cs__ask-s { padding-bottom: 0; }
-  .cs__ask { display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; justify-content: space-between; align-items: center; padding: clamp(1.5rem, 4vw, 2.5rem); background: radial-gradient(80% 140% at 100% 0%, rgb(139 92 246 / 0.18), transparent 60%), var(--surface); }
+  .cs__ask { display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; justify-content: space-between; align-items: center; padding: clamp(1.5rem, 4vw, 2.5rem); background: radial-gradient(80% 140% at 100% 0%, rgb(30 107 255 / 0.18), transparent 60%), var(--surface); }
   .cs__ask > div:first-child { display: grid; gap: 0.5rem; }
   .cs__ask-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
   .cs__wa :global(svg) { color: #25d366; width: 20px; height: 20px; }
@@ -228,7 +228,7 @@ const paragraphs = p.body.split(/\n{2,}/).map((x) => x.trim()).filter(Boolean);
   .cs__next:hover .cs__next-go { background: var(--aura-btn); border-color: transparent; transform: rotate(-45deg) scale(1.08); }
 
   .lb { padding: 0; border: 0; background: transparent; max-width: 100vw; max-height: 100vh; width: 100vw; height: 100dvh; color: var(--text); }
-  .lb::backdrop { background: rgb(4 4 8 / 0.92); backdrop-filter: blur(8px); }
+  .lb::backdrop { background: rgb(6 6 9 / 0.92); backdrop-filter: blur(8px); }
   .lb[open] { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.5rem; padding: 4rem 0.5rem 1.5rem; }
   .lb figure { display: grid; gap: 0.8rem; justify-items: center; min-width: 0; }
   .lb img { max-width: 100%; max-height: calc(100dvh - 9rem); width: auto; height: auto; border-radius: 12px; box-shadow: 0 40px 80px -30px #000; animation: lbIn 0.5s var(--ease); }

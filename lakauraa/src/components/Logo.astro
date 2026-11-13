@@ -4,15 +4,15 @@ const { class: cls = '' } = Astro.props;
 ---
 <a href="/" class:list={['logo', cls]} aria-label="Lakauraa, retour à l’accueil">
   <span class="logo__mark" aria-hidden="true">
-    <svg viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a78bfa"/><stop offset="1" stop-color="#f0abfc"/></linearGradient></defs><path d="M20 14v36h24" fill="none" stroke="url(#lg)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="18" r="5" fill="#f0abfc"/></svg>
+    <svg viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e6bff"/><stop offset="1" stop-color="#e0122f"/></linearGradient></defs><path d="M20 14v36h24" fill="none" stroke="url(#lg)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="18" r="5" fill="#e0122f"/></svg>
   </span>
   <span class="logo__word">Lakauraa<span class="logo__dot">.</span></span>
 </a>
 
 <style>
   .logo { display: inline-flex; align-items: center; gap: 0.6rem; font-family: var(--font-display); font-weight: 700; font-size: 1.28rem; letter-spacing: -0.04em; }
-  .logo__mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #12121c; border: 1px solid var(--line-2); transition: transform 0.6s var(--ease), box-shadow 0.4s; }
+  .logo__mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #131319; border: 1px solid var(--line-2); transition: transform 0.6s var(--ease), box-shadow 0.4s; }
   .logo__mark :global(svg) { width: 22px; height: 22px; }
-  .logo:hover .logo__mark { transform: rotate(-8deg) scale(1.06); box-shadow: 0 0 24px -4px rgb(232 121 249 / 0.6); }
-  .logo__dot { background: var(--aura); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .logo:hover .logo__mark { transform: rotate(-8deg) scale(1.06); box-shadow: 0 0 24px -4px rgb(224 18 47 / 0.6); }
+  .logo__dot { color: var(--red); }
 </style>

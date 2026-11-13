@@ -84,9 +84,9 @@ const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'T
 <style>
   .ab { display: grid; gap: 3rem; align-items: start; }
   @media (min-width: 960px) { .ab { grid-template-columns: 0.8fr 1.2fr; gap: 5rem; } .ab__card { position: sticky; top: calc(var(--header-h) + 2rem); } }
-  .ab__card { padding: 2rem; display: grid; gap: 1.4rem; justify-items: start; transition: transform 0.6s var(--ease); background: radial-gradient(90% 60% at 0% 0%, rgb(139 92 246 / 0.25), transparent 60%), var(--surface); }
-  .ab__mono { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; font-family: var(--font-display); font-size: clamp(5rem, 12vw, 8rem); font-weight: 700; letter-spacing: -0.06em; background: radial-gradient(circle at 30% 30%, rgb(167 139 250 / 0.35), transparent 60%), radial-gradient(circle at 80% 80%, rgb(232 121 249 / 0.3), transparent 55%), #0d0c18; border: 1px solid var(--line-2); }
-  .ab__mono { background-clip: padding-box; color: rgb(255 255 255 / 0.9); text-shadow: 0 10px 40px rgb(167 139 250 / 0.6); }
+  .ab__card { padding: 2rem; display: grid; gap: 1.4rem; justify-items: start; transition: transform 0.6s var(--ease); background: radial-gradient(90% 60% at 0% 0%, rgb(30 107 255 / 0.25), transparent 60%), var(--surface); }
+  .ab__mono { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; font-family: var(--font-display); font-size: clamp(5rem, 12vw, 8rem); font-weight: 700; letter-spacing: -0.06em; background: radial-gradient(circle at 30% 30%, rgb(30 107 255 / 0.35), transparent 60%), radial-gradient(circle at 80% 80%, rgb(224 18 47 / 0.3), transparent 55%), #0f0f15; border: 1px solid var(--line-2); }
+  .ab__mono { background-clip: padding-box; color: rgb(255 255 255 / 0.9); text-shadow: 0 10px 40px rgb(30 107 255 / 0.6); }
   .ab__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; }
   .ab__name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; }
   .ab__facts { list-style: none; padding: 0; display: grid; gap: 0.7rem; width: 100%; }
@@ -102,6 +102,6 @@ const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'T
   .ab__skills { display: grid; gap: 1rem; }
   .ab__skill-list { list-style: none; padding: 0; display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
   .ab__skill-list li { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.2rem; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; transition: border-color 0.3s, transform 0.4s var(--ease); }
-  .ab__skill-list li:hover { border-color: rgb(167 139 250 / 0.4); transform: translateY(-3px); }
+  .ab__skill-list li:hover { border-color: rgb(30 107 255 / 0.4); transform: translateY(-3px); }
   .ab__skill-list :global(svg) { width: 18px; height: 18px; color: var(--accent); }
 </style>
