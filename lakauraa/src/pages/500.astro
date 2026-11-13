@@ -1,0 +1,26 @@
+---
+// Page d’erreur serveur : message générique, aucun détail technique (le détail reste dans les journaux serveur).
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { securityEvent } from '../lib/security-log';
+interface Props { error?: unknown }
+securityEvent('server.error', { path: Astro.url.pathname, type: Astro.props.error instanceof Error ? Astro.props.error.name : 'inconnue' });
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+<Base title="Erreur temporaire" description="Une erreur temporaire est survenue." noindex>
+  <section class="nf">
+    <p class="nf__code">Oups</p>
+    <h1 class="h-l">Une erreur temporaire est survenue.</h1>
+    <p class="lead">Réessayez dans un instant. Si le problème persiste, contactez-moi directement.</p>
+    <div class="nf__actions">
+      <a href="/" class="btn btn--primary">Retour à l’accueil <Icon name="arrow" class="arrow" /></a>
+      <a href="/contact" class="btn btn--ghost">Me contacter</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { min-height: 80svh; display: grid; place-content: center; justify-items: center; gap: 1.2rem; text-align: center; padding: calc(var(--header-h) + 3rem) var(--gutter) 4rem; }
+  .nf__code { font-family: var(--font-display); font-weight: 700; font-size: clamp(4rem, 14vw, 8rem); line-height: 0.9; color: var(--blue); }
+  .nf .lead { margin-inline: auto; }
+  .nf__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
+</style>

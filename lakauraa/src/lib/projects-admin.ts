@@ -2,12 +2,14 @@
 import { asc, eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from './db';
 import { removeStoredFile } from './storage';
+import { securityEvent } from './security-log';
 
 export async function deleteProject(id: string) {
   const db = await getDb();
   const imgs = await db.select().from(schema.projectImages).where(eq(schema.projectImages.projectId, id));
   await db.delete(schema.projects).where(eq(schema.projects.id, id)); // les images en base suivent (cascade)
   await Promise.all(imgs.flatMap((i) => [removeStoredFile(i.storageKey), removeStoredFile(i.thumbKey)]));
+  securityEvent('project.deleted', { project: id, images: imgs.length });
 }
 
 export async function setStatus(id: string, status: 'draft' | 'published') {

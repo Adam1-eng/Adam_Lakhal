@@ -5,26 +5,57 @@ import type { AstroCookies } from 'astro';
 import { getDb, schema } from './db';
 
 const scrypt = promisify(_scrypt) as (pw: string, salt: Buffer, len: number, opts: object) => Promise<Buffer>;
-const SCRYPT = { N: 16384, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
+// Paramètres OWASP (Password Storage Cheat Sheet) : N=2^17, r=8, p=1 (~128 Mo, ~0,3 s).
+const SCRYPT = { N: 2 ** 17, r: 8, p: 1 };
+// Anciens paramètres (comptes créés avant l’audit) : encore acceptés, puis re-hachés à la connexion.
+const LEGACY = { N: 16384, r: 8, p: 1 };
+const memFor = (o: { N: number; r: number }) => 128 * o.N * o.r + 32 * 1024 * 1024;
 const SESSION_DAYS = 7;
 export const MAX_ATTEMPTS = 5;
 const WINDOW_MIN = 15;
 
 export type AdminUser = { id: string; email: string; name: string };
 
-/* ---------- Mots de passe (scrypt + sel aléatoire) ---------- */
+/* ---------- Mots de passe (scrypt + sel aléatoire unique) ---------- */
+// Format : scrypt$N$r$p$sel$hachage (ancien format accepté : scrypt$sel$hachage)
 export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16);
-  const hash = await scrypt(password, salt, 64, SCRYPT);
-  return `scrypt$${salt.toString('base64')}$${hash.toString('base64')}`;
+  const hash = await scrypt(password, salt, 64, { ...SCRYPT, maxmem: memFor(SCRYPT) });
+  return ['scrypt', SCRYPT.N, SCRYPT.r, SCRYPT.p, salt.toString('base64'), hash.toString('base64')].join('$');
+}
+
+function parseHash(stored: string) {
+  const parts = stored.split('$');
+  if (parts[0] !== 'scrypt') return null;
+  if (parts.length === 3) return { ...LEGACY, salt: parts[1], hash: parts[2] };
+  if (parts.length === 6) {
+    const [N, r, p] = parts.slice(1, 4).map(Number);
+    if (![N, r, p].every((n) => Number.isInteger(n) && n > 0) || N > 2 ** 20 || r > 32 || p > 16) return null;
+    return { N, r, p, salt: parts[4], hash: parts[5] };
+  }
+  return null;
 }
 
 export async function verifyPassword(password: string, stored: string): Promise<boolean> {
-  const [algo, saltB64, hashB64] = stored.split('$');
-  if (algo !== 'scrypt' || !saltB64 || !hashB64) return false;
-  const expected = Buffer.from(hashB64, 'base64');
-  const actual = await scrypt(password, Buffer.from(saltB64, 'base64'), expected.length, SCRYPT);
+  const h = parseHash(stored);
+  if (!h) return false;
+  const expected = Buffer.from(h.hash, 'base64');
+  const actual = await scrypt(password, Buffer.from(h.salt, 'base64'), expected.length, { N: h.N, r: h.r, p: h.p, maxmem: memFor(h) });
   return actual.length === expected.length && timingSafeEqual(actual, expected);
+}
+
+/** Vrai si le hachage utilise des paramètres plus faibles que les paramètres actuels. */
+export function needsRehash(stored: string) {
+  const h = parseHash(stored);
+  return !h || h.N < SCRYPT.N || h.r < SCRYPT.r || h.p < SCRYPT.p;
+}
+
+// Vérification factice (hachage calculé une seule fois) : même temps de réponse si le compte n’existe pas
+let dummyHash: Promise<string> | null = null;
+export async function dummyVerify(password: string): Promise<false> {
+  dummyHash ??= hashPassword(randomBytes(16).toString('hex'));
+  await verifyPassword(password, await dummyHash);
+  return false;
 }
 
 export function passwordProblem(pw: string): string | null {

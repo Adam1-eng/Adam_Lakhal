@@ -3,7 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { asc, eq } from 'drizzle-orm';
 import { getDb, schema } from '../../lib/db';
 import { getSettings, saveSetting, type LegalSettings } from '../../lib/content';
-import { str } from '../../lib/admin';
+import { str, isEmail } from '../../lib/admin';
+import { securityEvent, maskEmail } from '../../lib/security-log';
 import { hashPassword, verifyPassword, passwordProblem, destroyAllSessions, createSession } from '../../lib/auth';
 
 const me = Astro.locals.admin!;
@@ -34,7 +35,7 @@ if (Astro.request.method === 'POST') {
     const [row] = await db.select().from(schema.admins).where(eq(schema.admins.id, me.id)).limit(1);
     const current = String(fd.get('current') ?? '');
     const next = String(fd.get('next') ?? '');
-    if (!row || !(await verifyPassword(current, row.passwordHash))) return back('erreur', 'Mot de passe actuel incorrect.', '#securite');
+    if (!row || !(await verifyPassword(current, row.passwordHash))) { securityEvent('password.change_failed', { admin: me.id }); return back('erreur', 'Mot de passe actuel incorrect.', '#securite'); }
     const problem = passwordProblem(next);
     if (problem) return back('erreur', problem, '#securite');
     if (next !== String(fd.get('next2') ?? '')) return back('erreur', 'Les deux nouveaux mots de passe ne correspondent pas.', '#securite');
@@ -42,23 +43,26 @@ if (Astro.request.method === 'POST') {
     // Déconnecte les autres appareils, garde la session courante
     await destroyAllSessions(me.id);
     await createSession(me.id, Astro.cookies, Astro.url.protocol === 'https:', Astro.request.headers.get('user-agent') ?? '');
+    securityEvent('password.changed', { admin: me.id });
     return back('ok', 'Mot de passe modifié. Les autres appareils ont été déconnectés.', '#securite');
   }
 
   if (action === 'signout-all') {
     await destroyAllSessions(me.id);
+    securityEvent('logout.all', { admin: me.id });
     return Astro.redirect('/admin/login', 303);
   }
 
   if (action === 'add-admin') {
     const email = str(fd, 'email').toLowerCase();
     const pw = String(fd.get('password') ?? '');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return back('erreur', 'Courriel invalide.', '#admins');
+    if (!isEmail(email)) return back('erreur', 'Courriel invalide.', '#admins');
     const problem = passwordProblem(pw);
     if (problem) return back('erreur', problem, '#admins');
     const exists = await db.select().from(schema.admins).where(eq(schema.admins.email, email)).limit(1);
     if (exists.length) return back('erreur', 'Ce courriel a déjà un accès.', '#admins');
     await db.insert(schema.admins).values({ email, name: str(fd, 'name').slice(0, 80), passwordHash: await hashPassword(pw) });
+    securityEvent('admin.created', { by: me.id, email: maskEmail(email) });
     return back('ok', `Accès créé pour ${email}.`, '#admins');
   }
 
@@ -66,6 +70,7 @@ if (Astro.request.method === 'POST') {
     const id = str(fd, 'id');
     if (id === me.id) return back('erreur', 'Vous ne pouvez pas supprimer votre propre accès.', '#admins');
     await db.delete(schema.admins).where(eq(schema.admins.id, id));
+    securityEvent('admin.removed', { by: me.id, removed: id });
     return back('ok', 'Accès supprimé.', '#admins');
   }
 }

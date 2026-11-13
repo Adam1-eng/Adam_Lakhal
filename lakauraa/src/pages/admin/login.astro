@@ -2,8 +2,9 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { eq } from 'drizzle-orm';
 import { getDb, schema } from '../../lib/db';
-import { verifyPassword, createSession, tooManyAttempts, recordAttempt, adminCount, hashPassword } from '../../lib/auth';
+import { verifyPassword, createSession, destroySession, tooManyAttempts, recordAttempt, adminCount, hashPassword, needsRehash, dummyVerify } from '../../lib/auth';
 import { str, isSafeNext, clientIp } from '../../lib/admin';
+import { securityEvent, maskEmail, maskIp } from '../../lib/security-log';
 
 if (Astro.locals.admin) return Astro.redirect('/admin');
 if ((await adminCount()) === 0) return Astro.redirect('/admin/setup');
@@ -20,19 +21,30 @@ if (Astro.request.method === 'POST') {
   const keys = [`ip:${ip}`, `email:${email}`];
 
   if (await tooManyAttempts(keys)) {
+    Astro.response.status = 429;
+    securityEvent('login.locked', { email: maskEmail(email), ip: maskIp(ip) });
     error = 'Trop de tentatives. Réessayez dans 15 minutes.';
   } else {
     const db = await getDb();
     const [user] = await db.select().from(schema.admins).where(eq(schema.admins.email, email)).limit(1);
-    // Hachage factice si l’utilisateur n’existe pas : même temps de réponse (pas d’indice sur les comptes)
-    const ok = user ? await verifyPassword(password, user.passwordHash) : (await verifyPassword(password, await hashPassword('x'.repeat(12))), false);
+    // Vérification factice si le compte n’existe pas : même temps de réponse (pas d’indice sur les comptes)
+    const ok = user ? await verifyPassword(password, user.passwordHash) : await dummyVerify(password);
     if (ok && user) {
+      const secure = Astro.url.protocol === 'https:';
       await recordAttempt(keys, true);
-      await db.update(schema.admins).set({ lastLoginAt: new Date() }).where(eq(schema.admins.id, user.id));
-      await createSession(user.id, Astro.cookies, Astro.url.protocol === 'https:', Astro.request.headers.get('user-agent') ?? '');
+      // Mise à niveau transparente du hachage (anciens paramètres scrypt)
+      const updates: { lastLoginAt: Date; passwordHash?: string } = { lastLoginAt: new Date() };
+      if (needsRehash(user.passwordHash)) updates.passwordHash = await hashPassword(password);
+      await db.update(schema.admins).set(updates).where(eq(schema.admins.id, user.id));
+      // Anti-fixation : toute session présentée avant la connexion est détruite, une nouvelle est créée
+      await destroySession(Astro.cookies, secure);
+      await createSession(user.id, Astro.cookies, secure, Astro.request.headers.get('user-agent') ?? '');
+      securityEvent('login.success', { admin: user.id, ip: maskIp(ip), rehashed: Boolean(updates.passwordHash) });
       return Astro.redirect(isSafeNext(next) ? next! : '/admin');
     }
     await recordAttempt(keys, false);
+    securityEvent('login.failure', { email: maskEmail(email), ip: maskIp(ip), knownAccount: Boolean(user) });
+    Astro.response.status = 401;
     error = 'Courriel ou mot de passe incorrect.';
   }
 }

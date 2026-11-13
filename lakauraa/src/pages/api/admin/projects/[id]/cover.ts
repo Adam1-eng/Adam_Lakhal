@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { getDb, schema } from '../../../../../lib/db';
 import { denied, json } from '../../../../../lib/admin';
 
-const body = z.object({ imageId: z.string().max(60) });
+const body = z.object({ imageId: z.string().max(60) }).strict();
 
 export const POST: APIRoute = async (ctx) => {
   const no = denied(ctx);

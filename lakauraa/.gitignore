@@ -3,3 +3,11 @@ dist
 .astro
 .vercel
 .data
+
+# Secrets : ne jamais versionner
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12

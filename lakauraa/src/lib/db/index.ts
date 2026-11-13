@@ -20,7 +20,8 @@ async function create(): Promise<DB> {
     const { drizzle } = await import('drizzle-orm/node-postgres');
     const { Pool } = await import('pg');
     const local = /localhost|127\.0\.0\.1/.test(url);
-    const pool = new Pool({ connectionString: url, max: 3, ssl: local ? undefined : { rejectUnauthorized: false } });
+    // Connexion chiffrée ET certificat vérifié (protège contre l’interception). Désactivable seulement en local.
+    const pool = new Pool({ connectionString: url, max: 3, ssl: local ? undefined : { rejectUnauthorized: true } });
     return drizzle(pool, { schema });
   }
   if (env('VERCEL')) throw new Error('DATABASE_URL manquant : configurez la base de données dans Vercel.');

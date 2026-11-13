@@ -13,6 +13,9 @@ export function denied(ctx: Pick<APIContext, 'locals'>): Response | null {
   return ctx.locals.admin ? null : json({ error: 'Authentification requise.' }, 401);
 }
 
+/** Courriel valide et sans caractère dangereux (<, >, guillemets…), 200 caractères max. */
+export const isEmail = (v: string) => v.length <= 200 && /^[^\s@<>"'`;,()\\]+@[^\s@<>"'`;,()\\]+\.[a-z]{2,}$/i.test(v);
+
 export const str = (fd: FormData, k: string) => String(fd.get(k) ?? '').trim();
 export const bool = (fd: FormData, k: string) => ['on', 'true', '1'].includes(String(fd.get(k) ?? ''));
 
@@ -103,7 +106,9 @@ export function moveInList<T extends { id: string }>(list: T[], id: string, dir:
   return copy;
 }
 
-export const isSafeNext = (next: string | null) => Boolean(next && /^\/admin(\/|$|\?)/.test(next) && !next.startsWith('//'));
+/** Redirection après connexion : uniquement vers une page interne de l’admin (anti open-redirect). */
+export const isSafeNext = (next: string | null) =>
+  Boolean(next && next.length < 300 && /^\/admin(\/|$|\?)/.test(next) && !next.startsWith('//') && !/[\\\s\x00-\x1f]/.test(next));
 
 export const clientIp = (request: Request, fallback = 'local') =>
   (request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for')?.split(',')[0] || fallback).trim().slice(0, 64);

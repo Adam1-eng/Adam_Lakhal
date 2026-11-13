@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { denied, json } from '../../../../../lib/admin';
 import { reorderImages } from '../../../../../lib/projects-admin';
 
-const body = z.object({ ids: z.array(z.string().max(60)).max(200) });
+const body = z.object({ ids: z.array(z.string().max(60)).max(200) }).strict();
 
 export const POST: APIRoute = async (ctx) => {
   const no = denied(ctx);

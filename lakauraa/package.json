@@ -10,7 +10,10 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
-    "vercel-build": "tsx scripts/migrate.ts && astro build"
+    "vercel-build": "tsx scripts/migrate.ts && astro build",
+    "test:security:unit": "tsx tests/security.unit.mts",
+    "test:security:http": "node tests/security.http.mjs",
+    "test:security": "npm run test:security:unit && npm run test:security:http"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
@@ -40,5 +43,13 @@
     "@types/react-dom": "^19.3.0",
     "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15"
+  },
+  "overrides": {
+    "@vercel/cli-config": {
+      "zod": "^4.6.7"
+    },
+    "@vercel/routing-utils": {
+      "path-to-regexp": "^6.3.0"
+    }
   }
 }

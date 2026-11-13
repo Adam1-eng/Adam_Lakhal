@@ -2,7 +2,7 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import BrandIcon from '../../components/BrandIcon.astro';
 import { getSettings, saveSetting, socialLabels, type SocialSettings } from '../../lib/content';
-import { str } from '../../lib/admin';
+import { str, isEmail } from '../../lib/admin';
 
 const placeholders: Record<keyof SocialSettings, string> = {
   instagram: 'https://www.instagram.com/votre-compte',
@@ -29,7 +29,7 @@ if (Astro.request.method === 'POST') {
     socials[k] = v.slice(0, 300);
   }
   const email = str(fd, 'email');
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) errors.push('Courriel de contact invalide.');
+  if (!isEmail(email)) errors.push('Courriel de contact invalide.');
   if (errors.length) return Astro.redirect('/admin/reseaux?erreur=' + encodeURIComponent(errors.join(' ')), 303);
 
   await saveSetting('whatsapp', { ma, ca, message: str(fd, 'wa_message').slice(0, 400) || 'Bonjour Adam, je vous contacte depuis le site Lakauraa.' });

@@ -11,7 +11,7 @@ const patchBody = z.object({
   caption: z.string().trim().max(160).optional(),
   variant: z.enum(['desktop', 'mobile', 'autre']).optional(),
   visible: z.boolean().optional(),
-});
+}).strict();
 
 async function find(id: string) {
   const db = await getDb();

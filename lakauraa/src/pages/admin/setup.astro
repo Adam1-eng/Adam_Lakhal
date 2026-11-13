@@ -6,7 +6,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { timingSafeEqual } from 'node:crypto';
 import { getDb, schema, env } from '../../lib/db';
 import { adminCount, hashPassword, passwordProblem, createSession } from '../../lib/auth';
-import { str } from '../../lib/admin';
+import { str, clientIp, isEmail } from '../../lib/admin';
+import { securityEvent, maskIp } from '../../lib/security-log';
 
 if ((await adminCount()) > 0) return Astro.redirect('/admin/login');
 
@@ -26,8 +27,8 @@ if (Astro.request.method === 'POST' && !blocked) {
   const pw = String(fd.get('password') ?? '');
   const pw2 = String(fd.get('password2') ?? '');
   const token = str(fd, 'token');
-  if (requiredToken && !sameToken(token, requiredToken)) error = 'Jeton d’installation invalide.';
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) error = 'Courriel invalide.';
+  if (requiredToken && !sameToken(token, requiredToken)) { error = 'Jeton d’installation invalide.'; securityEvent('setup.refused', { ip: maskIp(clientIp(Astro.request)) }); }
+  else if (!isEmail(email)) error = 'Courriel invalide.';
   else if (passwordProblem(pw)) error = passwordProblem(pw)!;
   else if (pw !== pw2) error = 'Les deux mots de passe ne correspondent pas.';
   else if ((await adminCount()) > 0) return Astro.redirect('/admin/login');
@@ -35,6 +36,7 @@ if (Astro.request.method === 'POST' && !blocked) {
     const db = await getDb();
     const [admin] = await db.insert(schema.admins).values({ email, name, passwordHash: await hashPassword(pw) }).returning();
     await createSession(admin.id, Astro.cookies, Astro.url.protocol === 'https:', Astro.request.headers.get('user-agent') ?? '');
+    securityEvent('setup.admin_created', { admin: admin.id, ip: maskIp(clientIp(Astro.request)) });
     return Astro.redirect('/admin?ok=' + encodeURIComponent('Compte créé. Bienvenue dans votre administration !'));
   }
 }

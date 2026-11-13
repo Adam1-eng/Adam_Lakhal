@@ -43,6 +43,8 @@ const business = {
     { '@type': 'Offer', name: 'Site web', priceSpecification: { '@type': 'PriceSpecification', minPrice: '600', priceCurrency: 'CAD' } },
   ],
 };
+/** JSON pour <script type="application/ld+json"> : « < » échappé, impossible de fermer la balise. */
+const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -73,8 +75,8 @@ const faqSchema = {
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
 
-    <script type="application/ld+json" set:html={JSON.stringify(business)} />
-    {faqs.length > 0 && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+    <script type="application/ld+json" set:html={safeJson(business)} />
+    {faqs.length > 0 && <script type="application/ld+json" set:html={safeJson(faqSchema)} />}
 
     <ClientRouter fallback="swap" />
     <script>
