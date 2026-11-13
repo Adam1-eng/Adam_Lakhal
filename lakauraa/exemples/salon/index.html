@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salon Élan Coiffure</title>
+<meta name="description" content="Salon de coiffure à Montréal">
+<!-- Maquette : empêche Google d'indexer la page tant que le salon n'a pas accepté -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+/* =====================================================================
+   ✂️  À MODIFIER POUR CHAQUE SALON : tout se change ici.
+   ===================================================================== */
+const SALON = {
+  // Bandeau affiché en haut tant que le salon n'a pas accepté. Mets "" pour le retirer.
+  maquette: "Exemple fictif réalisé par Adam Lakhal. Ce salon n'existe pas.",
+  concepteur: "Adam Lakhal",
+
+  nom: "Élan Coiffure",
+  slogan: "Votre coiffure, notre passion depuis 2012",
+  intro: "Un salon de quartier chaleureux où chaque coupe est pensée pour vous. Coupes, couleurs et soins pour toute la famille.",
+  quartier: "Rosemont",
+  adresse: "1234, rue Beaubien Est, Montréal (QC) H2S 1T2",
+  telephone: "514-555-0123",
+  facebook: "https://facebook.com/",
+  instagram: "",
+  lienReservation: "",            // ex. lien Fresha / Booksy ; vide = bouton « Appeler »
+  note: "4,8",                    // note Google ; vide pour masquer
+  nbAvis: "102",
+
+  couleurPrincipale: "#8a5a44",   // terracotta
+  couleurFond: "#faf6f2",
+
+  services: [
+    { nom: "Coupe femme",            prix: "à partir de 45 $" },
+    { nom: "Coupe homme",            prix: "à partir de 28 $" },
+    { nom: "Coupe enfant (- 12 ans)", prix: "à partir de 20 $" },
+    { nom: "Coloration complète",    prix: "à partir de 85 $" },
+    { nom: "Mèches / balayage",      prix: "à partir de 120 $" },
+    { nom: "Mise en plis",           prix: "à partir de 40 $" },
+    { nom: "Soin profond",           prix: "à partir de 25 $" },
+    { nom: "Coiffure d'événement",   prix: "sur consultation" }
+  ],
+
+  heures: [
+    ["Lundi", "Fermé"],
+    ["Mardi", "9 h à 18 h"],
+    ["Mercredi", "9 h à 18 h"],
+    ["Jeudi", "9 h à 20 h"],
+    ["Vendredi", "9 h à 20 h"],
+    ["Samedi", "9 h à 17 h"],
+    ["Dimanche", "Fermé"]
+  ],
+
+  avis: [
+    { texte: "Toujours satisfaite ! L'équipe prend le temps d'écouter ce que je veux.", auteur: "Marie-Ève L." },
+    { texte: "Meilleur balayage que j'ai eu à Montréal. Je recommande les yeux fermés.", auteur: "Sophie T." },
+    { texte: "Accueil chaleureux, prix honnêtes, résultat impeccable.", auteur: "Karim B." }
+  ],
+
+  /* Remplace par les photos du salon (prises sur sa page Facebook, avec sa permission). */
+  photos: [
+    "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=900&q=70",
+    "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=900&q=70",
+    "https://images.unsplash.com/photo-1562322140-8baeececf3df?w=900&q=70",
+    "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?w=900&q=70"
+  ]
+};
+</script>
+<style>
+  :root {
+    --accent: #8a5a44;
+    --bg: #faf6f2;
+    --surface: #ffffff;
+    --text: #2b2420;
+    --muted: #6f625a;
+    --line: #e8ded6;
+    --radius: 14px;
+    --max: 1100px;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, serif; font-weight: 600; line-height: 1.15; }
+  h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: .5rem; }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+  section { padding: 80px 0; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: .78rem; font-weight: 600; color: var(--accent); }
+  .lead { color: var(--muted); max-width: 60ch; }
+
+  .btn {
+    display: inline-block; padding: 14px 26px; border-radius: 999px;
+    background: var(--accent); color: #fff; text-decoration: none; font-weight: 600;
+    transition: transform .15s, filter .15s;
+  }
+  .btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+  .btn.ghost { background: transparent; color: var(--text); border: 1.5px solid var(--text); }
+
+  /* En-tête */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  header .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 16px; }
+  .logo { font-family: "Fraunces", serif; font-size: 1.35rem; font-weight: 600; text-decoration: none; }
+  nav { display: flex; gap: 28px; align-items: center; }
+  nav a { text-decoration: none; font-weight: 500; font-size: .95rem; }
+  nav a:not(.btn):hover { color: var(--accent); }
+  nav .btn { padding: 10px 20px; }
+  @media (max-width: 760px) { nav a:not(.btn) { display: none; } }
+
+  /* Accueil */
+  .hero { padding: 72px 0 80px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 56px; align-items: center; }
+  .hero h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); margin: 14px 0 18px; }
+  .hero .lead { font-size: 1.1rem; margin-bottom: 30px; }
+  .hero .actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .rating { margin-top: 28px; display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: .95rem; }
+  .stars { color: #e0a43b; letter-spacing: 2px; }
+  .hero-img {
+    aspect-ratio: 4/5; border-radius: 200px 200px var(--radius) var(--radius);
+    overflow: hidden; background: linear-gradient(160deg, #e9d8cb, #c79f86);
+  }
+  .hero-img img { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 860px) {
+    .hero .wrap { grid-template-columns: 1fr; gap: 36px; }
+    .hero-img { aspect-ratio: 4/3; border-radius: var(--radius); }
+  }
+
+  /* Services */
+  #services { background: var(--surface); border-block: 1px solid var(--line); }
+  .services { margin-top: 36px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 56px; }
+  .service { display: flex; align-items: baseline; gap: 12px; padding: 16px 0; border-bottom: 1px dashed var(--line); }
+  .service .dots { flex: 1; }
+  .service .prix { color: var(--accent); font-weight: 600; white-space: nowrap; }
+  @media (max-width: 700px) { .services { grid-template-columns: 1fr; } }
+
+  /* Galerie */
+  .gallery { margin-top: 36px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .gallery div { aspect-ratio: 3/4; border-radius: var(--radius); overflow: hidden; background: linear-gradient(160deg, #eadccf, #cfae98); }
+  .gallery img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+  .gallery div:hover img { transform: scale(1.05); }
+  @media (max-width: 760px) { .gallery { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Avis */
+  #avis { background: var(--accent); color: #fff; }
+  #avis .eyebrow { color: rgba(255,255,255,.75); }
+  .reviews { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .review { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); padding: 26px; border-radius: var(--radius); }
+  .review p { font-family: "Fraunces", serif; font-size: 1.1rem; margin: 10px 0 16px; }
+  .review span { font-size: .9rem; opacity: .8; }
+  @media (max-width: 860px) { .reviews { grid-template-columns: 1fr; } }
+
+  /* Contact */
+  .contact { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 36px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 28px; }
+  .card h3 { font-size: 1.3rem; margin-bottom: 14px; }
+  .hours { width: 100%; border-collapse: collapse; }
+  .hours td { padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .hours td:last-child { text-align: right; color: var(--muted); }
+  .hours tr.today td { color: var(--accent); font-weight: 600; }
+  .info p { margin-bottom: 14px; }
+  .info strong { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; }
+  .map { margin-top: 18px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); height: 220px; }
+  .map iframe { width: 100%; height: 100%; border: 0; }
+  @media (max-width: 760px) { .contact { grid-template-columns: 1fr; } }
+
+  footer { padding: 36px 0; text-align: center; color: var(--muted); font-size: .88rem; }
+  footer a { color: var(--accent); }
+
+  .demo-banner {
+    background: #2b2420; color: #fff; text-align: center;
+    font-size: .85rem; padding: 10px 20px;
+  }
+
+  /* Bouton d'appel fixe sur cellulaire */
+  .call-mobile {
+    display: none; position: fixed; bottom: 16px; left: 16px; right: 16px; z-index: 20;
+    text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  }
+  @media (max-width: 760px) { .call-mobile { display: block; } footer { padding-bottom: 96px; } }
+</style>
+</head>
+<body>
+
+<div class="demo-banner" data-maquette></div>
+
+<header>
+  <div class="wrap">
+    <a href="#" class="logo" data-nom></a>
+    <nav>
+      <a href="#services">Services</a>
+      <a href="#galerie">Réalisations</a>
+      <a href="#avis">Avis</a>
+      <a href="#contact">Nous joindre</a>
+      <a class="btn" data-cta></a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Salon de coiffure · <span data-quartier></span></span>
+        <h1 data-slogan></h1>
+        <p class="lead" data-intro></p>
+        <div class="actions">
+          <a class="btn" data-cta></a>
+          <a class="btn ghost" href="#services">Voir les prix</a>
+        </div>
+        <div class="rating" data-rating>
+          <span class="stars">★★★★★</span>
+          <span><strong data-note></strong> sur Google · <span data-avis></span> avis</span>
+        </div>
+      </div>
+      <div class="hero-img"><img data-photo="0" alt="Intérieur du salon"></div>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="wrap">
+      <span class="eyebrow">Services et prix</span>
+      <h2>Ce qu'on fait pour vous</h2>
+      <p class="lead">Les prix varient selon la longueur et l'épaisseur des cheveux. Consultation gratuite.</p>
+      <div class="services" data-services></div>
+    </div>
+  </section>
+
+  <section id="galerie">
+    <div class="wrap">
+      <span class="eyebrow">Réalisations</span>
+      <h2>Nos dernières créations</h2>
+      <div class="gallery" data-gallery></div>
+    </div>
+  </section>
+
+  <section id="avis">
+    <div class="wrap">
+      <span class="eyebrow">Ce que nos clients disent</span>
+      <h2>Ils nous font confiance</h2>
+      <div class="reviews" data-reviews></div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <span class="eyebrow">Nous joindre</span>
+      <h2>Venez nous voir</h2>
+      <div class="contact">
+        <div class="card">
+          <h3>Heures d'ouverture</h3>
+          <table class="hours" data-hours></table>
+        </div>
+        <div class="card info">
+          <h3>Coordonnées</h3>
+          <p><strong>Adresse</strong><span data-adresse></span></p>
+          <p><strong>Téléphone</strong><a data-tel></a></p>
+          <p data-social><strong>Réseaux sociaux</strong></p>
+          <div class="map"><iframe data-map loading="lazy" title="Carte"></iframe></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    © <span data-annee></span> <span data-nom></span> · Site conçu par <span data-concepteur></span>
+  </div>
+</footer>
+
+<a class="btn call-mobile" data-tel-btn></a>
+
+<script>
+  const $ = s => document.querySelectorAll(s);
+  const S = SALON;
+  const telHref = "tel:+1" + S.telephone.replace(/\D/g, "");
+
+  document.documentElement.style.setProperty("--accent", S.couleurPrincipale);
+  document.documentElement.style.setProperty("--bg", S.couleurFond);
+  document.title = S.nom + " · Salon de coiffure à " + S.quartier;
+
+  const set = (sel, val) => $(sel).forEach(el => el.textContent = val);
+  set("[data-nom]", S.nom);
+  set("[data-slogan]", S.slogan);
+  set("[data-intro]", S.intro);
+  set("[data-quartier]", S.quartier);
+  set("[data-adresse]", S.adresse);
+  set("[data-annee]", new Date().getFullYear());
+  set("[data-concepteur]", S.concepteur);
+  if (S.maquette) set("[data-maquette]", S.maquette);
+  else $("[data-maquette]").forEach(el => el.remove());
+
+  $("[data-cta]").forEach(a => {
+    a.textContent = S.lienReservation ? "Prendre rendez-vous" : "Appeler le salon";
+    a.href = S.lienReservation || telHref;
+  });
+  $("[data-tel]").forEach(a => { a.textContent = S.telephone; a.href = telHref; });
+  $("[data-tel-btn]").forEach(a => { a.textContent = "📞 Appeler " + S.telephone; a.href = telHref; });
+
+  if (S.note) { set("[data-note]", S.note); set("[data-avis]", S.nbAvis); }
+  else $("[data-rating]").forEach(el => el.remove());
+
+  const social = $("[data-social]")[0];
+  [["Facebook", S.facebook], ["Instagram", S.instagram]].filter(x => x[1]).forEach(([n, u], i) => {
+    if (i) social.append(" · ");
+    const a = document.createElement("a"); a.href = u; a.target = "_blank"; a.rel = "noopener"; a.textContent = n;
+    social.append(a);
+  });
+  if (!S.facebook && !S.instagram) social.remove();
+
+  $("[data-services]")[0].innerHTML = S.services.map(s =>
+    `<div class="service"><span>${s.nom}</span><span class="dots"></span><span class="prix">${s.prix}</span></div>`).join("");
+
+  $("[data-gallery]")[0].innerHTML = S.photos.map((p, i) =>
+    `<div><img src="${p}" alt="Réalisation ${i + 1}" loading="lazy" onerror="this.remove()"></div>`).join("");
+  $("[data-photo]").forEach(img => { img.src = S.photos[img.dataset.photo]; img.onerror = () => img.remove(); });
+
+  if (S.avis.length) {
+    $("[data-reviews]")[0].innerHTML = S.avis.map(a =>
+      `<div class="review"><span class="stars">★★★★★</span><p>« ${a.texte} »</p><span>${a.auteur}</span></div>`).join("");
+  } else {
+    $("#avis").forEach(el => el.remove());
+    $('nav a[href="#avis"]').forEach(el => el.remove());
+  }
+
+  const today = (new Date().getDay() + 6) % 7;
+  $("[data-hours]")[0].innerHTML = S.heures.map((h, i) =>
+    `<tr class="${i === today ? "today" : ""}"><td>${h[0]}</td><td>${h[1]}</td></tr>`).join("");
+
+  $("[data-map]")[0].src = "https://maps.google.com/maps?q=" + encodeURIComponent(S.adresse) + "&output=embed";
+</script>
+</body>
+</html>
