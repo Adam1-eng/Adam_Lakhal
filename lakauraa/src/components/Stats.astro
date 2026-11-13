@@ -21,7 +21,7 @@ import { stats } from '../data/site';
   .st__grid { display: grid; grid-template-columns: repeat(2, 1fr); border: 1px solid var(--line); border-radius: var(--radius-l); overflow: hidden; background: linear-gradient(180deg, rgb(255 255 255 / 0.03), transparent); }
   @media (min-width: 900px) { .st__grid { grid-template-columns: repeat(4, 1fr); } }
   .st__item { display: flex; flex-direction: column-reverse; gap: 0.6rem; padding: clamp(1.4rem, 3vw, 2.2rem); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-  .st__item dd { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.4rem, 5vw, 3.6rem); line-height: 1; letter-spacing: -0.05em; background: linear-gradient(180deg, #fff 30%, #9dbbff); -webkit-background-clip: text; background-clip: text; color: transparent; font-variant-numeric: tabular-nums; }
+  .st__item dd { font-family: var(--font-display); font-weight: 700; font-size: clamp(2.4rem, 5vw, 3.6rem); line-height: 1; letter-spacing: -0.05em; color: var(--text); font-variant-numeric: tabular-nums; }
   .st__affix { font-size: 0.6em; }
   .st__item dt { font-size: 0.82rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; max-width: 22ch; }
 </style>
