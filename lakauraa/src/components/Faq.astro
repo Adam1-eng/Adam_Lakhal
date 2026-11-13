@@ -1,0 +1,48 @@
+---
+import Icon from './Icon.astro';
+import SplitText from './SplitText.astro';
+import { faq, site } from '../data/site';
+---
+<section class="section" id="faq" aria-labelledby="faq-title">
+  <div class="wrap fq">
+    <div class="fq__side">
+      <span class="eyebrow reveal">FAQ</span>
+      <SplitText id="faq-title" class="h-l" text="Vous vous demandez peut-être…" aura="peut-être…" />
+      <p class="lead reveal" style="--i:2">Les réponses claires aux questions qu’on me pose avant chaque projet. Une autre question ? Écrivez-moi.</p>
+      <div class="fq__ask reveal" style="--i:3">
+        <a href={site.smsHref} class="btn btn--ghost btn--sm"><Icon name="message" /> Texto</a>
+        <a href="/contact" class="btn btn--ghost btn--sm">Contact <Icon name="arrow" class="arrow" /></a>
+      </div>
+    </div>
+
+    <div class="fq__list" data-faq>
+      {faq.map((f, i) => (
+        <details class="fq__item reveal" style={`--i:${Math.min(i, 4)}`} open={i === 0}>
+          <summary>
+            <span>{f.q}</span>
+            <span class="fq__icon" aria-hidden="true"><Icon name="plus" /></span>
+          </summary>
+          <div class="faq__a"><p>{f.a}</p></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .fq { display: grid; gap: 3rem; }
+  @media (min-width: 980px) { .fq { grid-template-columns: 0.8fr 1.2fr; gap: 4rem; } .fq__side { position: sticky; top: calc(var(--header-h) + 3rem); align-self: start; } }
+  .fq__side { display: grid; gap: 1.3rem; justify-items: start; }
+  .fq__ask { display: flex; gap: 0.6rem; }
+  .fq__list { display: grid; gap: 0.7rem; }
+  .fq__item { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); transition: border-color 0.3s, background 0.3s; }
+  .fq__item:hover { border-color: var(--line-2); }
+  .fq__item.is-open { border-color: rgb(167 139 250 / 0.35); background: linear-gradient(180deg, rgb(167 139 250 / 0.06), transparent), var(--surface); }
+  .fq__item summary { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.15rem 1.3rem; cursor: pointer; list-style: none; font-weight: 600; font-size: 1.02rem; }
+  .fq__item summary::-webkit-details-marker { display: none; }
+  .fq__icon { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line-2); transition: transform 0.5s var(--ease), background 0.3s, border-color 0.3s; }
+  .fq__icon :global(svg) { width: 15px; height: 15px; }
+  .fq__item.is-open .fq__icon { transform: rotate(135deg); background: var(--aura-btn); border-color: transparent; }
+  .faq__a { overflow: hidden; }
+  .faq__a p { padding: 0 1.3rem 1.25rem; color: var(--muted); max-width: 64ch; }
+</style>

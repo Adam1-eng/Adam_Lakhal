@@ -1,0 +1,53 @@
+---
+import SectionHead from './SectionHead.astro';
+import { process } from '../data/site';
+---
+<section class="section pr" aria-label="Processus">
+  <div class="pr__glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <SectionHead eyebrow="Ma méthode" title="De l’idée au site en ligne, en 4 étapes." aura="en 4 étapes." lead="Un seul interlocuteur, un échéancier clair. Vous savez toujours où en est votre projet." />
+
+    <ol class="pr__list" data-progress>
+      <span class="pr__line" aria-hidden="true"><span></span></span>
+      {process.map((p, i) => (
+        <li class="pr__step reveal" style={`--i:${i}`} data-step>
+          <span class="pr__dot">0{i + 1}</span>
+          <span class="pr__meta">{p.meta}</span>
+          <h3>{p.title}</h3>
+          <p>{p.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .pr { overflow: hidden; background: linear-gradient(180deg, var(--bg), #0b0a18 50%, var(--bg)); }
+  .pr__glow { position: absolute; width: 700px; height: 700px; right: -250px; top: 10%; border-radius: 50%; background: radial-gradient(circle, rgb(139 92 246 / 0.18), transparent 65%); filter: blur(40px); }
+  .pr__list { --p: 0; position: relative; list-style: none; padding: 0; display: grid; gap: 2.4rem; }
+  @media (min-width: 900px) { .pr__list { grid-template-columns: repeat(4, 1fr); gap: 2rem; } }
+  .pr__line { position: absolute; background: var(--line-2); border-radius: 2px; }
+  .pr__line span { position: absolute; inset: 0; background: var(--aura); border-radius: inherit; transform-origin: 0 0; }
+  @media (min-width: 900px) {
+    .pr__line { left: 22px; right: 12%; top: 22px; height: 2px; }
+    .pr__line span { transform: scaleX(var(--p)); }
+  }
+  @media (max-width: 899px) {
+    .pr__line { left: 21px; top: 22px; bottom: 30px; width: 2px; }
+    .pr__line span { transform: scaleY(var(--p)); }
+    .pr__step { padding-left: 4.2rem; }
+    .pr__dot { position: absolute; left: 0; top: 0; }
+  }
+  .pr__step { position: relative; display: grid; gap: 0.5rem; align-content: start; }
+  .pr__dot {
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+    font-size: 0.85rem; font-weight: 700;
+    background: var(--surface-2); border: 1px solid var(--line-2); color: var(--muted);
+    transition: background 0.5s var(--ease), color 0.5s, box-shadow 0.5s, border-color 0.5s;
+    margin-bottom: 0.8rem; position: relative; z-index: 1;
+  }
+  .pr__step.is-on .pr__dot { background: var(--aura-btn); color: #fff; border-color: transparent; box-shadow: 0 0 0 6px rgb(139 92 246 / 0.15), 0 10px 30px -8px rgb(192 38 211 / 0.7); }
+  .pr__meta { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); font-weight: 600; }
+  .pr__step h3 { font-size: 1.35rem; letter-spacing: -0.025em; }
+  .pr__step p { color: var(--muted); font-size: 0.95rem; }
+</style>

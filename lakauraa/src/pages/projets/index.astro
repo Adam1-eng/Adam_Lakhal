@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Portfolio from '../../components/Portfolio.astro';
+import Cta from '../../components/Cta.astro';
+import { site } from '../../data/site';
+---
+<Base title="Réalisations · Projets et maquettes de sites web" description={`Boutique en ligne AutoRefaatArt, exemple de site de salon et ${site.maquettesCount} maquettes de sites web pour des commerces de Montréal.`}>
+  <PageHero eyebrow="Réalisations" title="Des sites pensés pour faire venir des clients." aura="faire venir des clients."
+    lead={`Une boutique en ligne livrée, un exemple complet et une sélection de mes ${site.maquettesCount} maquettes : barbiers, garages, traiteurs, spas, photographes…`}
+    crumbs={[{ label: 'Réalisations' }]} />
+  <Portfolio full />
+  <Cta title="Votre commerce pourrait être le prochain." aura="le prochain." text="Je prépare votre maquette gratuitement, à partir de votre page Facebook, Instagram ou Google. Vous la voyez avant de décider quoi que ce soit." />
+</Base>

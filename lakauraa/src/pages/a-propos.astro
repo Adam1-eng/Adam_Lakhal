@@ -1,0 +1,103 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Stats from '../components/Stats.astro';
+import Engagements from '../components/Engagements.astro';
+import Cta from '../components/Cta.astro';
+import { site } from '../data/site';
+
+const values = [
+  { icon: 'heart', title: 'Honnêteté', text: 'Des prix affichés, une entente écrite et une maquette avant tout paiement. Si un site ne vous apporte rien, je vous le dis.' },
+  { icon: 'zap', title: 'Rapidité', text: 'Des sites légers qui s’ouvrent vite, même sur un vieux cellulaire, et une mise en ligne en 1 à 2 semaines.' },
+  { icon: 'layers', title: 'Simplicité', text: 'Pas de jargon. Vous m’envoyez un texto, je m’occupe du technique. Le site doit vous simplifier la vie.' },
+];
+const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'Three.js (3D)', 'Docker', 'Référencement local', 'Design adapté au cellulaire'];
+---
+<Base title="À propos · Adam Lakhal, développeur web à Montréal" description={`Je suis Adam Lakhal, étudiant en développement web au ${site.school}. Je crée des sites web abordables pour les commerces de Montréal.`}>
+  <PageHero eyebrow="À propos" title="Un développeur, pas une agence." aura="pas une agence."
+    lead={`Je m’appelle ${site.owner}. J’étudie en développement web au ${site.school} et je crée des sites pour les commerces de quartier qui méritent mieux qu’une page Facebook.`}
+    crumbs={[{ label: 'À propos' }]} />
+
+  <section class="section" aria-label="Mon histoire">
+    <div class="wrap ab">
+      <div class="ab__card card spot reveal reveal--scale" data-tilt="5">
+        <div class="ab__mono" aria-hidden="true">AL</div>
+        <div class="ab__id">
+          <p class="ab__name">{site.owner}</p>
+          <p class="muted">Fondateur de Lakauraa · {site.city}</p>
+        </div>
+        <ul class="ab__facts">
+          <li><Icon name="school" /> Développement web · {site.school}</li>
+          <li><Icon name="pin" /> Basé à {site.city}, projets à distance</li>
+          <li><Icon name="layers" /> {site.maquettesCount} maquettes réalisées</li>
+          <li><Icon name="shop" /> Boutique en ligne livrée au Maroc</li>
+        </ul>
+        <a href={site.phoneHref} class="btn btn--light btn--sm"><Icon name="phone" /> {site.phone}</a>
+      </div>
+
+      <div class="ab__text">
+        <SectionHead eyebrow="Pourquoi Lakauraa" title="Les petits commerces méritent de beaux sites aussi." aura="de beaux sites aussi." />
+        <div class="ab__prose reveal">
+          <p>Autour de moi, je vois des barbiers talentueux, des traiteurs incroyables et des garages honnêtes… que personne ne trouve sur Google. Pas parce qu’ils travaillent mal, mais parce qu’un site web semble cher, compliqué ou réservé aux grandes entreprises.</p>
+          <p>Lakauraa est né de cette idée : offrir aux commerces de quartier un site <strong>rapide, élégant et abordable</strong>, avec une démarche simple. Je prépare d’abord une maquette gratuite, vous la voyez, et vous décidez ensuite.</p>
+          <p>Être étudiant me permet d’offrir des prix accessibles. Et comme vous parlez directement à la personne qui code votre site, les échanges sont rapides et sans intermédiaire.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Stats />
+
+  <section class="section section--alt" aria-label="Mes valeurs">
+    <div class="wrap">
+      <SectionHead eyebrow="Mes valeurs" title="Trois principes sur chaque projet." aura="sur chaque projet." align="center" />
+      <div class="ab__values">
+        {values.map((v, i) => (
+          <article class="card spot ab__value reveal" style={`--i:${i}`}>
+            <span class="icon-badge"><Icon name={v.icon} /></span>
+            <h3>{v.title}</h3>
+            <p>{v.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Compétences">
+    <div class="wrap ab__skills">
+      <SectionHead eyebrow="Boîte à outils" title="Des outils modernes, choisis pour vous." aura="choisis pour vous." lead="J’utilise la technologie qui convient à votre projet : un site vitrine ultra-léger, ou une application complète quand c’est nécessaire." />
+      <ul class="ab__skill-list">
+        {skills.map((s, i) => <li class="reveal" style={`--i:${i % 4}`}><Icon name="code" /> {s}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <Engagements />
+  <Cta title="On fait connaissance ?" aura="connaissance ?" text={`Un appel de 15 minutes suffit pour comprendre votre commerce. Appelez-moi, texto ou courriel : je réponds en ${site.responseTime}.`} />
+</Base>
+
+<style>
+  .ab { display: grid; gap: 3rem; align-items: start; }
+  @media (min-width: 960px) { .ab { grid-template-columns: 0.8fr 1.2fr; gap: 5rem; } .ab__card { position: sticky; top: calc(var(--header-h) + 2rem); } }
+  .ab__card { padding: 2rem; display: grid; gap: 1.4rem; justify-items: start; transition: transform 0.6s var(--ease); background: radial-gradient(90% 60% at 0% 0%, rgb(139 92 246 / 0.25), transparent 60%), var(--surface); }
+  .ab__mono { display: grid; place-items: center; width: 100%; aspect-ratio: 4 / 3; border-radius: 16px; font-family: var(--font-display); font-size: clamp(5rem, 12vw, 8rem); font-weight: 700; letter-spacing: -0.06em; background: radial-gradient(circle at 30% 30%, rgb(167 139 250 / 0.35), transparent 60%), radial-gradient(circle at 80% 80%, rgb(232 121 249 / 0.3), transparent 55%), #0d0c18; border: 1px solid var(--line-2); }
+  .ab__mono { background-clip: padding-box; color: rgb(255 255 255 / 0.9); text-shadow: 0 10px 40px rgb(167 139 250 / 0.6); }
+  .ab__name { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; }
+  .ab__facts { list-style: none; padding: 0; display: grid; gap: 0.7rem; width: 100%; }
+  .ab__facts li { display: flex; align-items: center; gap: 0.7rem; font-size: 0.92rem; color: var(--muted); padding-bottom: 0.7rem; border-bottom: 1px solid var(--line); }
+  .ab__facts :global(svg) { width: 17px; height: 17px; color: var(--accent); flex: none; }
+  .ab__prose { display: grid; gap: 1.2rem; font-size: 1.08rem; color: var(--muted); max-width: 62ch; }
+  .ab__prose strong { color: var(--text); }
+  .ab__values { display: grid; gap: 1.2rem; }
+  @media (min-width: 860px) { .ab__values { grid-template-columns: repeat(3, 1fr); } }
+  .ab__value { padding: 1.8rem; display: grid; gap: 0.7rem; align-content: start; }
+  .ab__value h3 { font-size: 1.35rem; margin-top: 0.5rem; }
+  .ab__value p { color: var(--muted); }
+  .ab__skills { display: grid; gap: 1rem; }
+  .ab__skill-list { list-style: none; padding: 0; display: grid; gap: 0.8rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); }
+  .ab__skill-list li { display: flex; align-items: center; gap: 0.7rem; padding: 1rem 1.2rem; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; transition: border-color 0.3s, transform 0.4s var(--ease); }
+  .ab__skill-list li:hover { border-color: rgb(167 139 250 / 0.4); transform: translateY(-3px); }
+  .ab__skill-list :global(svg) { width: 18px; height: 18px; color: var(--accent); }
+</style>

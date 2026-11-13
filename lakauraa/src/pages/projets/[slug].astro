@@ -1,0 +1,137 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Icon from '../../components/Icon.astro';
+import BrowserFrame from '../../components/BrowserFrame.astro';
+import PhoneFrame from '../../components/PhoneFrame.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import Cta from '../../components/Cta.astro';
+import { caseStudies, categoryLabel, type CaseStudy } from '../../data/projets';
+
+export function getStaticPaths() {
+  return caseStudies.map((c, i) => ({ params: { slug: c.slug }, props: { c, next: caseStudies[(i + 1) % caseStudies.length] } }));
+}
+interface Props { c: CaseStudy; next: CaseStudy }
+const { c, next } = Astro.props;
+const external = c.url?.startsWith('http');
+---
+<Base title={`${c.name} · ${c.sector}`} description={c.summary}>
+  <PageHero eyebrow={`${categoryLabel[c.category]} · ${c.sector}`} title={c.name} lead={c.summary} crumbs={[{ label: 'Réalisations', href: '/projets' }, { label: c.name }]}>
+    <dl class="cs__facts reveal" style="--i:4">
+      <div><dt>Type</dt><dd>{categoryLabel[c.category]}</dd></div>
+      <div><dt>Lieu</dt><dd>{c.place}</dd></div>
+      <div><dt>Année</dt><dd>{c.year}</dd></div>
+      <div><dt>Statut</dt><dd><span class="cs__live"></span>{c.status}</dd></div>
+    </dl>
+    {c.url && (
+      <a href={c.url} class="btn btn--primary reveal" style="--i:5" target={external ? '_blank' : undefined} rel={external ? 'noopener' : undefined} data-magnetic>
+        {external ? `Visiter ${c.urlLabel}` : c.urlLabel} <Icon name="arrow-up-right" class="arrow" />
+      </a>
+    )}
+  </PageHero>
+
+  <section class="section cs__hero-visual" aria-label="Aperçu">
+    <div class="wrap">
+      <div class="cs__stage reveal reveal--scale" data-tilt="3">
+        <BrowserFrame src={c.cover} alt={`Page d’accueil de ${c.name}`} url={c.urlLabel} eager sizes="(min-width: 1200px) 1100px, 94vw" />
+        <PhoneFrame src={c.mobile} alt={`${c.name} sur cellulaire`} class="cs__phone" />
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-label="Le défi et la solution">
+    <div class="wrap cs__story">
+      <div class="cs__block reveal">
+        <span class="eyebrow">Le défi</span>
+        <p class="cs__big">{c.challenge}</p>
+      </div>
+      <div class="cs__block reveal" style="--i:1">
+        <span class="eyebrow">La solution</span>
+        <p class="cs__big">{c.solution}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt" aria-label="Fonctionnalités">
+    <div class="wrap">
+      <SectionHead eyebrow="Ce que j’ai construit" title="Les fonctionnalités clés." aura="clés." />
+      <div class="cs__feats">
+        {c.features.map((f, i) => (
+          <article class="card spot cs__feat reveal" style={`--i:${i % 3}`}>
+            <span class="cs__feat-n">0{i + 1}</span>
+            <h3>{f.title}</h3>
+            <p>{f.text}</p>
+          </article>
+        ))}
+      </div>
+      <ul class="cs__stack reveal">{c.stack.map((s) => <li class="chip">{s}</li>)}</ul>
+    </div>
+  </section>
+
+  {c.gallery.length > 1 && (
+    <section class="section" aria-label="Galerie">
+      <div class="wrap">
+        <SectionHead eyebrow="Galerie" title="En images." aura="images." />
+        <div class="cs__gallery">
+          {c.gallery.map((g, i) => (
+            <figure class:list={['cs__shot reveal', { 'cs__shot--wide': i === 0 }]} style={`--i:${i % 2}`}>
+              <Image src={g.img} alt={g.caption} widths={[600, 1000, 1400]} sizes={i === 0 ? '(min-width: 1200px) 1200px, 94vw' : '(min-width: 900px) 600px, 94vw'} />
+              <figcaption>{g.caption}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section cs__next-s" aria-label="Projet suivant">
+    <div class="wrap">
+      <a href={`/projets/${next.slug}`} class="card spot cs__next">
+        <div>
+          <span class="eyebrow">Projet suivant</span>
+          <p class="h-l">{next.name}</p>
+          <p class="muted">{next.sector}</p>
+        </div>
+        <span class="cs__next-go"><Icon name="arrow" /></span>
+      </a>
+    </div>
+  </section>
+
+  <Cta />
+</Base>
+
+<style>
+  .cs__facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; width: 100%; max-width: 760px; margin-block: 0.6rem; }
+  @media (min-width: 700px) { .cs__facts { grid-template-columns: repeat(4, 1fr); } }
+  .cs__facts div { background: var(--bg); padding: 1rem 1.2rem; }
+  .cs__facts dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--dim); }
+  .cs__facts dd { font-weight: 600; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.45rem; }
+  .cs__live { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); }
+  .cs__hero-visual { padding-top: clamp(3rem, 6vw, 4rem); }
+  .cs__stage { position: relative; padding-right: 7%; padding-bottom: 5%; transition: transform 0.6s var(--ease); }
+  .cs__stage::before { content: ''; position: absolute; inset: 5%; z-index: -1; background: radial-gradient(closest-side, rgb(139 92 246 / 0.35), transparent); filter: blur(40px); }
+  :global(.cs__phone) { position: absolute; right: 0; bottom: 0; width: 20%; }
+  .cs__story { display: grid; gap: 3rem; }
+  @media (min-width: 900px) { .cs__story { grid-template-columns: 1fr 1fr; gap: 4rem; } }
+  .cs__block { display: grid; gap: 1.2rem; justify-items: start; }
+  .cs__big { font-family: var(--font-display); font-size: clamp(1.25rem, 2.2vw, 1.6rem); line-height: 1.35; letter-spacing: -0.02em; color: #dcdcea; }
+  .cs__feats { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+  .cs__feat { padding: 1.5rem; display: grid; gap: 0.5rem; align-content: start; }
+  .cs__feat-n { font-size: 0.78rem; color: var(--accent); font-weight: 700; margin-bottom: 0.4rem; }
+  .cs__feat h3 { font-size: 1.2rem; letter-spacing: -0.02em; }
+  .cs__feat p { color: var(--muted); font-size: 0.94rem; }
+  .cs__stack { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2rem; }
+  .cs__gallery { display: grid; gap: 1.2rem; }
+  @media (min-width: 900px) { .cs__gallery { grid-template-columns: 1fr 1fr; } .cs__shot--wide { grid-column: 1 / -1; } }
+  .cs__shot { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+  .cs__shot img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; transition: transform 1.2s var(--ease); }
+  .cs__shot:hover img { transform: scale(1.03); }
+  .cs__shot figcaption { padding: 0.9rem 1.1rem; font-size: 0.88rem; color: var(--muted); border-top: 1px solid var(--line); }
+  .cs__next-s { padding-bottom: 0; }
+  .cs__next { display: flex; justify-content: space-between; align-items: center; gap: 2rem; padding: clamp(1.6rem, 4vw, 3rem); }
+  .cs__next > div { display: grid; gap: 0.8rem; justify-items: start; }
+  .cs__next-go { display: grid; place-items: center; flex: none; width: 70px; height: 70px; border-radius: 50%; border: 1px solid var(--line-2); transition: all 0.5s var(--ease); }
+  .cs__next-go :global(svg) { width: 24px; height: 24px; }
+  .cs__next:hover .cs__next-go { background: var(--aura-btn); border-color: transparent; transform: rotate(-45deg) scale(1.08); }
+</style>

@@ -1,0 +1,156 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { nav, site } from '../data/site';
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+<header class="hdr" data-header>
+  <div class="hdr__inner wrap">
+    <Logo />
+
+    <nav class="hdr__nav" aria-label="Navigation principale">
+      <ul data-nav-pill>
+        <span class="hdr__pill" aria-hidden="true" data-pill></span>
+        {nav.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="hdr__actions">
+      <a class="hdr__phone" href={site.phoneHref} aria-label={`Appeler au ${site.phone}`}>
+        <Icon name="phone" />
+        <span>{site.phone}</span>
+      </a>
+      <a href="/contact" class="btn btn--primary btn--sm hdr__cta" data-magnetic>
+        Maquette gratuite
+        <Icon name="arrow" class="arrow" />
+      </a>
+      <button class="hdr__burger" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
+        <span class="sr-only">Ouvrir le menu</span>
+        <span class="hdr__burger-lines" aria-hidden="true"><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mmenu" id="mobile-menu" data-menu hidden>
+    <nav aria-label="Navigation mobile">
+      <ul>
+        {nav.map((item, i) => (
+          <li style={`--i:${i}`}>
+            <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+              <span class="mmenu__num">0{i + 1}</span>
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <div class="mmenu__foot" style={`--i:${nav.length}`}>
+      <a href="/contact" class="btn btn--primary">Obtenir ma maquette gratuite <Icon name="arrow" class="arrow" /></a>
+      <div class="mmenu__contact">
+        <a href={site.phoneHref}><Icon name="phone" /> {site.phone}</a>
+        <a href={`mailto:${site.email}`}><Icon name="mail" /> Courriel</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    position: fixed; inset: 0 0 auto; z-index: 90;
+    padding-top: 14px;
+    transition: transform 0.5s var(--ease), padding 0.4s var(--ease);
+  }
+  .hdr.is-hidden:not(:focus-within) { transform: translateY(-120%); }
+  .hdr__inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    height: 62px;
+    padding: 0 0.6rem 0 1rem;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition: background-color 0.4s, border-color 0.4s, box-shadow 0.4s, backdrop-filter 0.4s;
+  }
+  .hdr.is-scrolled .hdr__inner {
+    background: rgb(12 12 19 / 0.72);
+    border-color: var(--line-2);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    box-shadow: 0 20px 40px -24px rgb(0 0 0 / 0.9);
+  }
+  .hdr__nav ul {
+    position: relative;
+    display: flex; gap: 0.15rem; list-style: none; padding: 0.3rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgb(255 255 255 / 0.025);
+  }
+  .hdr__nav a {
+    position: relative; z-index: 1;
+    display: block; padding: 0.48rem 0.95rem;
+    font-size: 0.9rem; font-weight: 500; color: var(--muted);
+    border-radius: 999px;
+    transition: color 0.25s;
+  }
+  .hdr__nav a:hover, .hdr__nav a[aria-current='page'] { color: var(--text); }
+  .hdr__pill {
+    position: absolute; top: 0.3rem; bottom: 0.3rem; left: 0; width: 0;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08);
+    opacity: 0;
+    transition: transform 0.5s var(--ease), width 0.5s var(--ease), opacity 0.3s;
+  }
+  .hdr__actions { display: flex; align-items: center; gap: 0.6rem; }
+  .hdr__phone { display: none; align-items: center; gap: 0.45rem; font-size: 0.88rem; color: var(--muted); padding: 0.4rem 0.6rem; border-radius: 999px; transition: color 0.25s; }
+  .hdr__phone :global(svg) { width: 16px; height: 16px; }
+  .hdr__phone:hover { color: var(--text); }
+  .hdr__burger { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.04); position: relative; z-index: 2; }
+  .hdr__burger-lines { display: grid; gap: 6px; width: 18px; }
+  .hdr__burger-lines i { display: block; height: 2px; border-radius: 2px; background: var(--text); transition: transform 0.45s var(--ease); }
+  .hdr__burger[aria-expanded='true'] i:nth-child(1) { transform: translateY(4px) rotate(45deg); }
+  .hdr__burger[aria-expanded='true'] i:nth-child(2) { transform: translateY(-4px) rotate(-45deg); }
+
+  @media (max-width: 979px) {
+    .hdr__nav { display: none; }
+    .hdr__cta { display: none; }
+  }
+  @media (min-width: 980px) {
+    .hdr__burger { display: none; }
+  }
+  @media (min-width: 1180px) {
+    .hdr__phone { display: inline-flex; }
+  }
+
+  /* Menu mobile */
+  .mmenu {
+    position: fixed; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: calc(var(--header-h) + 2rem) var(--gutter) 2rem;
+    background: radial-gradient(120% 60% at 100% 0%, rgb(139 92 246 / 0.25), transparent 60%), rgb(7 7 11 / 0.97);
+    backdrop-filter: blur(20px);
+    clip-path: circle(0% at calc(100% - 40px) 45px);
+    transition: clip-path 0.7s var(--ease-in-out);
+  }
+  .mmenu[hidden] { display: flex; visibility: hidden; }
+  .mmenu.is-open { clip-path: circle(150% at calc(100% - 40px) 45px); visibility: visible; }
+  .mmenu ul { list-style: none; padding: 0; display: grid; gap: 0.2rem; }
+  .mmenu li, .mmenu__foot { opacity: 0; transform: translateY(20px); transition: opacity 0.5s var(--ease), transform 0.6s var(--ease); transition-delay: calc(var(--i) * 60ms + 150ms); }
+  .mmenu.is-open li, .mmenu.is-open .mmenu__foot { opacity: 1; transform: none; }
+  .mmenu nav a {
+    display: flex; align-items: baseline; gap: 1rem;
+    padding: 0.55rem 0;
+    font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 9vw, 3rem); letter-spacing: -0.04em;
+    border-bottom: 1px solid var(--line);
+  }
+  .mmenu nav a[aria-current='page'] { color: var(--accent-2); }
+  .mmenu__num { font-family: var(--font-sans); font-size: 0.8rem; color: var(--dim); font-weight: 500; letter-spacing: 0; }
+  .mmenu__foot { display: grid; gap: 1.2rem; }
+  .mmenu__contact { display: flex; gap: 1.5rem; color: var(--muted); }
+  .mmenu__contact a { display: inline-flex; gap: 0.5rem; align-items: center; }
+  .mmenu__contact :global(svg) { width: 18px; height: 18px; }
+</style>

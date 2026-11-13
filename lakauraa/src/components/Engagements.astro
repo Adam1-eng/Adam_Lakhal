@@ -1,0 +1,38 @@
+---
+import Icon from './Icon.astro';
+import SplitText from './SplitText.astro';
+import { engagements } from '../data/site';
+---
+<section class="section" aria-labelledby="eng-title">
+  <div class="wrap eng">
+    <div class="eng__side">
+      <span class="eyebrow reveal">Pourquoi travailler avec moi</span>
+      <SplitText id="eng-title" class="h-l" text="Zéro risque. Zéro mauvaise surprise." aura="Zéro mauvaise surprise." />
+      <p class="lead reveal" style="--i:2">Des engagements simples, tenus sur chaque projet. Et la personne qui vous répond est celle qui code votre site.</p>
+      <a href="/contact" class="btn btn--primary reveal" style="--i:3" data-magnetic>Recevoir ma maquette <Icon name="arrow" class="arrow" /></a>
+    </div>
+    <div class="eng__grid">
+      {engagements.map((e, i) => (
+        <article class="card spot eng__card reveal" style={`--i:${i % 2}`}>
+          <span class="icon-badge"><Icon name={e.icon} /></span>
+          <h3>{e.title}</h3>
+          <p>{e.text}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .eng { display: grid; gap: 3rem; }
+  @media (min-width: 980px) { .eng { grid-template-columns: 0.9fr 1.1fr; gap: 4rem; } .eng__side { position: sticky; top: calc(var(--header-h) + 3rem); align-self: start; } }
+  .eng__side { display: grid; gap: 1.4rem; justify-items: start; }
+  .eng__grid { display: grid; gap: 1rem; }
+  @media (min-width: 620px) { .eng__grid { grid-template-columns: 1fr 1fr; } }
+  .eng__card { padding: 1.5rem; display: grid; gap: 0.6rem; align-content: start; transition: transform 0.5s var(--ease), border-color 0.4s; }
+  .eng__card:hover { transform: translateY(-4px); border-color: var(--line-2); }
+  .eng__card .icon-badge { margin-bottom: 0.5rem; transition: transform 0.6s var(--ease); }
+  .eng__card:hover .icon-badge { transform: rotate(-8deg) scale(1.08); }
+  .eng__card h3 { font-size: 1.15rem; letter-spacing: -0.02em; }
+  .eng__card p { color: var(--muted); font-size: 0.93rem; }
+</style>

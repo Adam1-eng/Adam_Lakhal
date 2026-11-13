@@ -1,0 +1,26 @@
+---
+import { audiences } from '../data/site';
+---
+<section class="mq" aria-label="Commerces pour lesquels je crée des sites">
+  <p class="mq__label">Pensé pour les commerces de quartier</p>
+  <div class="mq__track">
+    {[0, 1].map((k) => (
+      <ul class="mq__list" aria-hidden={k === 1 ? 'true' : undefined}>
+        {audiences.map((a) => <li>{a}<span aria-hidden="true">✦</span></li>)}
+      </ul>
+    ))}
+  </div>
+</section>
+
+<style>
+  .mq { padding: 2.4rem 0; border-block: 1px solid var(--line); background: var(--bg-2); overflow: hidden; }
+  .mq__label { text-align: center; font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); margin-bottom: 1.4rem; }
+  .mq__track { display: flex; width: max-content; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); animation: mq 48s linear infinite; }
+  .mq:hover .mq__track { animation-play-state: paused; }
+  .mq__list { display: flex; list-style: none; padding: 0; }
+  .mq__list li { display: flex; align-items: center; gap: 2.2rem; padding-right: 2.2rem; font-family: var(--font-display); font-weight: 500; font-size: clamp(1.2rem, 2.4vw, 1.7rem); color: rgb(255 255 255 / 0.55); white-space: nowrap; letter-spacing: -0.02em; transition: color 0.3s; }
+  .mq__list li:hover { color: var(--text); }
+  .mq__list span { font-size: 0.8rem; color: var(--accent); opacity: 0.7; }
+  @keyframes mq { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) { .mq__track { animation: none; flex-wrap: wrap; width: auto; justify-content: center; } .mq__list[aria-hidden] { display: none; } }
+</style>

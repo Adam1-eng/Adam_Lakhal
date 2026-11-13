@@ -1,0 +1,52 @@
+---
+import Icon from './Icon.astro';
+import SplitText from './SplitText.astro';
+import { site } from '../data/site';
+interface Props { title?: string; aura?: string; text?: string }
+const {
+  title = 'Prêt à voir votre futur site ?',
+  aura = 'votre futur site ?',
+  text = 'Envoyez-moi le nom de votre commerce. Je vous prépare une maquette gratuite, sans engagement, et vous décidez ensuite.',
+} = Astro.props;
+---
+<section class="section cta-s" aria-label="Passer à l’action">
+  <div class="wrap">
+    <div class="cta reveal reveal--scale" data-aura-zone>
+      <div class="cta__bg" aria-hidden="true"><div class="grid-bg"></div><div class="cta__orb"></div></div>
+      <span class="eyebrow">Maquette gratuite · sans engagement</span>
+      <SplitText class="h-l" text={title} aura={aura} />
+      <p class="lead">{text}</p>
+      <div class="cta__actions">
+        <a href="/contact" class="btn btn--primary" data-magnetic>Obtenir ma maquette gratuite <Icon name="arrow" class="arrow" /></a>
+        <a href={site.phoneHref} class="btn btn--ghost" data-magnetic><Icon name="phone" /> {site.phone}</a>
+      </div>
+      <ul class="cta__checks">
+        <li><Icon name="check" /> Réponse en {site.responseTime}</li>
+        <li><Icon name="check" /> Maquette avant paiement</li>
+        <li><Icon name="check" /> Paiement en deux temps</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-s { padding-top: 0; }
+  .cta {
+    --ax: 50%; --ay: 0%;
+    position: relative; isolation: isolate; overflow: hidden;
+    display: grid; justify-items: center; gap: 1.4rem; text-align: center;
+    padding: clamp(3rem, 8vw, 6rem) clamp(1.2rem, 5vw, 4rem);
+    border-radius: var(--radius-l);
+    border: 1px solid rgb(167 139 250 / 0.25);
+    background: radial-gradient(600px circle at var(--ax) var(--ay), rgb(232 121 249 / 0.18), transparent 60%), linear-gradient(160deg, #130f26, #0b0a14 60%);
+    box-shadow: 0 50px 100px -50px rgb(139 92 246 / 0.6);
+  }
+  .cta .lead { margin-inline: auto; }
+  .cta__bg { position: absolute; inset: 0; z-index: -1; }
+  .cta__orb { position: absolute; width: 520px; height: 520px; left: 50%; bottom: -380px; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle, rgb(167 139 250 / 0.55), transparent 65%); filter: blur(30px); animation: orb 8s ease-in-out infinite alternate; }
+  @keyframes orb { to { transform: scale(1.25); opacity: 0.7; } }
+  .cta__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.8rem; margin-top: 0.4rem; }
+  .cta__checks { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.4rem; font-size: 0.88rem; color: var(--muted); }
+  .cta__checks li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .cta__checks :global(svg) { width: 15px; height: 15px; color: var(--accent); }
+</style>

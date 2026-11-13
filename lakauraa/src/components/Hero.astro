@@ -1,0 +1,211 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import SplitText from './SplitText.astro';
+import { site } from '../data/site';
+import { caseStudies, maquettes } from '../data/projets';
+
+const refaat = caseStudies[0];
+const pick = ['garage-city-line', 'bosscut', 'plaisirs-gourmets', 'lily-photo'];
+const slides = [
+  { name: refaat.name, label: 'Projet client · en ligne', url: 'autorefaatart.com', desktop: refaat.cover, mobile: refaat.mobile },
+  ...pick.map((s) => {
+    const m = maquettes.find((x) => x.slug === s)!;
+    return { name: m.name, label: `Maquette · ${m.sector}`, url: `maquette-${m.slug}.vercel.app`, desktop: m.desktop, mobile: m.mobile };
+  }),
+];
+---
+<section class="hero" data-aura-zone aria-labelledby="hero-title">
+  <div class="hero__bg" aria-hidden="true">
+    <div class="grid-bg"></div>
+    <div class="hero__blob hero__blob--1"></div>
+    <div class="hero__blob hero__blob--2"></div>
+    <div class="hero__follow"></div>
+  </div>
+
+  <div class="wrap hero__grid">
+    <div class="hero__copy">
+      <a href="/projets" class="hero__badge reveal">
+        <span class="hero__badge-dot"></span>
+        Sites web pour commerces locaux · {site.city}
+        <Icon name="arrow" />
+      </a>
+
+      <SplitText as="h1" id="hero-title" class="hero__title" text="Votre commerce mérite un site qui fait venir des clients." aura="fait venir des clients." />
+
+      <p class="hero__lead reveal" style="--i:4">
+        Je conçois des sites rapides, élégants et pensés pour le cellulaire : vos services, vos prix, vos heures et un bouton pour vous appeler.{' '}
+        <strong>Vous voyez votre maquette avant de payer.</strong>
+      </p>
+
+      <div class="hero__ctas reveal" style="--i:5">
+        <a href="/contact" class="btn btn--primary" data-magnetic>
+          Obtenir ma maquette gratuite
+          <Icon name="arrow" class="arrow" />
+        </a>
+        <a href="/projets" class="btn btn--ghost" data-magnetic>Voir mes réalisations</a>
+      </div>
+
+      <ul class="hero__checks reveal" style="--i:6">
+        <li><Icon name="check" /> Maquette gratuite</li>
+        <li><Icon name="check" /> En ligne en {site.delay}</li>
+        <li><Icon name="check" /> Dès 600 $</li>
+      </ul>
+    </div>
+
+    <div class="hero__show reveal reveal--scale" style="--i:3" data-rotator>
+      <div class="hero__stage" data-tilt="5">
+        <div class="hero__browser browser">
+          <div class="browser__bar" aria-hidden="true">
+            <i></i><i></i><i></i>
+            <span class="browser__url hero__urls">
+              {slides.map((s, k) => <span data-slide-label={k} class:list={{ 'is-active': k === 0 }}>{s.url}</span>)}
+            </span>
+          </div>
+          <div class="hero__screens">
+            {slides.map((s, k) => (
+              <div data-slide={k} class:list={['hero__screen', { 'is-active': k === 0 }]}>
+                <Image src={s.desktop} alt={`Aperçu du site ${s.name}`} widths={[560, 900, 1200]} sizes="(min-width: 1000px) 600px, 92vw" loading={k === 0 ? 'eager' : 'lazy'} fetchpriority={k === 0 ? 'high' : 'auto'} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="hero__phone phone" aria-hidden="true">
+          <div class="phone__screen">
+            {slides.map((s, k) => (
+              <div data-slide={k} class:list={['hero__screen', { 'is-active': k === 0 }]}>
+                <Image src={s.mobile} alt="" widths={[200, 360]} sizes="170px" loading={k === 0 ? 'eager' : 'lazy'} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="hero__float hero__float--a">
+          <span class="icon-badge"><Icon name="eye" /></span>
+          <span><strong>Maquette gratuite</strong><small>avant tout paiement</small></span>
+        </div>
+        <div class="hero__float hero__float--b">
+          <span class="hero__pulse"></span>
+          <span><strong>Adapté au cellulaire</strong><small>rapide et lisible</small></span>
+        </div>
+      </div>
+
+      <div class="hero__caption">
+        <div class="hero__labels" aria-live="polite">
+          {slides.map((s, k) => (
+            <p data-slide-label={k} class:list={{ 'is-active': k === 0 }}><strong>{s.name}</strong> <span>{s.label}</span></p>
+          ))}
+        </div>
+        <div class="hero__dots" role="group" aria-label="Choisir un aperçu">
+          {slides.map((s, k) => (
+            <button type="button" data-dot aria-current={k === 0 ? 'true' : 'false'} aria-label={`Afficher ${s.name}`}></button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a href="#probleme" class="hero__scroll" aria-label="Défiler vers la suite">
+    <span></span>
+  </a>
+</section>
+
+<style>
+  .hero {
+    --ax: 70%; --ay: 30%;
+    position: relative;
+    isolation: isolate;
+    padding: calc(var(--header-h) + clamp(3rem, 8vw, 6rem)) 0 clamp(4rem, 8vw, 6rem);
+    min-height: min(100svh, 980px);
+    display: flex; align-items: center;
+    overflow: hidden;
+  }
+  .hero__bg { position: absolute; inset: 0; z-index: -1; }
+  .hero__blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.55; }
+  .hero__blob--1 { width: 620px; height: 620px; right: -120px; top: -160px; background: radial-gradient(circle, #7c3aed, transparent 65%); animation: float1 18s ease-in-out infinite alternate; }
+  .hero__blob--2 { width: 520px; height: 520px; left: -200px; bottom: -220px; background: radial-gradient(circle, #c026d3, transparent 65%); opacity: 0.35; animation: float2 22s ease-in-out infinite alternate; }
+  .hero__follow { position: absolute; inset: 0; background: radial-gradient(500px circle at var(--ax) var(--ay), rgb(240 171 252 / 0.1), transparent 60%); transition: background 0.2s; }
+  @keyframes float1 { to { transform: translate(-80px, 90px) scale(1.1); } }
+  @keyframes float2 { to { transform: translate(120px, -60px) scale(0.92); } }
+
+  .hero__grid { display: grid; gap: clamp(3rem, 6vw, 4rem); align-items: center; }
+  @media (min-width: 1000px) { .hero__grid { grid-template-columns: 1.02fr 1fr; } }
+
+  .hero__copy { display: grid; gap: 1.6rem; justify-items: start; }
+  .hero__badge {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    padding: 0.4rem 0.9rem 0.4rem 0.55rem;
+    border-radius: 999px; border: 1px solid var(--line-2);
+    background: rgb(255 255 255 / 0.04);
+    font-size: 0.85rem; color: var(--muted);
+    transition: border-color 0.3s, color 0.3s;
+  }
+  .hero__badge :global(svg) { width: 14px; height: 14px; transition: transform 0.3s var(--ease); }
+  .hero__badge:hover { border-color: rgb(167 139 250 / 0.5); color: var(--text); }
+  .hero__badge:hover :global(svg) { transform: translateX(3px); }
+  .hero__badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgb(74 222 128 / 0.15); animation: blink 2.4s ease-in-out infinite; }
+  @keyframes blink { 50% { box-shadow: 0 0 0 8px rgb(74 222 128 / 0); } }
+  :global(.hero__title) { font-size: clamp(2.6rem, 6.6vw, 4.5rem); max-width: 13ch; }
+  .hero__lead { font-size: clamp(1.05rem, 1.5vw, 1.2rem); color: var(--muted); max-width: 54ch; }
+  .hero__lead strong { color: var(--text); font-weight: 600; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.8rem; }
+  .hero__checks { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; font-size: 0.9rem; color: var(--muted); }
+  .hero__checks li { display: inline-flex; align-items: center; gap: 0.45rem; }
+  .hero__checks :global(svg) { width: 16px; height: 16px; color: var(--accent); }
+
+  /* Vitrine */
+  .hero__show { position: relative; }
+  .hero__stage { position: relative; padding: 0 0 2.5rem 0; transition: transform 0.6s var(--ease); transform-style: preserve-3d; }
+  .hero__browser { position: relative; }
+  .hero__browser::before { content: ''; position: absolute; inset: -40px; z-index: -1; background: radial-gradient(closest-side, rgb(139 92 246 / 0.4), transparent); filter: blur(30px); }
+  .hero__urls { position: relative; display: grid; }
+  .hero__urls > span { grid-area: 1 / 1; opacity: 0; transform: translateY(6px); transition: opacity 0.5s, transform 0.5s var(--ease); }
+  .hero__urls > span.is-active { opacity: 1; transform: none; }
+  .hero__screens, .hero__phone .phone__screen { display: grid; }
+  .hero__screen { grid-area: 1 / 1; opacity: 0; transform: scale(1.04); transition: opacity 0.9s var(--ease), transform 1.4s var(--ease); }
+  .hero__screen.is-active { opacity: 1; transform: none; }
+  .hero__screen img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+  .hero__phone { position: absolute; width: clamp(110px, 24%, 170px); right: -4%; bottom: 0; transform: translateZ(40px); }
+  .hero__phone .hero__screen img { aspect-ratio: 9 / 19.5; }
+
+  .hero__float {
+    position: absolute; display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.65rem 0.9rem 0.65rem 0.65rem;
+    border-radius: 16px; border: 1px solid var(--line-2);
+    background: rgb(16 16 25 / 0.8); backdrop-filter: blur(14px);
+    box-shadow: 0 20px 40px -20px rgb(0 0 0 / 0.9);
+    font-size: 0.85rem; line-height: 1.25;
+    animation: bob 6s ease-in-out infinite;
+  }
+  .hero__float strong { display: block; font-weight: 600; }
+  .hero__float small { color: var(--muted); font-size: 0.76rem; }
+  .hero__float .icon-badge { width: 36px; height: 36px; border-radius: 11px; }
+  .hero__float .icon-badge :global(svg) { width: 18px; height: 18px; }
+  .hero__float--a { left: -5%; top: 18%; }
+  .hero__float--b { left: 6%; bottom: 0.5rem; animation-delay: -3s; }
+  .hero__pulse { width: 10px; height: 10px; margin: 0 0.3rem; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgb(74 222 128 / 0.6); animation: pulse 2s infinite; }
+  @keyframes bob { 50% { transform: translateY(-10px); } }
+  @keyframes pulse { to { box-shadow: 0 0 0 12px rgb(74 222 128 / 0); } }
+  @media (max-width: 999px) { .hero__float--a { left: 0.6rem; } }
+  @media (max-width: 640px) {
+    .hero__float--a { left: -2%; top: auto; bottom: 40%; }
+    .hero__float--b { display: none; }
+    .hero__phone { right: -2%; }
+  }
+
+  .hero__caption { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
+  .hero__labels { display: grid; min-height: 1.6em; }
+  .hero__labels p { grid-area: 1 / 1; font-size: 0.9rem; opacity: 0; transform: translateY(6px); transition: opacity 0.5s, transform 0.5s var(--ease); }
+  .hero__labels p.is-active { opacity: 1; transform: none; }
+  .hero__labels span { color: var(--muted); }
+  .hero__dots { display: flex; gap: 0.35rem; }
+  .hero__dots button { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; }
+  .hero__dots button::before { content: ''; width: 7px; height: 7px; border-radius: 999px; background: rgb(255 255 255 / 0.22); transition: width 0.4s var(--ease), background 0.3s; }
+  .hero__dots button[aria-current='true']::before { width: 20px; background: var(--aura); }
+
+  .hero__scroll { position: absolute; left: 50%; bottom: 1.4rem; translate: -50% 0; width: 26px; height: 42px; border-radius: 999px; border: 1.5px solid var(--line-2); display: none; justify-content: center; padding-top: 8px; }
+  .hero__scroll span { width: 3px; height: 8px; border-radius: 3px; background: var(--muted); animation: wheel 1.8s var(--ease) infinite; }
+  @keyframes wheel { 0% { transform: translateY(0); opacity: 1; } 80% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } }
+  @media (min-width: 1000px) and (min-height: 820px) { .hero__scroll { display: flex; } }
+</style>

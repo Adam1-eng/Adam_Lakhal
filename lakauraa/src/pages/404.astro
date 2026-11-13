@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+---
+<Base title="Page introuvable" description="Cette page n’existe pas.">
+  <section class="nf">
+    <div class="grid-bg" aria-hidden="true"></div>
+    <p class="nf__code aura-text">404</p>
+    <h1 class="h-l">Cette page s’est perdue.</h1>
+    <p class="lead">Le lien est peut-être ancien. Revenez à l’accueil ou demandez directement votre maquette.</p>
+    <div class="nf__actions">
+      <a href="/" class="btn btn--primary">Retour à l’accueil <Icon name="arrow" class="arrow" /></a>
+      <a href="/contact" class="btn btn--ghost">Me contacter</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { position: relative; min-height: 90svh; display: grid; place-content: center; justify-items: center; gap: 1.2rem; text-align: center; padding: calc(var(--header-h) + 3rem) var(--gutter) 4rem; }
+  .nf__code { font-family: var(--font-display); font-weight: 700; font-size: clamp(7rem, 22vw, 14rem); line-height: 0.9; letter-spacing: -0.06em; }
+  .nf .lead { margin-inline: auto; }
+  .nf__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; }
+</style>

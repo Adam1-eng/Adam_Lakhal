@@ -1,0 +1,234 @@
+---
+import Icon from './Icon.astro';
+import { site, offers } from '../data/site';
+
+const types = ['Salon / beauté', 'Restaurant / traiteur', 'Garage / auto', 'Santé / bien-être', 'Services / rénovation', 'Boutique', 'Autre'];
+const besoins = [
+  { id: 'nouveau', label: 'Un premier site' },
+  { id: 'refonte', label: 'Refaire mon site' },
+  { id: 'boutique', label: 'Une boutique en ligne' },
+  { id: 'maquette', label: 'Juste voir une maquette' },
+];
+---
+<div class="cf card" data-contact>
+  <form class="cf__form" novalidate data-form action={`mailto:${site.email}`} method="post" enctype="text/plain">
+    <div class="cf__progress" aria-hidden="true"><span data-bar></span></div>
+
+    <fieldset class="field">
+      <legend>1. Qu’est-ce qui vous amène ?</legend>
+      <div class="cf__chips">
+        {besoins.map((b, i) => (
+          <label class="cf__chip">
+            <input type="radio" name="besoin" value={b.label} checked={i === 3} />
+            <span>{b.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <div class="cf__row">
+      <div class="field">
+        <label for="cf-commerce">2. Nom de votre commerce <span class="hint">(obligatoire)</span></label>
+        <input class="input" id="cf-commerce" name="commerce" autocomplete="organization" placeholder="Ex. : Salon Élan" required aria-describedby="err-commerce" />
+        <p class="error-msg" id="err-commerce" aria-live="polite"></p>
+      </div>
+      <div class="field">
+        <label for="cf-type">Type de commerce</label>
+        <select class="input" id="cf-type" name="type">
+          {types.map((t) => <option>{t}</option>)}
+        </select>
+      </div>
+    </div>
+
+    <fieldset class="field">
+      <legend>3. Forfait qui vous intéresse <span class="hint">(facultatif)</span></legend>
+      <div class="cf__chips">
+        {offers.map((o) => (
+          <label class="cf__chip">
+            <input type="radio" name="forfait" value={o.id} data-label={`${o.name} (${o.price}${o.unit ? ' ' + o.unit : ''})`} />
+            <span>{o.name} · {o.price}{o.unit ? ` ${o.unit}` : ''}</span>
+          </label>
+        ))}
+        <label class="cf__chip">
+          <input type="radio" name="forfait" value="conseil" data-label="Je ne sais pas encore" checked />
+          <span>Je ne sais pas encore</span>
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="cf__row">
+      <div class="field">
+        <label for="cf-nom">4. Votre nom <span class="hint">(obligatoire)</span></label>
+        <input class="input" id="cf-nom" name="nom" autocomplete="name" placeholder="Prénom et nom" required aria-describedby="err-nom" />
+        <p class="error-msg" id="err-nom" aria-live="polite"></p>
+      </div>
+      <div class="field">
+        <label for="cf-joindre">Téléphone ou courriel <span class="hint">(obligatoire)</span></label>
+        <input class="input" id="cf-joindre" name="joindre" autocomplete="tel" placeholder="514-555-0123 ou vous@exemple.com" required aria-describedby="err-joindre" />
+        <p class="error-msg" id="err-joindre" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="cf-msg">5. Parlez-moi de votre projet <span class="hint">(facultatif)</span></label>
+      <textarea class="input" id="cf-msg" name="message" placeholder="Votre page Facebook ou Instagram, ce que vous aimeriez sur votre site, une date limite…"></textarea>
+    </div>
+
+    <div class="cf__submit">
+      <button type="submit" class="btn btn--primary" data-magnetic>Préparer ma demande <Icon name="arrow" class="arrow" /></button>
+      <p class="cf__privacy"><Icon name="shield" /> Vos informations servent uniquement à vous répondre.</p>
+    </div>
+  </form>
+
+  <div class="cf__done" data-done hidden tabindex="-1" aria-labelledby="cf-done-title">
+    <span class="cf__done-icon"><Icon name="check" /></span>
+    <h3 id="cf-done-title">Votre demande est prête.</h3>
+    <p class="muted">Choisissez comment me l’envoyer : votre application s’ouvre avec le message déjà rédigé. Il ne reste qu’à appuyer sur « Envoyer ».</p>
+    <pre class="cf__preview" data-preview></pre>
+    <div class="cf__send">
+      <a class="btn btn--primary" data-send-mail href="#"><Icon name="mail" /> Envoyer par courriel</a>
+      <a class="btn btn--ghost" data-send-sms href="#"><Icon name="message" /> Envoyer par texto</a>
+      <button type="button" class="btn btn--ghost" data-copy><Icon name="layers" /> <span>Copier le message</span></button>
+    </div>
+    <button type="button" class="cf__back" data-back>← Modifier ma demande</button>
+  </div>
+</div>
+
+<script>
+  import { site } from '../data/site';
+
+  function initContact() {
+    const root = document.querySelector<HTMLElement>('[data-contact]');
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = '1';
+    const form = root.querySelector<HTMLFormElement>('[data-form]')!;
+    const done = root.querySelector<HTMLElement>('[data-done]')!;
+    const bar = root.querySelector<HTMLElement>('[data-bar]')!;
+    const preview = root.querySelector<HTMLElement>('[data-preview]')!;
+    const mail = root.querySelector<HTMLAnchorElement>('[data-send-mail]')!;
+    const sms = root.querySelector<HTMLAnchorElement>('[data-send-sms]')!;
+    const copy = root.querySelector<HTMLButtonElement>('[data-copy]')!;
+
+    // Forfait présélectionné depuis ?forfait=pro
+    const pre = new URLSearchParams(location.search).get('forfait');
+    if (pre) {
+      const r = form.querySelector<HTMLInputElement>(`input[name="forfait"][value="${CSS.escape(pre)}"]`);
+      if (r) r.checked = true;
+    }
+
+    const required = ['commerce', 'nom', 'joindre'] as const;
+    const field = (n: string) => form.elements.namedItem(n) as HTMLInputElement;
+
+    const validate = (name: string): boolean => {
+      const el = field(name);
+      const v = el.value.trim();
+      let msg = '';
+      if (!v) msg = 'Ce champ est obligatoire.';
+      else if (name === 'joindre') {
+        const isMail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+        const isTel = v.replace(/\D/g, '').length >= 10;
+        if (!isMail && !isTel) msg = 'Entrez un numéro à 10 chiffres ou un courriel valide.';
+      }
+      el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      root.querySelector(`#err-${name}`)!.textContent = msg;
+      return !msg;
+    };
+
+    const progress = () => {
+      const filled = required.filter((n) => field(n).value.trim()).length + (field('message').value.trim() ? 1 : 0);
+      bar.style.transform = `scaleX(${Math.max(0.08, filled / 4)})`;
+    };
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.getAttribute('aria-invalid') === 'true') validate(t.name);
+      progress();
+    });
+    required.forEach((n) => field(n).addEventListener('blur', () => field(n).value && validate(n)));
+    progress();
+
+    const buildMessage = () => {
+      const fd = new FormData(form);
+      const forfait = form.querySelector<HTMLInputElement>('input[name="forfait"]:checked')?.dataset.label ?? '';
+      const lines = [
+        `Bonjour Adam,`,
+        ``,
+        `Besoin : ${fd.get('besoin')}`,
+        `Commerce : ${fd.get('commerce')} (${fd.get('type')})`,
+        `Forfait : ${forfait}`,
+        `Nom : ${fd.get('nom')}`,
+        `Pour me joindre : ${fd.get('joindre')}`,
+      ];
+      const msg = String(fd.get('message') ?? '').trim();
+      if (msg) lines.push('', msg);
+      return { text: lines.join('\n'), commerce: String(fd.get('commerce')) };
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const ok = required.map((n) => validate(n)).every(Boolean);
+      if (!ok) {
+        const first = required.find((n) => field(n).getAttribute('aria-invalid') === 'true');
+        if (first) field(first).focus();
+        return;
+      }
+      const { text, commerce } = buildMessage();
+      preview.textContent = text;
+      mail.href = `mailto:${site.email}?subject=${encodeURIComponent(`Maquette gratuite – ${commerce}`)}&body=${encodeURIComponent(text)}`;
+      const sep = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? '&' : '?';
+      sms.href = `${site.smsHref}${sep}body=${encodeURIComponent(text)}`;
+      form.hidden = true;
+      done.hidden = false;
+      done.focus();
+      done.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+    });
+
+    copy.addEventListener('click', async () => {
+      const label = copy.querySelector('span')!;
+      try {
+        await navigator.clipboard.writeText(preview.textContent ?? '');
+        label.textContent = 'Message copié !';
+      } catch {
+        label.textContent = 'Copie impossible';
+      }
+      setTimeout(() => (label.textContent = 'Copier le message'), 2200);
+    });
+
+    root.querySelector('[data-back]')!.addEventListener('click', () => {
+      done.hidden = true;
+      form.hidden = false;
+      field('commerce').focus();
+    });
+  }
+  document.addEventListener('astro:page-load', initContact);
+</script>
+
+<style>
+  .cf { padding: clamp(1.4rem, 4vw, 2.6rem); }
+  .cf__form { display: grid; gap: 1.6rem; }
+  .cf__form fieldset { border: 0; padding: 0; min-width: 0; }
+  .cf__form legend { margin-bottom: 0.7rem; }
+  .cf__progress { height: 3px; border-radius: 3px; background: var(--line); overflow: hidden; }
+  .cf__progress span { display: block; height: 100%; background: var(--aura); transform-origin: left; transform: scaleX(0.08); transition: transform 0.6s var(--ease); }
+  .cf__row { display: grid; gap: 1.2rem; }
+  @media (min-width: 680px) { .cf__row { grid-template-columns: 1fr 1fr; } }
+  .cf__chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .cf__chip { position: relative; cursor: pointer; }
+  .cf__chip input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .cf__chip span { display: inline-flex; padding: 0.6rem 1rem; border-radius: 999px; border: 1px solid var(--line-2); font-size: 0.9rem; color: var(--muted); transition: all 0.3s var(--ease); }
+  .cf__chip:hover span { border-color: rgb(255 255 255 / 0.28); color: var(--text); }
+  .cf__chip input:checked + span { background: rgb(167 139 250 / 0.16); border-color: var(--accent); color: var(--text); box-shadow: 0 0 0 3px rgb(167 139 250 / 0.12); }
+  .cf__chip input:focus-visible + span { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .cf__submit { display: flex; flex-wrap: wrap; gap: 1rem 1.4rem; align-items: center; padding-top: 0.4rem; }
+  .cf__privacy { display: inline-flex; gap: 0.45rem; align-items: center; font-size: 0.82rem; color: var(--dim); }
+  .cf__privacy :global(svg) { width: 15px; height: 15px; }
+
+  .cf__done { display: grid; gap: 1.1rem; justify-items: start; outline: none; animation: pop 0.7s var(--ease); }
+  @keyframes pop { from { opacity: 0; transform: translateY(16px); } }
+  .cf__done-icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: rgb(74 222 128 / 0.14); color: var(--ok); border: 1px solid rgb(74 222 128 / 0.35); }
+  .cf__done-icon :global(svg) { width: 26px; height: 26px; }
+  .cf__done h3 { font-size: 1.8rem; }
+  .cf__preview { width: 100%; white-space: pre-wrap; font-family: var(--font-sans); font-size: 0.9rem; color: var(--muted); padding: 1rem 1.2rem; border-radius: 14px; background: rgb(0 0 0 / 0.3); border: 1px solid var(--line); }
+  .cf__send { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+  .cf__back { color: var(--muted); font-size: 0.9rem; }
+  .cf__back:hover { color: var(--text); }
+</style>

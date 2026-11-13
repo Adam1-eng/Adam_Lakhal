@@ -1,0 +1,75 @@
+---
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+import { nav, site, services } from '../data/site';
+const year = new Date().getFullYear();
+---
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__top">
+      <div class="ftr__brand">
+        <Logo />
+        <p>Des sites web rapides, élégants et abordables pour les commerces de {site.city}. Conçus et codés à la main par {site.owner}.</p>
+        <a href="/contact" class="btn btn--ghost btn--sm">Demander ma maquette gratuite <Icon name="arrow" class="arrow" /></a>
+      </div>
+
+      <div class="ftr__col">
+        <h2>Navigation</h2>
+        <ul>{nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}</ul>
+      </div>
+
+      <div class="ftr__col">
+        <h2>Services</h2>
+        <ul>
+          {services.map((s) => <li><a href={`/services#${s.id}`}>{s.title}</a></li>)}
+          <li><a href="/services#forfaits">Forfaits et prix</a></li>
+        </ul>
+      </div>
+
+      <div class="ftr__col">
+        <h2>Contact</h2>
+        <ul class="ftr__contact">
+          <li><a href={site.phoneHref}><Icon name="phone" /> {site.phone}</a></li>
+          <li><a href={site.smsHref}><Icon name="message" /> Texto au même numéro</a></li>
+          <li><a href={`mailto:${site.email}`}><Icon name="mail" /> {site.email}</a></li>
+          <li><span><Icon name="pin" /> {site.city}, Québec</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="ftr__word" aria-hidden="true">Lakauraa.</div>
+
+    <div class="ftr__bottom">
+      <p>© {year} Lakauraa · {site.owner}. Tous droits réservés.</p>
+      <p>Fait à la main à {site.city} · Réponse en {site.responseTime}</p>
+      <a href="#top" class="ftr__top-link">Haut de page <Icon name="arrow-down" /></a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr { position: relative; padding-top: clamp(4rem, 8vw, 6rem); border-top: 1px solid var(--line); background: linear-gradient(180deg, var(--bg-2), var(--bg)); overflow: hidden; }
+  .ftr__top { display: grid; gap: 2.5rem; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .ftr__top { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1000px) { .ftr__top { grid-template-columns: 1.5fr 0.8fr 1.1fr 1.2fr; } }
+  .ftr__brand { display: grid; gap: 1.2rem; justify-items: start; align-content: start; }
+  .ftr__brand p { color: var(--muted); max-width: 36ch; font-size: 0.95rem; }
+  .ftr__col h2 { font-family: var(--font-sans); font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); font-weight: 600; margin-bottom: 1rem; }
+  .ftr__col ul { list-style: none; padding: 0; display: grid; gap: 0.6rem; }
+  .ftr__col a, .ftr__col span { color: var(--muted); font-size: 0.94rem; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.55rem; }
+  .ftr__col a:hover { color: var(--text); }
+  .ftr__contact :global(svg) { width: 16px; height: 16px; flex: none; color: var(--accent); }
+  .ftr__word {
+    margin-top: clamp(3rem, 7vw, 5rem);
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(4.5rem, 19vw, 17rem); line-height: 0.8; letter-spacing: -0.06em;
+    text-align: center;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    user-select: none;
+  }
+  .ftr__bottom { display: flex; flex-wrap: wrap; gap: 0.8rem 2rem; justify-content: space-between; align-items: center; padding: 1.5rem 0 2rem; border-top: 1px solid var(--line); color: var(--dim); font-size: 0.85rem; }
+  .ftr__top-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--muted); }
+  .ftr__top-link :global(svg) { width: 14px; height: 14px; rotate: 180deg; }
+  .ftr__top-link:hover { color: var(--text); }
+</style>

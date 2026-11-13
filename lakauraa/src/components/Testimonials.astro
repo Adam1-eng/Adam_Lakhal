@@ -1,0 +1,28 @@
+---
+// N'affiche rien tant qu'il n'y a pas de vrais avis dans src/data/site.ts
+import SectionHead from './SectionHead.astro';
+import { testimonials } from '../data/site';
+---
+{testimonials.length > 0 && (
+  <section class="section" aria-label="Avis clients">
+    <div class="wrap">
+      <SectionHead eyebrow="Avis clients" title="Ce que disent mes clients." aura="mes clients." align="center" />
+      <div class="tm__grid">
+        {testimonials.map((t, i) => (
+          <figure class="card spot tm reveal" style={`--i:${i}`}>
+            <blockquote>« {t.quote} »</blockquote>
+            <figcaption><strong>{t.name}</strong><span>{t.business}</span></figcaption>
+          </figure>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .tm__grid { display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .tm { padding: 1.8rem; display: grid; gap: 1.4rem; }
+  .tm blockquote { font-size: 1.05rem; }
+  .tm figcaption { display: grid; color: var(--muted); font-size: 0.9rem; }
+  .tm strong { color: var(--text); }
+</style>

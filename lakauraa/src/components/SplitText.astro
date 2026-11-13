@@ -1,0 +1,29 @@
+---
+// Titre animé mot par mot. `aura` = partie du texte mise en dégradé.
+interface Props {
+  text: string;
+  aura?: string;
+  as?: 'h1' | 'h2' | 'h3' | 'p';
+  class?: string;
+  id?: string;
+}
+const { text, aura = '', as: Tag = 'h2', class: cls = '', id } = Astro.props;
+
+type Word = { w: string; aura: boolean };
+const words: Word[] = [];
+const start = aura ? text.indexOf(aura) : -1;
+const end = start >= 0 ? start + aura.length : -1;
+let pos = 0;
+for (const w of text.split(' ')) {
+  const wStart = text.indexOf(w, pos);
+  pos = wStart + w.length;
+  words.push({ w, aura: start >= 0 && wStart >= start && wStart < end });
+}
+---
+<Tag class={cls} id={id} data-split aria-label={text}>
+  {words.map((word, i) => (
+    <>
+      <span class="split-word" aria-hidden="true"><span style={`--w:${i}`} class={word.aura ? 'aura-text' : undefined}>{word.w}</span></span>{i < words.length - 1 ? ' ' : ''}
+    </>
+  ))}
+</Tag>

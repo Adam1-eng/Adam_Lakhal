@@ -1,0 +1,24 @@
+---
+import SplitText from './SplitText.astro';
+interface Props {
+  eyebrow?: string;
+  title: string;
+  aura?: string;
+  lead?: string;
+  align?: 'center' | 'left' | 'split';
+  as?: 'h1' | 'h2';
+}
+const { eyebrow, title, aura, lead, align = 'left', as = 'h2' } = Astro.props;
+---
+<div class:list={['sec-head', { 'sec-head--center': align === 'center', 'sec-head--split': align === 'split' }]}>
+  <div class="sec-head__col">
+    {eyebrow && <span class="eyebrow reveal">{eyebrow}</span>}
+    <SplitText as={as} class={as === 'h1' ? 'h-xl' : 'h-l'} text={title} aura={aura} />
+  </div>
+  {(lead || Astro.slots.has('default')) && (
+    <div class="reveal sec-head__col" style="--i:2">
+      {lead && <p class="lead">{lead}</p>}
+      <slot />
+    </div>
+  )}
+</div>

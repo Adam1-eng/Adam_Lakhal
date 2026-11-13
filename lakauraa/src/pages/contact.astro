@@ -1,0 +1,71 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Faq from '../components/Faq.astro';
+import { site, process } from '../data/site';
+
+const channels = [
+  { icon: 'phone', label: 'Appel', value: site.phone, href: site.phoneHref, note: 'Le plus rapide' },
+  { icon: 'message', label: 'Texto', value: site.phone, href: site.smsHref, note: 'Même numéro' },
+  { icon: 'mail', label: 'Courriel', value: site.email, href: `mailto:${site.email}?subject=${encodeURIComponent('Maquette de site web')}`, note: `Réponse en ${site.responseTime}` },
+];
+---
+<Base title="Contact · Obtenir une maquette gratuite" description={`Demandez votre maquette de site web gratuite. Appel ou texto au ${site.phone}, ou courriel. Réponse en ${site.responseTime}.`}>
+  <PageHero eyebrow="Contact" title="Parlons de votre commerce." aura="votre commerce."
+    lead="Deux minutes pour me décrire votre projet. Je vous prépare une maquette gratuite, sans engagement, et je vous réponds en moins de 24 h."
+    crumbs={[{ label: 'Contact' }]} />
+
+  <section class="section ct-s" aria-label="Formulaire et coordonnées">
+    <div class="wrap ct">
+      <div class="ct__form reveal">
+        <ContactForm />
+      </div>
+
+      <aside class="ct__side">
+        <div class="ct__channels">
+          {channels.map((c, i) => (
+            <a href={c.href} class="card spot ct__ch reveal" style={`--i:${i}`}>
+              <span class="icon-badge"><Icon name={c.icon} /></span>
+              <span class="ct__ch-txt"><small>{c.label} · {c.note}</small><strong>{c.value}</strong></span>
+              <Icon name="arrow-up-right" class="ct__ch-go" />
+            </a>
+          ))}
+        </div>
+
+        <div class="card ct__next reveal" style="--i:3">
+          <h2>La suite, concrètement</h2>
+          <ol>
+            {process.map((p, i) => (
+              <li><span>{i + 1}</span><div><strong>{p.title}</strong><p>{p.text}</p></div></li>
+            ))}
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <Faq />
+</Base>
+
+<style>
+  .ct-s { padding-top: clamp(3rem, 6vw, 4.5rem); }
+  .ct { display: grid; gap: 2rem; align-items: start; }
+  @media (min-width: 1000px) { .ct { grid-template-columns: 1.4fr 1fr; gap: 2.5rem; } .ct__side { position: sticky; top: calc(var(--header-h) + 1.5rem); } }
+  .ct__side { display: grid; gap: 1.2rem; }
+  .ct__channels { display: grid; gap: 0.7rem; }
+  .ct__ch { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.2rem; transition: transform 0.4s var(--ease), border-color 0.3s; }
+  .ct__ch:hover { transform: translateX(4px); border-color: var(--line-2); }
+  .ct__ch-txt { display: grid; flex: 1; min-width: 0; }
+  .ct__ch-txt small { color: var(--dim); font-size: 0.78rem; }
+  .ct__ch-txt strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  :global(.ct__ch-go) { width: 18px; height: 18px; color: var(--muted); flex: none; }
+  .ct__next { padding: 1.6rem; }
+  .ct__next h2 { font-size: 1.25rem; letter-spacing: -0.02em; margin-bottom: 1.2rem; }
+  .ct__next ol { list-style: none; padding: 0; display: grid; gap: 1rem; }
+  .ct__next li { display: flex; gap: 0.9rem; }
+  .ct__next li > span { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: rgb(167 139 250 / 0.15); color: #e9d5ff; font-size: 0.8rem; font-weight: 700; }
+  .ct__next strong { font-size: 0.95rem; }
+  .ct__next p { color: var(--muted); font-size: 0.87rem; }
+</style>
