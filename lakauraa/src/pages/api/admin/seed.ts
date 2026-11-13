@@ -12,9 +12,9 @@ export const POST: APIRoute = async (ctx) => {
       const res = await fetch(`${origin}/seed/${encodeURIComponent(file)}`);
       if (!res.ok) throw new Error(`Image de départ introuvable : ${file}`);
       return Buffer.from(await res.arrayBuffer());
-    });
-    const msg = r.imported ? 'Contenu de départ importé.' : 'La base contient déjà des projets.';
-    return ctx.redirect('/admin?ok=' + encodeURIComponent(msg), 303);
+    }, () => {}, { deadline: Date.now() + 15_000 });
+    if (r.remaining > 0) return ctx.redirect(`/admin?seed=continue&ok=${encodeURIComponent(`Import en cours… encore ${r.remaining} projet(s).`)}`, 303);
+    return ctx.redirect('/admin?ok=' + encodeURIComponent('Contenu de départ importé.'), 303);
   } catch (e) {
     console.error('[seed]', e);
     return ctx.redirect('/admin?erreur=' + encodeURIComponent('Import impossible : ' + (e as Error).message), 303);

@@ -137,13 +137,24 @@ export const seedProjects: SeedProject[] = [
   maquette('masso-tomizawa', 'Massothérapie Tomizawa', 'Massothérapie', 'Saint-Hubert', false),
 ];
 
-/** Remplit une base vide. Ne touche à rien si des projets existent déjà. */
-export async function seedDatabase(load: Loader, log: (m: string) => void = console.log) {
+const SEED_KEY = 'seedState';
+
+export async function isSeedDone() {
   const db = await getDb();
-  const [{ n }] = await db.select({ n: count() }).from(schema.projects);
-  if (n > 0) {
-    log('La base contient déjà des projets : aucun contenu importé.');
-    return { imported: false };
+  const [row] = await db.select().from(schema.settings).where(eq(schema.settings.key, SEED_KEY)).limit(1);
+  return Boolean((row?.value as { done?: boolean } | undefined)?.done);
+}
+
+/**
+ * Importe le contenu de départ, projet par projet, en reprenant là où il s’est arrêté.
+ * `deadline` (horodatage ms) : s’arrête avant de commencer un projet si le temps est écoulé
+ * (utile sur Vercel, où une requête est limitée à 30 s). Ne crée jamais de doublon.
+ */
+export async function seedDatabase(load: Loader, log: (m: string) => void = console.log, opts: { deadline?: number } = {}) {
+  const db = await getDb();
+  if (await isSeedDone()) {
+    log('Contenu de départ déjà importé.');
+    return { imported: 0, remaining: 0 };
   }
 
   const catIds: Record<string, string> = {};
@@ -166,23 +177,38 @@ export async function seedDatabase(load: Loader, log: (m: string) => void = cons
     await db.insert(schema.settings).values({ key, value: defaultSettings[key] }).onConflictDoNothing();
   }
 
+  let imported = 0;
+  let remaining = 0;
   for (const [i, p] of seedProjects.entries()) {
+    const exists = await db.select({ id: schema.projects.id }).from(schema.projects).where(eq(schema.projects.slug, p.slug)).limit(1);
+    if (exists.length) continue;
+    if (opts.deadline && Date.now() > opts.deadline) { remaining++; continue; }
+
+    // Images d’abord : le projet n’est créé que si toutes ses images sont prêtes (pas de projet à moitié importé)
     const { images, category, ...data } = p;
+    const processed = [];
+    for (const [k, img] of images.entries()) processed.push(await processImage(await load(img.file), `${p.slug}-${k}`));
+
     const [row] = await db
       .insert(schema.projects)
       .values({ ...data, client: data.client ?? '', categoryId: catIds[category], status: 'published', sort: i, publishedAt: new Date() })
       .returning();
     let coverId: string | null = null;
     for (const [k, img] of images.entries()) {
-      const processed = await processImage(await load(img.file), `${p.slug}-${k}`);
       const [im] = await db
         .insert(schema.projectImages)
-        .values({ projectId: row.id, ...processed, variant: img.variant, caption: img.caption, sort: k })
+        .values({ projectId: row.id, ...processed[k], variant: img.variant, caption: img.caption, sort: k })
         .returning();
       if (img.cover) coverId = im.id;
     }
     if (coverId) await db.update(schema.projects).set({ coverImageId: coverId }).where(eq(schema.projects.id, row.id));
+    imported++;
     log(`✓ ${p.title} (${images.length} images)`);
   }
-  return { imported: true };
+
+  if (remaining === 0) {
+    await db.insert(schema.settings).values({ key: SEED_KEY, value: { done: true } })
+      .onConflictDoUpdate({ target: schema.settings.key, set: { value: { done: true }, updatedAt: new Date() } });
+  }
+  return { imported, remaining };
 }

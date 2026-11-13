@@ -4,6 +4,7 @@ import Icon from '../../components/Icon.astro';
 import { count, desc, eq } from 'drizzle-orm';
 import { getDb, schema } from '../../lib/db';
 import { getSettings, activeSocials } from '../../lib/content';
+import { isSeedDone } from '../../lib/seed';
 
 const db = await getDb();
 const [[pub], [draft], [feat], [faqN], [testiN], recent, settings] = await Promise.all([
@@ -15,7 +16,8 @@ const [[pub], [draft], [feat], [faqN], [testiN], recent, settings] = await Promi
   db.select().from(schema.projects).orderBy(desc(schema.projects.updatedAt)).limit(5),
   getSettings(),
 ]);
-const empty = pub.n + draft.n === 0;
+const seedPending = !(await isSeedDone());
+const continuing = Astro.url.searchParams.get('seed') === 'continue';
 const l = settings.legal;
 const checks = [
   { ok: Boolean(settings.whatsapp.ma), label: 'Numéro WhatsApp Maroc (+212)', href: '/admin/reseaux' },
@@ -29,12 +31,13 @@ const checks = [
 <AdminLayout title="Vue d’ensemble" active="dashboard">
   <a href="/admin/projets/nouveau" class="btn btn--primary btn--sm" slot="actions"><Icon name="plus" /> <span class="hide-s">Ajouter un projet</span></a>
 
-  {empty && (
+  {seedPending && (
     <section class="panel panel--accent">
-      <div class="panel__head"><div><h2>Base de données vide</h2><p>Importez le contenu de départ : AutoRefaatArt, Élan Coiffure, 8 maquettes, la FAQ et les services.</p></div></div>
-      <form method="post" action="/api/admin/seed"><button class="btn btn--primary btn--sm" type="submit">Importer le contenu de départ</button></form>
+      <div class="panel__head"><div><h2>{continuing ? 'Import en cours…' : 'Contenu de départ'}</h2><p>Importe AutoRefaatArt, Élan Coiffure, 8 maquettes, la FAQ et les services. L’import se fait par étapes et reprend automatiquement.</p></div></div>
+      <form method="post" action="/api/admin/seed" data-seed-form><button class="btn btn--primary btn--sm" type="submit">{continuing ? 'Continuer l’import' : 'Importer le contenu de départ'}</button></form>
     </section>
   )}
+  {seedPending && continuing && <script is:inline>document.querySelector('[data-seed-form]')?.submit();</script>}
 
   <section class="grid-3" aria-label="Chiffres clés">
     <div class="kpi"><strong>{pub.n}</strong><span>projets publiés</span></div>
