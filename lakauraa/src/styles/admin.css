@@ -181,3 +181,11 @@
   .tbl td:nth-child(5) { grid-column: 1 / -1; }
   .tbl__actions { justify-content: flex-start; }
 }
+
+/* Double authentification */
+.mfa-codes { padding: 1rem 1.2rem; border-radius: 14px; background: rgb(74 222 128 / 0.08); border: 1px solid rgb(74 222 128 / 0.3); display: grid; gap: 0.8rem; font-size: 0.92rem; }
+.mfa-codes ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; }
+.mfa-codes code, .mfa-key { font-family: ui-monospace, monospace; font-size: 0.95rem; padding: 0.3rem 0.6rem; border-radius: 8px; background: rgb(0 0 0 / 0.35); user-select: all; }
+.mfa-key { margin-left: 0.4rem; word-break: break-all; }
+#mfa .checklist li { flex-wrap: wrap; }
+#mfa .checklist a { margin-left: 0 !important; white-space: normal; }

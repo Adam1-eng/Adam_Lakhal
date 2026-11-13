@@ -5,6 +5,7 @@ import { getDb, schema } from '../../lib/db';
 import { verifyPassword, createSession, destroySession, tooManyAttempts, recordAttempt, adminCount, hashPassword, needsRehash, dummyVerify } from '../../lib/auth';
 import { str, isSafeNext, clientIp } from '../../lib/admin';
 import { securityEvent, maskEmail, maskIp } from '../../lib/security-log';
+import { checkSecondFactor } from '../../lib/totp';
 
 if (Astro.locals.admin) return Astro.redirect('/admin');
 if ((await adminCount()) === 0) return Astro.redirect('/admin/setup');
@@ -29,7 +30,10 @@ if (Astro.request.method === 'POST') {
     const [user] = await db.select().from(schema.admins).where(eq(schema.admins.email, email)).limit(1);
     // Vérification factice si le compte n’existe pas : même temps de réponse (pas d’indice sur les comptes)
     const ok = user ? await verifyPassword(password, user.passwordHash) : await dummyVerify(password);
-    if (ok && user) {
+    // Double authentification : exigée seulement si le compte l’a activée. Même message d’échec dans tous les cas.
+    const second = ok && user?.totpEnabled ? await checkSecondFactor(user, str(fd, 'code')) : null;
+    if (second === 'recovery') securityEvent('mfa.recovery_used', { admin: user!.id, ip: maskIp(ip) });
+    if (ok && user && (!user.totpEnabled || second)) {
       const secure = Astro.url.protocol === 'https:';
       await recordAttempt(keys, true);
       // Mise à niveau transparente du hachage (anciens paramètres scrypt)
@@ -43,9 +47,9 @@ if (Astro.request.method === 'POST') {
       return Astro.redirect(isSafeNext(next) ? next! : '/admin');
     }
     await recordAttempt(keys, false);
-    securityEvent('login.failure', { email: maskEmail(email), ip: maskIp(ip), knownAccount: Boolean(user) });
+    securityEvent('login.failure', { email: maskEmail(email), ip: maskIp(ip), knownAccount: Boolean(user), secondFactorFailed: Boolean(ok && user?.totpEnabled) });
     Astro.response.status = 401;
-    error = 'Courriel ou mot de passe incorrect.';
+    error = 'Courriel, mot de passe ou code incorrect.';
   }
 }
 ---
@@ -65,6 +69,10 @@ if (Astro.request.method === 'POST') {
       <div class="field">
         <label for="password">Mot de passe</label>
         <input class="input" id="password" name="password" type="password" autocomplete="current-password" required />
+      </div>
+      <div class="field">
+        <label for="code">Code de vérification <span class="hint">(seulement si la double authentification est activée)</span></label>
+        <input class="input" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="40" placeholder="6 chiffres ou code de secours" />
       </div>
       <button class="btn btn--primary" type="submit">Se connecter</button>
       <a href="/" class="muted-s">← Retour au site</a>

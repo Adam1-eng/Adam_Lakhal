@@ -72,6 +72,22 @@ const c5 = jar(); await auth.createSession(admin.id, c5, true);
 await db.delete(schema.admins).where(eq(schema.admins.id, admin.id));
 await t('compte supprimé : sa session ne donne plus accès', async () => (await auth.getSessionUser(c5, true)) === null);
 
+/* ---------- Double authentification (TOTP) ---------- */
+const totp = await import('../src/lib/totp');
+const rfcSecret = totp.base32Encode(Buffer.from('12345678901234567890'));
+await t('TOTP conforme au vecteur officiel RFC 6238 (t=59 s → 287082)', () => totp.totpAt(rfcSecret, Math.floor(59 / 30)) === '287082');
+await t('TOTP : second vecteur RFC (t=1111111109 → 081804)', () => totp.totpAt(rfcSecret, Math.floor(1111111109 / 30)) === '081804');
+await t('base32 : encodage puis décodage identiques', () => totp.base32Decode(totp.base32Encode(Buffer.from('lakauraa-test'))).toString() === 'lakauraa-test');
+const sec = totp.generateSecret(); const now = 1_800_000_000_000; const stepNow = Math.floor(now / 30000);
+await t('secret aléatoire de 160 bits', () => sec.length === 32 && totp.generateSecret() !== sec);
+await t('code du moment accepté', () => totp.verifyTotp(sec, totp.totpAt(sec, stepNow), 0, now) === stepNow);
+await t('tolérance ±30 s', () => totp.verifyTotp(sec, totp.totpAt(sec, stepNow - 1), 0, now) === stepNow - 1);
+await t('code vieux de 90 s refusé', () => totp.verifyTotp(sec, totp.totpAt(sec, stepNow - 3), 0, now) === null);
+await t('code déjà utilisé refusé (anti-rejeu)', () => totp.verifyTotp(sec, totp.totpAt(sec, stepNow), stepNow, now) === null);
+await t('code mal formé refusé', () => totp.verifyTotp(sec, '12345', 0, now) === null && totp.verifyTotp(sec, 'abcdef', 0, now) === null);
+const codes = totp.generateRecoveryCodes();
+await t('8 codes de secours uniques, stockés hachés', () => new Set(codes).size === 8 && codes.every((c) => totp.hashRecovery(c).length === 64 && !totp.hashRecovery(c).includes(c)));
+
 /* ---------- Limitation des tentatives ---------- */
 const keys = ['ip:203.0.113.9', 'email:cible@exemple.com'];
 for (let i = 0; i < auth.MAX_ATTEMPTS - 1; i++) await auth.recordAttempt(keys, false);

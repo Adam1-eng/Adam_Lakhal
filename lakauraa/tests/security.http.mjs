@@ -3,6 +3,7 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { rmSync } from 'node:fs';
 import sharp from 'sharp';
+import { createHmac } from 'node:crypto';
 
 const PORT = 4410;
 const B = `http://localhost:${PORT}`;
@@ -25,6 +26,9 @@ const api = (path, method, body, { cookie = '', origin = B, raw } = {}) =>
   fetch(B + path, { method, redirect: 'manual', headers: { ...(raw ? {} : { 'Content-Type': 'application/json' }), ...(origin ? { Origin: origin } : {}), ...(cookie ? { Cookie: cookie } : {}) }, body: raw ?? (body === undefined ? undefined : JSON.stringify(body)) });
 const get = (path, cookie = '') => fetch(B + path, { redirect: 'manual', headers: cookie ? { Cookie: cookie } : {} });
 const PW = 'MotDePasseDeTest2026';
+// TOTP indépendant de l’implémentation du site (RFC 6238)
+const b32 = (str) => { let bits = 0, v = 0; const out = []; for (const ch of str.replace(/[^A-Z2-7]/g, '')) { v = (v << 5) | 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567'.indexOf(ch); bits += 5; if (bits >= 8) { out.push((v >>> (bits - 8)) & 255); bits -= 8; } } return Buffer.from(out); };
+const totp = (secret, offset = 0) => { const c = Buffer.alloc(8); c.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000) + offset)); const h = createHmac('sha1', b32(secret)).update(c).digest(); const o = h[h.length - 1] & 15; return String((((h[o] & 127) << 24) | (h[o + 1] << 16) | (h[o + 2] << 8) | h[o + 3]) % 1e6).padStart(6, '0'); };
 // Retire le contenu des attributs (déjà échappé par Astro) pour ne garder que les balises réellement exécutables
 const tagsOnly = (html) => html.replace(/="[^"]*"/g, '=""');
 
@@ -42,10 +46,10 @@ await t('cookie de session HttpOnly + SameSite=Strict', () => (r.headers.getSetC
 
 /* ---------- 3. Connexion ---------- */
 r = await form('/admin/login', { email: 'admin@test.local', password: 'mauvais' });
-const msgBad = (await r.text()).includes('Courriel ou mot de passe incorrect.');
+const msgBad = (await r.text()).includes('Courriel, mot de passe ou code incorrect.');
 await t('mauvais mot de passe → 401 + message générique', () => r.status === 401 && msgBad);
 r = await form('/admin/login', { email: 'inconnu@test.local', password: 'mauvais' });
-await t('compte inexistant → même message (pas d’énumération)', async () => r.status === 401 && (await r.text()).includes('Courriel ou mot de passe incorrect.'));
+await t('compte inexistant → même message (pas d’énumération)', async () => r.status === 401 && (await r.text()).includes('Courriel, mot de passe ou code incorrect.'));
 r = await form('/admin/login?next=' + encodeURIComponent('//evil.example/x'), { email: 'admin@test.local', password: PW });
 await t('redirection ouverte bloquée (next=//evil…) → /admin', () => r.status === 302 && r.headers.get('location') === '/admin');
 const B2 = cookieOf(r);
@@ -76,6 +80,29 @@ const page = await (await get('/admin/parametres', A)).text();
 const deuxId = [...page.matchAll(/name="id" value="([0-9a-f-]{36})"/g)].map((m) => m[1])[0];
 await form('/admin/parametres', { action: 'remove-admin', id: deuxId }, { cookie: A });
 await t('compte retiré : sa session est immédiatement invalide', async () => (await api('/api/admin/projects/order', 'POST', { ids: [] }, { cookie: D })).status === 401);
+
+/* ---------- 5 bis. Double authentification ---------- */
+const login = (extra = {}) => form('/admin/login', { email: 'admin@test.local', password: PW, ...extra });
+await form('/admin/parametres', { action: 'mfa-start' }, { cookie: A });
+const key = ((await (await get('/admin/parametres', A)).text()).match(/mfa-key[^>]*>([A-Z2-7 ]+)</)?.[1] ?? '').replace(/ /g, '');
+await t('MFA : clé secrète générée (32 caractères)', () => key.length === 32);
+await form('/admin/parametres', { action: 'mfa-confirm', code: '000000' }, { cookie: A });
+await t('MFA : mauvais code de confirmation → reste désactivée', async () => (await login()).status === 302);
+r = await form('/admin/parametres', { action: 'mfa-confirm', code: totp(key) }, { cookie: A });
+const recovery = [...(await r.text()).matchAll(/>([0-9a-f]{5}-[0-9a-f]{5})</g)].map((m) => m[1]);
+await t('MFA : activée, 8 codes de secours affichés une seule fois', async () => recovery.length === 8 && !(await (await get('/admin/parametres', A)).text()).includes(recovery[0]));
+await t('MFA : mot de passe seul → refusé (401)', async () => (await login()).status === 401);
+await t('MFA : mauvais code → refusé (401), même message', async () => { const x = await login({ code: '123456' }); return x.status === 401 && (await x.text()).includes('Courriel, mot de passe ou code incorrect.'); });
+const good = totp(key, 1);
+await t('MFA : bon code → connexion', async () => (await login({ code: good })).status === 302);
+await t('MFA : même code rejoué → refusé', async () => (await login({ code: good })).status === 401);
+await t('MFA : code de secours → connexion', async () => (await login({ code: recovery[0] })).status === 302);
+await t('MFA : code de secours réutilisé → refusé', async () => (await login({ code: recovery[0] })).status === 401);
+await t('MFA : la session déjà ouverte reste valide', async () => (await get('/admin', A)).status === 200);
+await form('/admin/parametres', { action: 'mfa-disable', current: 'mauvais-mot-de-passe' }, { cookie: A });
+await t('MFA : désactivation refusée sans le bon mot de passe', async () => (await login()).status === 401);
+await form('/admin/parametres', { action: 'mfa-disable', current: PW }, { cookie: A });
+await t('MFA : désactivée avec le mot de passe → connexion simple', async () => (await login()).status === 302);
 
 /* ---------- 6. Limitation des tentatives ---------- */
 for (let i = 0; i < 5; i++) await form('/admin/login', { email: 'cible@test.local', password: 'faux' + i });
@@ -149,7 +176,7 @@ await t('404 sans trace technique (pile d’appels, chemin serveur)', async () =
 
 /* ---------- 13. Journal de sécurité ---------- */
 await new Promise((res) => setTimeout(res, 500));
-for (const ev of ['login.failure', 'login.success', 'login.locked', 'csrf.blocked', 'logout', 'admin.created', 'admin.removed', 'access.denied', 'setup.admin_created'])
+for (const ev of ['mfa.enabled', 'mfa.disabled', 'mfa.recovery_used', 'login.failure', 'login.success', 'login.locked', 'csrf.blocked', 'logout', 'admin.created', 'admin.removed', 'access.denied', 'setup.admin_created'])
   await t(`journal : événement « ${ev} » enregistré`, () => logs.includes(`"event":"${ev}"`));
 await t('journal : aucun mot de passe ni jeton en clair', () => !logs.includes(PW) && !logs.includes(A.split('=')[1]));
 

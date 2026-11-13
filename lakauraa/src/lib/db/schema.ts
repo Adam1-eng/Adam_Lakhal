@@ -11,6 +11,11 @@ export const admins = pgTable('admins', {
   passwordHash: text('password_hash').notNull(),
   createdAt: createdAt(),
   lastLoginAt: timestamp('last_login_at', { withTimezone: true }),
+  // Double authentification (facultative)
+  totpSecret: text('totp_secret').notNull().default(''),
+  totpEnabled: boolean('totp_enabled').notNull().default(false),
+  totpLastStep: integer('totp_last_step').notNull().default(0),
+  recoveryCodes: jsonb('recovery_codes').$type<string[]>().notNull().default([]),
 }, (t) => [uniqueIndex('admins_email_idx').on(t.email)]);
 
 export const sessions = pgTable('sessions', {

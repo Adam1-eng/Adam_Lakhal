@@ -26,8 +26,9 @@ Aucun texte, couleur, animation, page ou fonctionnalité du site n'a été modif
 | `src/lib/security-log.ts` | Journal de sécurité (masque courriels, IP et champs sensibles) |
 | `src/pages/500.astro` | Page d'erreur générique, sans détail technique |
 | `vercel.json` | En-têtes de sécurité pour les fichiers statiques |
-| `tests/security.unit.mts` | 39 tests unitaires |
-| `tests/security.http.mjs` | 69 tests HTTP sur serveur isolé |
+| `src/lib/totp.ts`, `drizzle/0003_admin_mfa.sql` | Double authentification facultative (4 colonnes ajoutées à `admins`, aucune donnée modifiée) |
+| `tests/security.unit.mts` | 49 tests unitaires |
+| `tests/security.http.mjs` | 84 tests HTTP sur serveur isolé |
 | 4 rapports `SECURITY_*.md`, `PRODUCTION_READINESS.md` | Documentation |
 
 ## Dépendances
@@ -40,7 +41,7 @@ Aucun texte, couleur, animation, page ou fonctionnalité du site n'a été modif
 ## Commandes
 
 ```bash
-npm run test:security        # 39 tests unitaires + 69 tests HTTP (base de test isolée)
+npm run test:security        # 49 tests unitaires + 84 tests HTTP (base de test isolée)
 npm audit                    # dépendances
 ```
 
@@ -49,8 +50,8 @@ npm audit                    # dépendances
 1. **Autoriser le déploiement** de cette version (rien n'est en ligne).
 2. **Supprimer `ADMIN_SETUP_TOKEN`** dans Vercel → Settings → Environment Variables (il a été affiché dans notre conversation ; il ne sert plus, la page d'installation est fermée).
 3. **Vérifier les sauvegardes** dans la console Neon.
-4. Décider pour la **double authentification** et la **CSP sans `unsafe-inline`**.
+4. **Activer la double authentification** : `/admin/parametres` → « Double authentification » → Configurer, puis noter les 8 codes de secours.
 
 ## Retour en arrière
 
-Tout tient dans un seul commit : `git revert <commit>` annule l'ensemble. Les mots de passe déjà re-hachés restent valides (le format indique ses propres paramètres).
+Deux commits (audit, puis double authentification) : `git revert` les annule. La migration 0003 ajoute seulement des colonnes avec valeur par défaut ; elle peut rester en place. Les mots de passe déjà re-hachés restent valides (le format indique ses propres paramètres).

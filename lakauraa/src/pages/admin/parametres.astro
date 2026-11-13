@@ -6,6 +6,9 @@ import { getSettings, saveSetting, type LegalSettings } from '../../lib/content'
 import { str, isEmail } from '../../lib/admin';
 import { securityEvent, maskEmail } from '../../lib/security-log';
 import { hashPassword, verifyPassword, passwordProblem, destroyAllSessions, createSession } from '../../lib/auth';
+import { generateSecret, verifyTotp, otpauthUri, generateRecoveryCodes, hashRecovery } from '../../lib/totp';
+
+let freshCodes: string[] = [];
 
 const me = Astro.locals.admin!;
 const db = await getDb();
@@ -47,6 +50,31 @@ if (Astro.request.method === 'POST') {
     return back('ok', 'Mot de passe modifié. Les autres appareils ont été déconnectés.', '#securite');
   }
 
+  if (action.startsWith('mfa-')) {
+    const [row] = await db.select().from(schema.admins).where(eq(schema.admins.id, me.id)).limit(1);
+    if (!row) return back('erreur', 'Compte introuvable.', '#mfa');
+    if (action === 'mfa-start' && !row.totpEnabled) {
+      await db.update(schema.admins).set({ totpSecret: generateSecret(), totpLastStep: 0 }).where(eq(schema.admins.id, me.id));
+      return back('ok', 'Ajoutez la clé dans votre application, puis saisissez le code affiché.', '#mfa');
+    }
+    if (action === 'mfa-cancel' && !row.totpEnabled) {
+      await db.update(schema.admins).set({ totpSecret: '' }).where(eq(schema.admins.id, me.id));
+      return back('ok', 'Configuration annulée.', '#mfa');
+    }
+    if (action === 'mfa-confirm' && !row.totpEnabled && row.totpSecret) {
+      const step = verifyTotp(row.totpSecret, str(fd, 'code').replace(/\s/g, ''));
+      if (step === null) return back('erreur', 'Code incorrect. Vérifiez l’heure de votre téléphone et réessayez.', '#mfa');
+      freshCodes = generateRecoveryCodes();
+      await db.update(schema.admins).set({ totpEnabled: true, totpLastStep: step, recoveryCodes: freshCodes.map(hashRecovery) }).where(eq(schema.admins.id, me.id));
+      securityEvent('mfa.enabled', { admin: me.id });
+    } else if (action === 'mfa-disable' && row.totpEnabled) {
+      if (!(await verifyPassword(String(fd.get('current') ?? ''), row.passwordHash))) return back('erreur', 'Mot de passe incorrect.', '#mfa');
+      await db.update(schema.admins).set({ totpEnabled: false, totpSecret: '', totpLastStep: 0, recoveryCodes: [] }).where(eq(schema.admins.id, me.id));
+      securityEvent('mfa.disabled', { admin: me.id });
+      return back('ok', 'Double authentification désactivée.', '#mfa');
+    } else return back('erreur', 'Action impossible.', '#mfa');
+  }
+
   if (action === 'signout-all') {
     await destroyAllSessions(me.id);
     securityEvent('logout.all', { admin: me.id });
@@ -76,6 +104,8 @@ if (Astro.request.method === 'POST') {
 }
 
 const [{ legal }, admins] = await Promise.all([getSettings(), db.select().from(schema.admins).orderBy(asc(schema.admins.createdAt))]);
+const mine = admins.find((a) => a.id === me.id)!;
+const pendingSecret = !mine.totpEnabled && mine.totpSecret ? mine.totpSecret : '';
 const legalFields: { k: keyof LegalSettings; label: string; hint?: string; ph?: string }[] = [
   { k: 'ownerName', label: 'Nom du responsable' },
   { k: 'businessName', label: 'Nom commercial' },
@@ -117,6 +147,41 @@ const legalFields: { k: keyof LegalSettings; label: string; hint?: string; ph?: 
         <button class="btn btn--primary btn--sm" name="action" value="password">Changer le mot de passe</button>
       </div>
     </form>
+  </section>
+
+  <section class="panel" id="mfa">
+    <div class="panel__head">
+      <div><h2>Double authentification</h2><p>En plus du mot de passe, un code à 6 chiffres généré par une application (Google Authenticator, Microsoft Authenticator, Authy…).</p></div>
+      <span class:list={['badge', mine.totpEnabled ? 'badge--pub' : 'badge--draft']}>{mine.totpEnabled ? 'Activée' : 'Désactivée'}</span>
+    </div>
+    {freshCodes.length > 0 && (
+      <div class="mfa-codes" role="status">
+        <p><strong>Double authentification activée.</strong> Notez ces 8 codes de secours maintenant : ils ne seront plus jamais affichés. Chacun permet une connexion si vous perdez votre téléphone.</p>
+        <ul>{freshCodes.map((c) => <li><code>{c}</code></li>)}</ul>
+      </div>
+    )}
+    {mine.totpEnabled ? (
+      <form method="post" class="adm-form">
+        <p class="muted-s">Codes de secours restants : {mine.recoveryCodes.length}. Pour en obtenir de nouveaux, désactivez puis réactivez.</p>
+        <div class="grid-2"><div class="field"><label for="mfa-pw">Mot de passe actuel</label><input class="input" id="mfa-pw" name="current" type="password" required autocomplete="current-password" /></div></div>
+        <div class="row row--end"><button class="btn btn--danger btn--sm" name="action" value="mfa-disable" data-confirm="Désactiver la double authentification ?">Désactiver</button></div>
+      </form>
+    ) : pendingSecret ? (
+      <form method="post" class="adm-form">
+        <ol class="checklist">
+          <li>1. Sur votre téléphone : <a href={otpauthUri(pendingSecret, me.email)} style="margin-left:.4rem">Ouvrir dans mon application d’authentification</a></li>
+          <li>2. Ou saisissez cette clé à la main : <code class="mfa-key">{pendingSecret.match(/.{1,4}/g)?.join(' ')}</code></li>
+          <li>3. Saisissez le code à 6 chiffres affiché par l’application.</li>
+        </ol>
+        <div class="grid-2"><div class="field"><label for="mfa-code">Code à 6 chiffres</label><input class="input" id="mfa-code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required /></div></div>
+        <div class="row row--end">
+          <button class="btn btn--ghost btn--sm" name="action" value="mfa-cancel" formnovalidate>Annuler</button>
+          <button class="btn btn--primary btn--sm" name="action" value="mfa-confirm">Activer</button>
+        </div>
+      </form>
+    ) : (
+      <form method="post"><button class="btn btn--primary btn--sm" name="action" value="mfa-start">Configurer la double authentification</button></form>
+    )}
   </section>
 
   <section class="panel" id="admins">

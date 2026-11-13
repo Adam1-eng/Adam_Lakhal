@@ -32,6 +32,7 @@ Aucune variable ne doit commencer par `PUBLIC_` ou `VITE_` (le site n'en utilise
 | Console du navigateur sur l'accueil | Aucun message « Content Security Policy » |
 | Ajouter une image à un projet dans l'admin | Image affichée (Blob autorisé par la CSP) |
 | Vercel → Logs, filtre `[security]` | Ta connexion apparaît (`login.success`) |
+| `/admin/parametres` → Double authentification | Activation avec ton application, puis reconnexion avec le code |
 
 Si le site n'affiche plus de contenu après le déploiement : cause probable S-03 ; revenir au déploiement précédent (Vercel → Deployments → Promote), puis me le signaler.
 
@@ -40,13 +41,14 @@ Si le site n'affiche plus de contenu après le déploiement : cause probable S-0
 | Risque | Niveau | Détail |
 |---|---|---|
 | Scripts intégrés autorisés par la CSP | Moyen | Imposé par les transitions de page ; l'échappement automatique reste la barrière principale |
-| Pas de double authentification | Moyen | Un mot de passe volé suffit. Utiliser un mot de passe unique et long |
+| Double authentification non activée | Moyen | Disponible dans `/admin/parametres` ; tant qu'elle est désactivée, un mot de passe volé suffit |
 | Alertes de dépendances de build | Faible | Outils de développement et de construction, absents du site servi |
 | Perte du mot de passe du seul admin | Faible | Voir procédure ci-dessous |
 | Sauvegardes Neon non vérifiées | Faible | Le portfolio peut être réimporté, pas tes modifications |
 
 ## 5. Mot de passe oublié (aucun lien de récupération)
 
+0. Téléphone perdu (double authentification) : utiliser un code de secours dans le champ « Code de vérification ».
 1. Si un autre administrateur existe : il supprime ton accès et le recrée (`/admin/parametres`).
 2. Sinon : dans la console Neon, vider la table `admins` (les sessions suivent), remettre une valeur dans `ADMIN_SETUP_TOKEN` sur Vercel, redéployer, puis recréer le compte sur `/admin/setup` et supprimer de nouveau la variable.
 
