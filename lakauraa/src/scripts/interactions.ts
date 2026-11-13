@@ -61,6 +61,7 @@ function initHeader() {
       toggle.setAttribute('aria-expanded', String(open));
       toggle.querySelector('.sr-only')!.textContent = open ? 'Fermer le menu' : 'Ouvrir le menu';
       document.documentElement.style.overflow = open ? 'hidden' : '';
+      if (open) window.__lenis?.stop(); else window.__lenis?.start();
       if (open) {
         menu.hidden = false;
         requestAnimationFrame(() => menu.classList.add('is-open'));
@@ -75,27 +76,8 @@ function initHeader() {
     on(window, 'keydown', (e) => {
       if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { setOpen(false); toggle.focus(); }
     });
-    cleanups.push(() => { document.documentElement.style.overflow = ''; });
+    cleanups.push(() => { document.documentElement.style.overflow = ''; window.__lenis?.start(); });
   }
-}
-
-/* ---------- Apparitions au défilement ---------- */
-function initReveal() {
-  const els = document.querySelectorAll<HTMLElement>('.reveal, [data-split]');
-  if (reduced() || !('IntersectionObserver' in window)) {
-    els.forEach((el) => el.classList.add('is-in'));
-    return;
-  }
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
-      });
-    },
-    { rootMargin: '0px 0px -8% 0px', threshold: 0.12 },
-  );
-  els.forEach((el) => io.observe(el));
-  cleanups.push(() => io.disconnect());
 }
 
 /* ---------- Projecteur sur les cartes ---------- */
@@ -160,30 +142,6 @@ function initAura() {
   });
 }
 
-/* ---------- Compteurs ---------- */
-function initCounters() {
-  const els = document.querySelectorAll<HTMLElement>('[data-count]');
-  if (!els.length) return;
-  const run = (el: HTMLElement) => {
-    const target = Number(el.dataset.count);
-    if (reduced() || target === 0) { el.textContent = String(target); return; }
-    const dur = 1400;
-    const t0 = performance.now();
-    const step = (t: number) => {
-      const p = Math.min(1, (t - t0) / dur);
-      const eased = 1 - Math.pow(1 - p, 4);
-      el.textContent = String(Math.round(target * eased));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  };
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((e) => { if (e.isIntersecting) { run(e.target as HTMLElement); io.unobserve(e.target); } });
-  }, { threshold: 0.6 });
-  els.forEach((el) => io.observe(el));
-  cleanups.push(() => io.disconnect());
-}
-
 /* ---------- Carrousel de maquettes du hero ---------- */
 function initRotator() {
   document.querySelectorAll<HTMLElement>('[data-rotator]').forEach((root) => {
@@ -234,6 +192,7 @@ function initFilters() {
         }
       });
       if (count) count.textContent = `${shown} projet${shown > 1 ? 's' : ''}`;
+      document.dispatchEvent(new Event('lk:layout'));
     };
     buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filter ?? 'all')));
   });
@@ -263,27 +222,6 @@ function initFaq() {
   });
 }
 
-/* ---------- Ligne de progression (processus) ---------- */
-function initProgress() {
-  const els = document.querySelectorAll<HTMLElement>('[data-progress]');
-  if (!els.length) return;
-  let ticking = false;
-  const update = () => {
-    els.forEach((el) => {
-      const r = el.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const p = Math.min(1, Math.max(0, (vh * 0.75 - r.top) / (r.height + vh * 0.25)));
-      el.style.setProperty('--p', reduced() ? '1' : p.toFixed(3));
-      el.querySelectorAll<HTMLElement>('[data-step]').forEach((s, k, all) => {
-        s.classList.toggle('is-on', p >= k / all.length);
-      });
-    });
-    ticking = false;
-  };
-  update();
-  on(window, 'scroll', () => { if (!ticking) { requestAnimationFrame(update); ticking = true; } }, { passive: true });
-}
-
 /* ---------- Vidéos : lecture seulement à l’écran, jamais si animations réduites ---------- */
 function initVideos() {
   const vids = document.querySelectorAll<HTMLVideoElement>('video[data-autoplay]');
@@ -305,16 +243,13 @@ function init() {
   cleanups = [];
   document.documentElement.classList.remove('no-js');
   initHeader();
-  initReveal();
   initSpotlight();
   initMagnetic();
   initTilt();
   initAura();
-  initCounters();
   initRotator();
   initFilters();
   initFaq();
-  initProgress();
   initVideos();
 }
 

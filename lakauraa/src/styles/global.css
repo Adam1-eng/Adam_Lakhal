@@ -50,9 +50,7 @@ html {
   scroll-padding-top: calc(var(--header-h) + 1rem);
   background: var(--bg);
 }
-@media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
-}
+/* Le défilement fluide est géré par Lenis (src/scripts/motion.ts) */
 body {
   font-family: var(--font-sans);
   background: var(--bg);
@@ -310,13 +308,11 @@ p { text-wrap: pretty; }
 }
 .phone img { width: 100%; aspect-ratio: 9 / 19.5; object-fit: cover; object-position: top; }
 
-/* ---------- Animations d'entrée ---------- */
+/* ---------- Animations d'entrée (pilotées par GSAP · src/scripts/motion.ts) ---------- */
 .reveal {
   opacity: 0;
   transform: translateY(28px);
   filter: blur(6px);
-  transition: opacity 0.9s var(--ease), transform 0.9s var(--ease), filter 0.9s var(--ease);
-  transition-delay: calc(var(--i, 0) * 80ms);
 }
 .reveal.is-in { opacity: 1; transform: none; filter: none; }
 .reveal--scale { transform: translateY(20px) scale(0.96); }
@@ -331,8 +327,7 @@ p { text-wrap: pretty; }
 .split-word > span {
   display: inline-block;
   transform: translateY(105%);
-  transition: transform 1s var(--ease);
-  transition-delay: calc(var(--w, 0) * 55ms + 120ms);
+  will-change: transform;
 }
 .is-in .split-word > span, .split-word.is-in > span { transform: none; }
 
@@ -340,7 +335,24 @@ p { text-wrap: pretty; }
 .no-js .reveal { opacity: 1; transform: none; filter: none; }
 .no-js .split-word > span { transform: none; }
 
+/* Titre du hero (React Bits · BlurText) */
+.blur-title { flex-wrap: wrap; }
+.blur-title > span[style] { white-space: nowrap; }
+.no-js .blur-title span[aria-hidden] { opacity: 1 !important; filter: none !important; transform: none !important; }
+
+/* Bouton principal à bordure étoilée (React Bits · StarBorder) */
+.btn--star {
+  min-height: 50px;
+  padding: 0.8rem 1.4rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px -10px rgb(30 107 255 / 0.7);
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), filter 0.3s;
+}
+.btn--star:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -12px rgb(224 18 47 / 0.6); filter: brightness(1.08); }
+.btn--star:hover svg.arrow { transform: translateX(4px); }
+
 @media (prefers-reduced-motion: reduce) {
+  .blur-title span[aria-hidden] { opacity: 1 !important; filter: none !important; transform: none !important; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

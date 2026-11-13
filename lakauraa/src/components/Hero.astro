@@ -1,7 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import SplitText from './SplitText.astro';
+import HeroTitle from './islands/HeroTitle';
+import HeroRays from './islands/HeroRays';
+import StarButton from './islands/StarButton';
 import { site } from '../data/site';
 import { caseStudies, maquettes } from '../data/projets';
 
@@ -18,6 +20,7 @@ const slides = [
 <section class="hero" data-aura-zone aria-labelledby="hero-title">
   <div class="hero__bg" aria-hidden="true">
     <div class="grid-bg"></div>
+    <div class="hero__rays"><HeroRays client:idle /></div>
     <div class="hero__blob hero__blob--1"></div>
     <div class="hero__blob hero__blob--2"></div>
     <div class="hero__follow"></div>
@@ -31,7 +34,7 @@ const slides = [
         <Icon name="arrow" />
       </a>
 
-      <SplitText as="h1" id="hero-title" class="hero__title" text="Votre commerce mérite un site qui fait venir des clients." aura="fait venir des clients." />
+      <HeroTitle client:load id="hero-title" className="hero__title" text="Votre commerce mérite un site qui fait venir des clients." highlight="fait venir des clients." />
 
       <p class="hero__lead reveal" style="--i:4">
         Je conçois des sites rapides, élégants et pensés pour le cellulaire : vos services, vos prix, vos heures et un bouton pour vous appeler.{' '}
@@ -39,10 +42,10 @@ const slides = [
       </p>
 
       <div class="hero__ctas reveal" style="--i:5">
-        <a href="/contact" class="btn btn--primary" data-magnetic>
+        <StarButton client:load href="/contact">
           Obtenir ma maquette gratuite
           <Icon name="arrow" class="arrow" />
-        </a>
+        </StarButton>
         <a href="/projets" class="btn btn--ghost" data-magnetic>Voir mes réalisations</a>
       </div>
 
@@ -121,9 +124,12 @@ const slides = [
     display: flex; align-items: center;
     overflow: hidden;
   }
-  .hero__bg { position: absolute; inset: 0; z-index: -1; }
+  .hero__bg { position: absolute; inset: 0; z-index: -1; will-change: transform; }
+  .hero__rays { position: absolute; inset: 0 0 18% 0; opacity: 0; animation: raysIn 2.4s var(--ease) 0.4s forwards; mask-image: linear-gradient(180deg, #000 55%, transparent); }
+  .hero__rays :global(.light-rays) { position: absolute; inset: 0; }
+  @keyframes raysIn { to { opacity: 1; } }
   .hero__blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.55; }
-  .hero__blob--1 { width: 620px; height: 620px; right: -120px; top: -160px; background: radial-gradient(circle, #1e6bff, transparent 65%); animation: float1 18s ease-in-out infinite alternate; }
+  .hero__blob--1 { width: 620px; height: 620px; right: -120px; top: -160px; background: radial-gradient(circle, #1e6bff, transparent 65%); opacity: 0.32; animation: float1 18s ease-in-out infinite alternate; }
   .hero__blob--2 { width: 520px; height: 520px; left: -200px; bottom: -220px; background: radial-gradient(circle, #e0122f, transparent 65%); opacity: 0.35; animation: float2 22s ease-in-out infinite alternate; }
   .hero__follow { position: absolute; inset: 0; background: radial-gradient(500px circle at var(--ax) var(--ay), rgb(224 18 47 / 0.1), transparent 60%); transition: background 0.2s; }
   @keyframes float1 { to { transform: translate(-80px, 90px) scale(1.1); } }
