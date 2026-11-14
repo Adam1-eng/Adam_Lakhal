@@ -1,6 +1,6 @@
 # Modifications de sécurité
 
-Aucun texte, couleur, animation, page ou fonctionnalité du site n'a été modifié. Aucune donnée supprimée. Rien n'a été déployé.
+Aucun texte, couleur, animation, page ou fonctionnalité du site n'a été modifié. Aucune donnée supprimée. Déployé en production le 14 novembre 2026 (commit `2a51ea0`), avec ton autorisation.
 
 ## Fichiers modifiés
 
@@ -47,8 +47,8 @@ npm audit                    # dépendances
 
 ## Ce qui demande ton intervention
 
-1. **Autoriser le déploiement** de cette version (rien n'est en ligne).
-2. **Supprimer `ADMIN_SETUP_TOKEN`** dans Vercel → Settings → Environment Variables (il a été affiché dans notre conversation ; il ne sert plus, la page d'installation est fermée).
+1. **Te connecter à `/admin`** et importer le contenu de départ.
+2. **Supprimer `ADMIN_SETUP_TOKEN`** dans Vercel → Settings → Environment Variables. Je l'ai déjà retiré de la production et de la prévisualisation (il ne reste que pour « Development »), faute d'outil pour le supprimer.
 3. **Vérifier les sauvegardes** dans la console Neon.
 4. **Activer la double authentification** : `/admin/parametres` → « Double authentification » → Configurer, puis noter les 8 codes de secours.
 

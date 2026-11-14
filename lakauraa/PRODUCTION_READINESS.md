@@ -1,6 +1,6 @@
 # Préparation à la mise en production
 
-État : les corrections de sécurité sont dans le dépôt, **pas encore en ligne**.
+État : version auditée **en ligne** sur `lakauraa.vercel.app` depuis le 14 novembre 2026. Les contrôles de la section 3 ont été faits, sauf ceux qui demandent ton mot de passe (connexion, ajout d'image, double authentification).
 
 ## 1. Variables d'environnement (Vercel → Settings → Environment Variables)
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | `DATABASE_URL` (+ variables Neon) | Connexion PostgreSQL | Déjà créée par l'intégration Neon. Ne jamais la copier ailleurs |
 | `BLOB_READ_WRITE_TOKEN` | Stockage des images | Déjà créée. Vercel la signale « lisible » : la passer en type **Sensitive** |
-| `ADMIN_SETUP_TOKEN` | Création du premier compte | **À supprimer** : le compte existe, la page d'installation est fermée |
+| `ADMIN_SETUP_TOKEN` | Création du premier compte | Retiré de Production et Preview. **À supprimer** complètement à la main |
 
 Aucune variable ne doit commencer par `PUBLIC_` ou `VITE_` (le site n'en utilise aucune).
 

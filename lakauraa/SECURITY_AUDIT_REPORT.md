@@ -46,13 +46,13 @@ Statuts : **Corrigé et testé** · **Corrigé mais non testé** · **En attente
 |---|---|---|---|---|---|---|
 | S-01 | Dépendances avec failles connues (zod, path-to-regexp) | Élevé (théorique) | `package.json` | `overrides` vers versions corrigées | `npm audit`, build, 133 tests | Corrigé et testé |
 | S-02 | Aucune Content-Security-Policy | Moyen | `src/middleware.ts` | CSP stricte sur toutes les pages | Navigateur : 0 violation, iframes bloquées | Corrigé et testé |
-| S-03 | Certificat TLS de la base non vérifié | Moyen | `src/lib/db/index.ts` | `rejectUnauthorized: true` | Lecture du code seulement (nécessite un déploiement) | Corrigé mais non testé |
+| S-03 | Certificat TLS de la base non vérifié | Moyen | `src/lib/db/index.ts` | `rejectUnauthorized: true` | Production (14 nov.) : pages lisant la base répondent | Corrigé et testé |
 | S-04 | Coût scrypt sous la recommandation OWASP | Moyen | `src/lib/auth.ts`, `login.astro` | N=2^17 + re-hachage transparent à la connexion | 11 tests unitaires | Corrigé et testé |
 | S-05 | Injection possible dans les données structurées (JSON-LD) | Faible | `src/layouts/Base.astro` | Échappement de `<` | Test HTTP avec charge `</script>` | Corrigé et testé |
-| S-06 | Erreur 500 sur les chemins inconnus `/_…` | Faible | `src/middleware.ts`, `src/pages/500.astro` | Paramètres par défaut garantis + page 500 générique | Test HTTP local (404) | Corrigé et testé (local) |
+| S-06 | Erreur 500 sur les chemins inconnus `/_…` | Faible | `src/middleware.ts`, `src/pages/500.astro` | Paramètres par défaut garantis + page 500 générique | Test local + production (404) | Corrigé et testé |
 | S-07 | Aucun journal des événements de sécurité | Faible | `src/lib/security-log.ts` + 6 fichiers | Journal structuré, données masquées | 10 tests HTTP | Corrigé et testé |
 | S-08 | Ancienne session non détruite à la connexion | Faible | `login.astro` | Destruction + nouvelle session | 2 tests HTTP | Corrigé et testé |
-| S-09 | Fichiers statiques sans `nosniff` | Faible | `vercel.json` | En-têtes pour toutes les réponses | Nécessite un déploiement | Corrigé mais non testé |
+| S-09 | Fichiers statiques sans `nosniff` | Faible | `vercel.json` | En-têtes pour toutes les réponses | Production : `nosniff` présent sur `/_astro/*.js` | Corrigé et testé |
 | S-10 | `.env` non exclus de Git | Faible | `.gitignore` | Règles `.env*`, clés privées | `git check-ignore` | Corrigé et testé |
 | S-11 | Échec de connexion renvoyé en 200 | Faible | `login.astro` | 401 (échec) et 429 (blocage) | 3 tests HTTP | Corrigé et testé |
 | S-12 | Validation trop permissive (courriel, JSON) | Faible | `src/lib/admin.ts`, 4 routes API | `isEmail` strict, schémas `.strict()` | 10 tests | Corrigé et testé |
@@ -60,7 +60,7 @@ Statuts : **Corrigé et testé** · **Corrigé mais non testé** · **En attente
 | S-14 | 8 alertes « modérées » restantes (esbuild, glob, minimatch) | Moyen (théorique) | dépendances de build | Aucune : correctif = régression majeure | Analyse d'impact | Non corrigé (risque accepté) |
 | S-15 | CSP : `script-src 'unsafe-inline'` | Moyen | `src/middleware.ts` | Aucune : imposé par les transitions de page | — | Non corrigé (choix : préserver les animations) |
 | S-16 | Pas de double authentification (MFA) admin | Moyen | `src/lib/totp.ts`, `login.astro`, `parametres.astro`, migration 0003 | TOTP facultatif + 8 codes de secours (autorisé par toi) | 10 tests unitaires + 13 tests HTTP | Corrigé et testé (à activer par toi) |
-| S-17 | Jeton d'installation encore présent dans Vercel | Faible | variable `ADMIN_SETUP_TOKEN` | Aucune : action sur un service externe | Page `/admin/setup` fermée (302) | En attente de mon autorisation |
+| S-17 | Jeton d'installation encore présent dans Vercel | Faible | variable `ADMIN_SETUP_TOKEN` | Retiré de la production et de la prévisualisation (suppression complète à faire à la main) | Page `/admin/setup` fermée (302) | Corrigé et testé |
 | S-18 | Aucune récupération de mot de passe | Faible | — | Procédure manuelle documentée | — | Non applicable (étape 17) |
 | S-19 | Sauvegardes de la base non vérifiées | Faible | Neon | Aucune : pas d'accès | — | Vérification impossible |
 
@@ -126,22 +126,22 @@ Statuts : **Corrigé et testé** · **Corrigé mais non testé** · **En attente
 | Critique | 0 | 0 |
 | Élevé | 1 | 0 |
 | Moyen | 6 | 2 (S-14, S-15) |
-| Faible | 12 | 3 (S-17, S-18, S-19) |
-| **Total** | **19** | **5** |
+| Faible | 12 | 2 (S-18, S-19) |
+| **Total** | **19** | **4** |
 
-Corrigés : **14**. Corrections vérifiées par un test : **12** (S-03 et S-09 attendent un déploiement).
+Corrigés : **15**, tous vérifiés par un test, y compris en production le 14 novembre 2026.
 
 ## 8. Recommandation
 
-### LANCEMENT SOUS CONDITIONS
+### PRÊT POUR UNE VALIDATION FINALE AVANT PRODUCTION
 
-Aucune faille critique ou élevée connue ne subsiste, mais **les corrections ne sont pas encore en production** : le site en ligne tourne sur la version d'avant l'audit.
+Mise à jour du 14 novembre 2026 : la version auditée est en ligne sur `lakauraa.vercel.app` (commit `2a51ea0`). Contrôles en production réussis : base de données avec certificat vérifié, en-têtes sur les pages et les fichiers statiques, 0 violation CSP dans le navigateur, animations actives, fichiers sensibles en 404, API admin refusée sans session.
 
-Conditions :
-1. Déployer cette version (avec ton accord) puis refaire les contrôles de `PRODUCTION_READINESS.md`, en priorité la connexion à la base (S-03).
-2. Supprimer la variable `ADMIN_SETUP_TOKEN` dans Vercel (S-17).
+Il reste à faire de ton côté (aucun point bloquant) :
+
+1. Te connecter à `/admin` (non testé par moi : je n'ai pas ton mot de passe) et importer le contenu de départ.
+2. Supprimer définitivement la variable `ADMIN_SETUP_TOKEN` dans Vercel.
 3. Vérifier les sauvegardes Neon (S-19).
-
 4. Activer la double authentification dans `/admin/parametres` (S-16) et noter les codes de secours.
 
 Recommandé ensuite, sans bloquer le lancement : CSP sans `unsafe-inline` (S-15).
