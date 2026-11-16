@@ -4,6 +4,8 @@ import ProjectDetail from '../../components/ProjectDetail.astro';
 import Cta from '../../components/Cta.astro';
 import { getProjectBySlug, getPublishedProjects } from '../../lib/content';
 import { getPublishedReviews } from '../../lib/reviews';
+import { clip } from '../../lib/seo';
+import { kindLabel } from '../../lib/content';
 
 const slug = Astro.params.slug ?? '';
 const project = await getProjectBySlug(slug);
@@ -12,8 +14,26 @@ const all = await getPublishedProjects();
 const idx = all.findIndex((p) => p.id === project.id);
 const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
 const reviews = (await getPublishedReviews()).filter((r) => r.projectId === project.id);
+const origin = (Astro.site?.href ?? '').replace(/\/$/, '');
+const cat = project.category?.name;
+const fullTitle = `${project.title}${cat ? ' · ' + cat : ''}`;
+const seoTitle = fullTitle.length + 11 <= 65 ? fullTitle : project.title; // « · Lakauraa » ajouté par Base
+const seoDesc = clip(project.summary || `${kindLabel[project.kind]} ${project.title}${cat ? ' (' + cat.toLowerCase() + ')' : ''} réalisé par Lakauraa : captures, version cellulaire et détails du projet.`);
+const cover = project.cover?.url;
+const workSchema = [{
+  '@type': 'CreativeWork',
+  name: project.title,
+  description: seoDesc,
+  url: `${origin}/projets/${project.slug}`,
+  ...(cover ? { image: new URL(cover, origin).href } : {}),
+  creator: { '@id': `${origin}/#business` },
+  ...(cat ? { genre: cat } : {}),
+  ...(project.completedOn ? { dateCreated: project.completedOn } : {}),
+  inLanguage: 'fr-CA',
+}];
 ---
-<Base title={`${project.title}${project.category ? ' · ' + project.category.name : ''}`} description={project.summary}
+<Base title={seoTitle} description={seoDesc} schema={workSchema} imageAlt={`Aperçu du site ${project.title}`}
+  crumbs={[{ name: 'Réalisations', path: '/projets' }, { name: project.title, path: `/projets/${project.slug}` }]}
   image={project.cover?.url} waMessage={`Bonjour Adam, j’ai vu le projet « ${project.title} » sur votre site. J’aimerais en savoir plus pour mon commerce.`}>
   <ProjectDetail project={project} next={next} reviews={reviews} />
   <Cta />

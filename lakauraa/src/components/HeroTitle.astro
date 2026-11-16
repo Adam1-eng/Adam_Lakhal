@@ -1,0 +1,36 @@
+---
+// Titre du hero : effet « BlurText » (React Bits) reproduit en CSS pur — mêmes mots, même apparition mot à mot
+// avec flou, mais sans JavaScript (≈ 145 Ko de moins à télécharger et exécuter sur cellulaire).
+import { heroTitle } from '../lib/motion-config';
+interface Props { text: string; highlight?: string; id?: string; class?: string }
+const { text, highlight = '', id, class: cls = '' } = Astro.props;
+const words = text.split(' ');
+const start = highlight && text.endsWith(highlight) ? words.length - highlight.split(' ').length : words.length;
+const { delay, stepDuration, blur, distance } = heroTitle;
+---
+<div id={id} class="blur-title-wrap">
+  <h1 class:list={['blur-title', cls]} style={`--bt-dur:${stepDuration * 2}s;--bt-blur:${blur}px;--bt-dist:${distance}px`}>
+    <span class="sr-only">{text}</span>
+    {words.map((w, i) => (
+      <span class:list={['bt-word', { 'aura-text': i >= start }]}>
+        <span aria-hidden="true" style={`--bt-d:${i * delay}ms`}>{i < words.length - 1 ? `${w} ` : w}</span>
+      </span>
+    ))}
+  </h1>
+</div>
+
+<style>
+  .blur-title { display: flex; flex-wrap: wrap; }
+  .bt-word { display: inline-flex; white-space: nowrap; }
+  .bt-word > span {
+    display: inline-block;
+    animation: bt-in var(--bt-dur) linear var(--bt-d) both;
+  }
+  /* Même trajectoire que BlurText (direction « bottom ») : flou + montée, léger rebond, puis net. */
+  @keyframes bt-in {
+    0% { opacity: 0; filter: blur(var(--bt-blur)); transform: translateY(var(--bt-dist)); animation-timing-function: cubic-bezier(0.33, 1, 0.68, 1); }
+    50% { opacity: 0.5; filter: blur(calc(var(--bt-blur) / 2)); transform: translateY(calc(var(--bt-dist) / -10)); animation-timing-function: cubic-bezier(0.32, 0, 0.67, 1); }
+    100% { opacity: 1; filter: blur(0); transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .bt-word > span { animation: none; } }
+</style>

@@ -18,7 +18,7 @@ const values = [
 ];
 const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'Three.js (3D)', 'Docker', 'Référencement local', 'Design adapté au cellulaire'];
 ---
-<Base title="À propos · Adam Lakhal, développeur web à Montréal" description={`Je suis Adam Lakhal, étudiant en développement web au ${site.school}. Je crée des sites web abordables pour les commerces de Montréal.`}>
+<Base title="À propos · Adam Lakhal, développeur web à Montréal" crumbs={[{ name: 'À propos', path: '/a-propos' }]} description={`Je suis Adam Lakhal, étudiant en développement web au ${site.school}. Je crée des sites web abordables pour les commerces de Montréal.`}>
   <PageHero eyebrow="À propos" title="Un développeur, pas une agence." aura="pas une agence."
     lead={`Je m’appelle ${site.owner}. J’étudie en développement web au ${site.school} et je crée des sites pour les commerces de quartier qui méritent mieux qu’une page Facebook.`}
     crumbs={[{ label: 'À propos' }]} />

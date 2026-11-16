@@ -1,3 +1,10 @@
+# Lakauraa — règles d'exploration.
+# Attention : robots.txt n'est pas une protection. L'administration est protégée par mot de passe
+# et envoie aussi « X-Robots-Tag: noindex ».
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api/
+Disallow: /avis/
+
 Sitemap: https://lakauraa.vercel.app/sitemap-index.xml

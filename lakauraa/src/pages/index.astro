@@ -16,7 +16,8 @@ import { getPublishedReviews, summarize } from '../lib/reviews';
 
 const [faqs, services, reviews, featured] = await Promise.all([getFaqs(), getServices(), getPublishedReviews(), getPublishedProjects({ featured: true })]);
 ---
-<Base title="Lakauraa · Création de sites web pour commerces à Montréal et au Maroc" faqs={faqs}>
+<Base title="Création de sites web à Montréal et au Maroc · Lakauraa" faqs={faqs}
+  description="Sites web rapides et élégants pour les commerces de Montréal et du Maroc : salons, restos, garages, spas. À partir de 600 $, maquette gratuite avant de payer.">
   <Hero rating={summarize(reviews)} />
   <Marquee />
   <Problems />

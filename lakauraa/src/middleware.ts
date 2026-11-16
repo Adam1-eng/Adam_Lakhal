@@ -48,6 +48,10 @@ function securityHeaders(h: Headers, admin: boolean) {
 
 export const onRequest = defineMiddleware(async (ctx, next) => {
   const { pathname } = ctx.url;
+  // Une seule adresse par page : « /contact/ » → « /contact » (redirection permanente, paramètres conservés).
+  if (pathname.length > 1 && pathname.endsWith('/') && ['GET', 'HEAD'].includes(ctx.request.method) && !pathname.startsWith('/_')) {
+    return new Response(null, { status: 308, headers: { Location: pathname.replace(/\/+$/, '') + ctx.url.search } });
+  }
   const isAdminPage = pathname === '/admin' || pathname.startsWith('/admin/');
   const isAdminApi = pathname.startsWith('/api/admin/') || pathname === '/api/admin';
   const secure = ctx.url.protocol === 'https:';
@@ -98,7 +102,7 @@ export const onRequest = defineMiddleware(async (ctx, next) => {
   securityHeaders(res.headers, false);
   // Pages publiques : cache CDN court → un projet publié apparaît en quelques secondes, sans redéploiement.
   if (ctx.request.method === 'GET' && res.status === 200 && !res.headers.has('Cache-Control') && (res.headers.get('content-type') ?? '').includes('text/html')) {
-    res.headers.set('Cache-Control', 'public, max-age=0, s-maxage=10, stale-while-revalidate=50');
+    res.headers.set('Cache-Control', 'public, max-age=0, s-maxage=10, stale-while-revalidate=300');
   }
   return res;
 });

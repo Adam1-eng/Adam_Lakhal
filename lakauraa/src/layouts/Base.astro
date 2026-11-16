@@ -16,40 +16,61 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  imageAlt?: string;
   faqs?: FaqRow[];
   waMessage?: string;
   noindex?: boolean;
+  /** Fil d’Ariane pour les données structurées (sans « Accueil », ajouté automatiquement). */
+  crumbs?: { name: string; path: string }[];
+  /** Données structurées propres à la page (Service, CreativeWork…). */
+  schema?: Record<string, unknown>[];
 }
-const { title, description = site.description, image = '/og.jpg', faqs = [], waMessage, noindex = false } = Astro.props;
+const { title, description = site.description, image, imageAlt, faqs = [], waMessage, noindex = false, crumbs = [], schema = [] } = Astro.props;
 const settings = Astro.locals.settings;
-const canonical = new URL(Astro.url.pathname, Astro.site);
+const canonical = new URL(Astro.url.pathname.replace(/(.)\/+$/, '$1'), Astro.site);
 const fullTitle = title.includes('Lakauraa') ? title : `${title} · Lakauraa`;
-const ogImage = new URL(image, Astro.site);
+const ogImage = new URL(image ?? '/og.jpg', Astro.site);
+const ogAlt = imageAlt ?? 'Lakauraa · Création de sites web pour commerces, Montréal et Maroc';
+const origin = (Astro.site?.href ?? site.url).replace(/\/$/, '');
+const id = (k: string) => `${origin}/#${k}`;
 
-const business = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfessionalService',
-  name: site.name,
-  description: site.description,
-  url: site.url,
-  telephone: settings.contact.phone,
-  email: settings.contact.email,
-  sameAs: activeSocials(settings.socials).map((x) => x.url),
-  founder: { '@type': 'Person', name: site.owner },
-  areaServed: { '@type': 'City', name: 'Montréal' },
-  address: { '@type': 'PostalAddress', addressLocality: 'Montréal', addressRegion: 'QC', addressCountry: 'CA' },
-  priceRange: 'À partir de 600 $',
-  makesOffer: [
-    { '@type': 'Offer', name: 'Site web', priceSpecification: { '@type': 'PriceSpecification', minPrice: '600', priceCurrency: 'CAD' } },
-  ],
-};
+// Données structurées : uniquement des informations visibles sur le site (aucun avis, note ni adresse inventés).
+const graph: Record<string, unknown>[] = [
+  { '@type': 'WebSite', '@id': id('website'), url: `${origin}/`, name: site.name, inLanguage: 'fr-CA', publisher: { '@id': id('business') } },
+  {
+    '@type': 'ProfessionalService',
+    '@id': id('business'),
+    name: site.name,
+    description: site.description,
+    url: `${origin}/`,
+    image: `${origin}/og.jpg`,
+    logo: `${origin}/favicon.svg`,
+    telephone: settings.contact.phone,
+    email: settings.contact.email,
+    sameAs: activeSocials(settings.socials).map((x) => x.url),
+    founder: { '@id': id('adam') },
+    address: { '@type': 'PostalAddress', addressLocality: 'Montréal', addressRegion: 'QC', addressCountry: 'CA' },
+    areaServed: [
+      { '@type': 'City', name: 'Montréal' },
+      { '@type': 'Country', name: 'Canada' },
+      { '@type': 'Country', name: 'Maroc' },
+    ],
+    priceRange: 'À partir de 600 $',
+  },
+  { '@type': 'Person', '@id': id('adam'), name: site.owner, jobTitle: 'Développeur web', worksFor: { '@id': id('business') }, url: `${origin}/a-propos` },
+];
+if (crumbs.length) {
+  graph.push({
+    '@type': 'BreadcrumbList',
+    itemListElement: [{ name: 'Accueil', path: '/' }, ...crumbs].map((c, i) => ({ '@type': 'ListItem', position: i + 1, name: c.name, item: `${origin}${c.path}` })),
+  });
+}
+if (faqs.length) {
+  graph.push({ '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })) });
+}
+graph.push(...schema);
 /** JSON pour <script type="application/ld+json"> : « < » échappé, impossible de fermer la balise. */
 const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.question, acceptedAnswer: { '@type': 'Answer', text: f.answer } })),
-};
 ---
 <!doctype html>
 <html lang="fr-CA" class="no-js">
@@ -59,24 +80,28 @@ const faqSchema = {
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
     <meta name="theme-color" content="#0b0b0f" />
-    {noindex && <meta name="robots" content="noindex" />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={schema.some((x) => x['@type'] === 'CreativeWork') ? 'article' : 'website'} />
     <meta property="og:locale" content="fr_CA" />
     <meta property="og:site_name" content="Lakauraa" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+    {!image && <meta property="og:image:width" content="1200" />}
+    {!image && <meta property="og:image:height" content="630" />}
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogAlt} />
 
-    <script type="application/ld+json" set:html={safeJson(business)} />
-    {faqs.length > 0 && <script type="application/ld+json" set:html={safeJson(faqSchema)} />}
+    <script type="application/ld+json" set:html={safeJson({ '@context': 'https://schema.org', '@graph': graph })} />
 
     <ClientRouter fallback="swap" />
     <script>
