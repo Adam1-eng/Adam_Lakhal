@@ -64,7 +64,7 @@ Si le site n'affiche plus de contenu après le déploiement : cause probable S-0
 
 ## 7. Mise à jour « SEO, performance, UX, conversion » (16 novembre 2026)
 
-État : **testée sur préversion Vercel, pas encore en production.** La mise en production attend ton accord.
+État : **en production depuis le 16 novembre 2026** (accord d’Adam ; déploiement du commit `1cd9822`). Vérifié en production : `test:seo` 335/335, en-têtes de sécurité présents, `/api/evt` refuse les requêtes étrangères ou invalides, fichiers sensibles en 404, 6 pages × 2 tailles d’écran sans erreur.
 
 ### Checklist
 
