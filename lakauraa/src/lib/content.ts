@@ -96,12 +96,6 @@ export const getServices = () =>
     return db.select().from(schema.services).orderBy(asc(schema.services.sort));
   }, [], 'services');
 
-export const getTestimonials = () =>
-  safe(async () => {
-    const db = await getDb();
-    return db.select().from(schema.testimonials).where(eq(schema.testimonials.published, true)).orderBy(asc(schema.testimonials.sort));
-  }, [], 'témoignages');
-
 /* ---------- Portfolio ---------- */
 export type ProjectCard = Project & { category: Category | null; cover: ProjectImage | null; mobile: ProjectImage | null };
 export type ProjectFull = ProjectCard & { images: ProjectImage[] };

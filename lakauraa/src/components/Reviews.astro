@@ -1,0 +1,65 @@
+---
+// Mur des avis (accueil). N'affiche rien tant qu'aucun avis n'est publié.
+import SectionHead from './SectionHead.astro';
+import ReviewCard from './ReviewCard.astro';
+import Stars from './Stars.astro';
+import Icon from './Icon.astro';
+import { summarize, type PublicReview } from '../lib/reviews';
+interface Props { reviews: PublicReview[] }
+const { reviews } = Astro.props;
+const s = summarize(reviews);
+const marquee = reviews.length >= 4; // assez d'avis pour un défilement continu
+---
+{reviews.length > 0 && (
+  <section class="section rw" id="avis" aria-label="Avis clients">
+    <div class="wrap">
+      <SectionHead eyebrow="Avis clients" title="Ce que disent mes clients." aura="mes clients." align="center" />
+      <a href="/avis" class="rw__score reveal">
+        <strong>{s.label}</strong>
+        <span class="rw__score-txt"><Stars value={s.average} size={20} /><small>{s.count} avis vérifié{s.count > 1 ? 's' : ''} · laissés par de vrais clients</small></span>
+      </a>
+    </div>
+
+    {marquee ? (
+      <div class="rw__marquee reveal">
+        <div class="rw__track">
+          {[0, 1].map((k) => (
+            <ul class="rw__list" aria-hidden={k === 1 ? 'true' : undefined}>
+              {reviews.map((r) => <li><ReviewCard review={r} /></li>)}
+            </ul>
+          ))}
+        </div>
+      </div>
+    ) : (
+      <div class="wrap">
+        <ul class="rw__grid">{reviews.map((r, i) => <li class="reveal" style={`--i:${i}`}><ReviewCard review={r} /></li>)}</ul>
+      </div>
+    )}
+
+    <div class="wrap rw__more reveal">
+      <a href="/avis" class="btn btn--ghost">Lire tous les avis <Icon name="arrow" class="arrow" /></a>
+    </div>
+  </section>
+)}
+
+<style>
+  .rw { overflow: hidden; }
+  .rw__score { display: flex; align-items: center; justify-content: center; gap: 1.2rem; margin: -1.5rem auto clamp(2rem, 5vw, 3rem); width: fit-content; padding: 1rem 1.6rem; border-radius: 20px; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.03); transition: border-color 0.3s, transform 0.4s var(--ease); }
+  .rw__score:hover { border-color: rgb(251 191 36 / 0.5); transform: translateY(-2px); }
+  .rw__score strong { font-family: var(--font-display); font-size: clamp(2.6rem, 6vw, 3.6rem); line-height: 1; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+  .rw__score-txt { display: grid; gap: 0.35rem; }
+  .rw__score-txt small { color: var(--muted); font-size: 0.85rem; }
+  .rw__grid { list-style: none; padding: 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); max-width: 1000px; margin-inline: auto; }
+  .rw__marquee { mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .rw__track { display: flex; width: max-content; animation: rw 60s linear infinite; }
+  .rw__marquee:hover .rw__track, .rw__marquee:focus-within .rw__track { animation-play-state: paused; }
+  .rw__list { list-style: none; padding: 0; display: flex; }
+  .rw__list li { width: min(360px, 82vw); padding-right: 1.2rem; }
+  .rw__more { display: flex; justify-content: center; margin-top: 2.5rem; }
+  @keyframes rw { to { transform: translateX(-50%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .rw__track { animation: none; width: auto; }
+    .rw__marquee { mask-image: none; overflow-x: auto; }
+    .rw__list[aria-hidden] { display: none; }
+  }
+</style>

@@ -162,6 +162,39 @@ await t('recherche « \' OR 1=1 -- » traitée comme du texte', async () => { co
 r = await proj({ title: "Robert'); DROP TABLE projects;--" });
 await t('titre contenant du SQL enregistré tel quel, table intacte', async () => r.status === 303 && (await (await get('/admin/projets', A)).text()).includes('Robert&#39;); DROP TABLE projects;--'));
 
+/* ---------- 11 bis. Avis clients (lien personnel à usage unique) ---------- */
+const rv = { rating: '5', comment: 'Très beau site <script>alert("avis")</script> livré vite.', author: 'Karim <b>T</b>', business: 'Garage Test', consent: 'on' };
+await t('avis : lien inventé → 404', async () => (await get('/avis/' + 'a'.repeat(32))).status === 404);
+await t('avis : envoi sur un lien inventé → 404, rien enregistré', async () => (await form('/avis/' + 'b'.repeat(32), rv)).status === 404);
+await t('avis : créer une invitation sans session → refusé', async () => (await form('/admin/avis', { action: 'invite', clientLabel: 'Client pirate' })).status === 302);
+r = await form('/admin/avis', { action: 'invite', clientLabel: 'Client de test' }, { cookie: A });
+const invHtml = await r.text();
+const tok = (invHtml.match(/\/avis\/([A-Za-z0-9_-]{30,60})"/) ?? [])[1] ?? '';
+await t('avis : l’admin obtient un lien personnel', () => r.status === 200 && tok.length >= 30);
+await t('avis : le lien n’est plus affiché ensuite dans l’admin', async () => !(await (await get('/admin/avis', A)).text()).includes(tok));
+r = await get('/avis/' + tok);
+await t('avis : formulaire accessible, jamais mis en cache ni indexé', () => r.status === 200 && r.headers.get('cache-control') === 'no-store' && /noindex/.test(r.headers.get('x-robots-tag') ?? ''));
+await t('avis : note hors limites (9) refusée', async () => (await form('/avis/' + tok, { ...rv, rating: '9' })).status === 400);
+await t('avis : note absente refusée', async () => (await form('/avis/' + tok, { ...rv, rating: '' })).status === 400);
+await t('avis : sans consentement refusé', async () => { const { consent, ...x } = rv; return (await form('/avis/' + tok, x)).status === 400; });
+await t('avis : commentaire trop long refusé', async () => (await form('/avis/' + tok, { ...rv, comment: 'x'.repeat(601) })).status === 400);
+await t('avis : champ inattendu (status=published) refusé', async () => (await form('/avis/' + tok, { ...rv, status: 'published' })).status === 400);
+await t('avis : envoi depuis un autre site → 403', async () => (await form('/avis/' + tok, rv, { origin: 'https://evil.example' })).status === 403);
+r = await form('/avis/' + tok, rv);
+await t('avis : envoi valide accepté', async () => r.status === 200 && (await r.text()).includes('Merci beaucoup'));
+await t('avis : lien à usage unique (2e envoi → 404)', async () => (await form('/avis/' + tok, { ...rv, comment: 'Deuxième tentative de bourrage.' })).status === 404);
+await t('avis : lien utilisé → page 404', async () => (await get('/avis/' + tok)).status === 404);
+await t('avis : en attente → invisible sur le site', async () => !(await (await get('/avis')).text()).includes('Garage Test') && !(await (await get('/')).text()).includes('Garage Test'));
+const revId = ((await (await get('/admin/avis', A)).text()).match(/name="id" value="([0-9a-f-]{36})"/) ?? [])[1] ?? '';
+await t('avis : publication sans session → refusée', async () => (await form('/admin/avis', { action: 'publish', id: revId })).status === 302 && !(await (await get('/avis')).text()).includes('Garage Test'));
+await form('/admin/avis', { action: 'publish', id: revId }, { cookie: A });
+const wall = await (await get('/avis')).text();
+await t('avis : publié par l’admin → visible sur le mur et l’accueil', async () => wall.includes('Garage Test') && (await (await get('/')).text()).includes('Garage Test'));
+await t('avis XSS : contenu affiché comme du texte', () => wall.includes('&lt;script&gt;') && wall.includes('Karim &lt;b&gt;T&lt;/b&gt;') && !/<script>alert\("avis"\)/.test(tagsOnly(wall)));
+await form('/admin/avis', { action: 'unpublish', id: revId }, { cookie: A });
+await t('avis : retiré par l’admin → disparaît du site', async () => !(await (await get('/avis')).text()).includes('Garage Test'));
+await t('avis : le jeton n’apparaît pas dans le journal de sécurité', () => !logs.split('\n').some((l) => l.includes('[security]') && l.includes(tok)));
+
 /* ---------- 12. En-têtes, CORS, erreurs ---------- */
 r = await get('/admin/login');
 await t('admin : CSP présente (frame-ancestors none, object-src none)', () => /frame-ancestors 'none'/.test(r.headers.get('content-security-policy') ?? '') && /object-src 'none'/.test(r.headers.get('content-security-policy') ?? ''));
@@ -176,7 +209,7 @@ await t('404 sans trace technique (pile d’appels, chemin serveur)', async () =
 
 /* ---------- 13. Journal de sécurité ---------- */
 await new Promise((res) => setTimeout(res, 500));
-for (const ev of ['mfa.enabled', 'mfa.disabled', 'mfa.recovery_used', 'login.failure', 'login.success', 'login.locked', 'csrf.blocked', 'logout', 'admin.created', 'admin.removed', 'access.denied', 'setup.admin_created'])
+for (const ev of ['mfa.enabled', 'mfa.disabled', 'mfa.recovery_used', 'login.failure', 'login.success', 'login.locked', 'csrf.blocked', 'logout', 'admin.created', 'admin.removed', 'access.denied', 'setup.admin_created', 'review.invited', 'review.submitted', 'review.moderated'])
   await t(`journal : événement « ${ev} » enregistré`, () => logs.includes(`"event":"${ev}"`));
 await t('journal : aucun mot de passe ni jeton en clair', () => !logs.includes(PW) && !logs.includes(A.split('=')[1]));
 

@@ -1,0 +1,130 @@
+---
+// Formulaire d'avis : accessible uniquement avec un lien personnel valide (usage unique, 60 jours).
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import { eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { findInvite, submitReview, reviewInput } from '../../lib/reviews';
+import { firstError } from '../../lib/admin';
+import { securityEvent } from '../../lib/security-log';
+
+const token = Astro.params.token ?? '';
+let invite = null;
+try { invite = await findInvite(token); } catch { /* base indisponible → 404 générique */ }
+if (!invite) return Astro.rewrite('/404');
+
+let done = false;
+let error = '';
+let values = { rating: 0, comment: '', author: '', business: '' };
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const raw = Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === 'string')) as Record<string, string>;
+  values = { rating: Number(raw.rating) || 0, comment: (raw.comment ?? '').slice(0, 600), author: (raw.author ?? '').slice(0, 60), business: (raw.business ?? '').slice(0, 80) };
+  const parsed = reviewInput.safeParse({ rating: 0, comment: '', author: '', business: '', ...raw });
+  if (!parsed.success) error = firstError(parsed.error);
+  else if (await submitReview(token, parsed.data)) {
+    securityEvent('review.submitted', { review: invite.id, rating: parsed.data.rating });
+    done = true;
+  } else return Astro.rewrite('/404');
+}
+
+let projectTitle = '';
+if (invite.projectId) {
+  const db = await getDb();
+  const [p] = await db.select({ title: schema.projects.title }).from(schema.projects).where(eq(schema.projects.id, invite.projectId)).limit(1);
+  projectTitle = p?.title ?? '';
+}
+const labels = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
+Astro.response.headers.set('Cache-Control', 'no-store');
+Astro.response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+if (error) Astro.response.status = 400;
+---
+<Base title="Laisser un avis" noindex description="Donnez votre avis sur le site web réalisé par Lakauraa.">
+  <section class="section la" data-aura-zone>
+    <div class="wrap la__wrap">
+      {done ? (
+        <div class="card la__card la__done" role="status">
+          <span class="la__ok"><Icon name="check" /></span>
+          <h1 class="h-m">Merci beaucoup !</h1>
+          <p class="muted">Votre avis a bien été reçu. Il sera affiché sur le site après une courte vérification.</p>
+          <a href="/" class="btn btn--primary">Retour à l’accueil <Icon name="arrow" class="arrow" /></a>
+        </div>
+      ) : (
+        <form method="post" class="card la__card">
+          <span class="eyebrow">Votre avis</span>
+          <h1 class="h-m">Comment s’est passé votre projet{projectTitle ? <> <span class="aura-text">{projectTitle}</span></> : ''} ?</h1>
+          <p class="muted">Une minute suffit. Votre avis aide d’autres commerçants à choisir.</p>
+
+          {error && <p class="la__err" role="alert"><Icon name="alert" /> {error}</p>}
+
+          <fieldset class="field la__stars-f">
+            <legend>Votre note</legend>
+            <div class="la__stars">
+              {[5, 4, 3, 2, 1].map((n) => (
+                <>
+                  <input type="radio" name="rating" id={`r${n}`} value={n} required checked={values.rating === n} />
+                  <label for={`r${n}`} title={labels[n]}>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>
+                    <span class="sr-only">{n} étoile{n > 1 ? 's' : ''} sur 5 : {labels[n]}</span>
+                  </label>
+                </>
+              ))}
+            </div>
+            <p class="la__label" data-rating-label aria-hidden="true">{labels[values.rating] || 'Touchez une étoile'}</p>
+          </fieldset>
+
+          <div class="field">
+            <label for="comment">Votre commentaire</label>
+            <textarea class="input" id="comment" name="comment" required minlength="10" maxlength="600" placeholder="Ce que vous avez aimé, le résultat pour votre commerce…">{values.comment}</textarea>
+          </div>
+          <div class="la__grid">
+            <div class="field"><label for="author">Votre prénom ou nom</label><input class="input" id="author" name="author" required minlength="2" maxlength="60" autocomplete="name" value={values.author} /></div>
+            <div class="field"><label for="business">Votre commerce <span class="hint">(facultatif)</span></label><input class="input" id="business" name="business" maxlength="80" autocomplete="organization" value={values.business} /></div>
+          </div>
+          <label class="la__consent"><input type="checkbox" name="consent" required /> <span>J’accepte que mon avis, mon prénom ou nom et le nom de mon commerce soient affichés publiquement sur ce site. <a href="/confidentialite" target="_blank" rel="noopener">Confidentialité</a></span></label>
+          <button class="btn btn--primary la__send">Envoyer mon avis <Icon name="arrow" class="arrow" /></button>
+        </form>
+      )}
+    </div>
+  </section>
+</Base>
+
+<script>
+  const labels = ['', 'Décevant', 'Moyen', 'Bien', 'Très bien', 'Excellent'];
+  document.addEventListener('astro:page-load', () => {
+    const out = document.querySelector<HTMLElement>('[data-rating-label]');
+    document.querySelectorAll<HTMLInputElement>('.la__stars input').forEach((i) =>
+      i.addEventListener('change', () => { if (out) out.textContent = labels[Number(i.value)]; }),
+    );
+  });
+</script>
+
+<style>
+  .la { padding-top: clamp(7rem, 14vw, 10rem); min-height: 80vh; }
+  .la__wrap { max-width: 640px; }
+  .la__card { display: grid; gap: 1.3rem; padding: clamp(1.4rem, 5vw, 2.6rem); }
+  .la__done { justify-items: center; text-align: center; }
+  .la__ok { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: rgb(74 222 128 / 0.14); color: #86efac; }
+  .la__ok :global(svg) { width: 30px; height: 30px; }
+  .la__err { display: flex; gap: 0.5rem; align-items: center; padding: 0.8rem 1rem; border-radius: 12px; background: rgb(248 113 113 / 0.1); border: 1px solid rgb(248 113 113 / 0.35); color: #fecaca; font-size: 0.92rem; }
+  .la__err :global(svg) { width: 18px; height: 18px; flex: none; }
+  .la__stars-f { border: 0; padding: 0; justify-items: center; }
+  .la__stars-f legend { margin-inline: auto; padding-bottom: 0.4rem; }
+  /* Étoiles : boutons radio natifs (clavier + lecteur d'écran), ordre inversé pour colorer « jusqu'à l'étoile choisie » en CSS pur */
+  .la__stars { display: inline-flex; flex-direction: row-reverse; gap: 0.2rem; }
+  .la__stars input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .la__stars label { cursor: pointer; padding: 0.25rem; border-radius: 10px; }
+  .la__stars svg { display: block; width: clamp(40px, 12vw, 52px); height: auto; fill: rgb(255 255 255 / 0.14); transition: fill 0.2s, transform 0.25s var(--ease); }
+  .la__stars label:hover svg, .la__stars label:hover ~ label svg,
+  .la__stars input:checked ~ label svg { fill: #fbbf24; }
+  .la__stars label:hover svg { transform: scale(1.15); }
+  .la__stars input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .la__label { color: var(--muted); font-size: 0.9rem; min-height: 1.4em; text-align: center; }
+  .la__grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+  .la__consent { display: flex; gap: 0.7rem; align-items: flex-start; font-size: 0.88rem; color: var(--muted); line-height: 1.5; cursor: pointer; }
+  .la__consent input { margin-top: 0.2rem; width: 18px; height: 18px; flex: none; accent-color: var(--blue); }
+  .la__consent a { color: var(--accent); text-decoration: underline; }
+  .la__send { justify-self: stretch; justify-content: center; }
+  @media (prefers-reduced-motion: reduce) { .la__stars svg { transition: none; } }
+</style>

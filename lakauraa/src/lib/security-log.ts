@@ -19,6 +19,10 @@ export type SecurityEvent =
   | 'admin.removed'
   | 'access.denied'
   | 'csrf.blocked'
+  | 'review.invited'
+  | 'review.submitted'
+  | 'review.moderated'
+  | 'review.deleted'
   | 'project.deleted'
   | 'content.seeded'
   | 'server.error';

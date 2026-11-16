@@ -8,15 +8,16 @@ import Engagements from '../components/Engagements.astro';
 import Stats from '../components/Stats.astro';
 import Portfolio from '../components/Portfolio.astro';
 import Process from '../components/Process.astro';
-import Testimonials from '../components/Testimonials.astro';
+import Reviews from '../components/Reviews.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
-import { getFaqs, getServices, getTestimonials, getPublishedProjects } from '../lib/content';
+import { getFaqs, getServices, getPublishedProjects } from '../lib/content';
+import { getPublishedReviews, summarize } from '../lib/reviews';
 
-const [faqs, services, testimonials, featured] = await Promise.all([getFaqs(), getServices(), getTestimonials(), getPublishedProjects({ featured: true })]);
+const [faqs, services, reviews, featured] = await Promise.all([getFaqs(), getServices(), getPublishedReviews(), getPublishedProjects({ featured: true })]);
 ---
 <Base title="Lakauraa · Création de sites web pour commerces à Montréal et au Maroc" faqs={faqs}>
-  <Hero />
+  <Hero rating={summarize(reviews)} />
   <Marquee />
   <Problems />
   <Services services={services} />
@@ -24,7 +25,7 @@ const [faqs, services, testimonials, featured] = await Promise.all([getFaqs(), g
   <Stats />
   <Portfolio projects={featured} limit={6} />
   <Process />
-  <Testimonials testimonials={testimonials} />
+  <Reviews reviews={reviews} />
   <Faq faqs={faqs} />
   <Cta />
 </Base>

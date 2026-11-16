@@ -5,6 +5,8 @@ import BrandIcon from './BrandIcon.astro';
 import SocialLinks from './SocialLinks.astro';
 import Signature from './Signature.astro';
 import { nav } from '../data/site';
+import { getReviewSummary } from '../lib/reviews';
+const hasReviews = (await getReviewSummary()).count > 0;
 import { telHref, smsHref } from '../lib/content';
 const { contact, whatsapp } = Astro.locals.settings;
 const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
@@ -40,6 +42,7 @@ const legal = [
         <ul>
           {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
           <li><a href="/services#forfaits">Forfaits et prix</a></li>
+          {hasReviews && <li><a href="/avis">Avis clients</a></li>}
           <li><a href="/#faq">FAQ</a></li>
         </ul>
       </nav>

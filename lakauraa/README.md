@@ -69,3 +69,11 @@ Si un outil optionnel est ajouté, passer `OPTIONAL_TOOLS` à `true` dans `src/c
 
 ## Scripts
 `npm run dev` · `npm run build` · `npm run db:generate` (après modification du schéma) · `npm run db:migrate` · `npm run db:seed`
+
+## Avis clients
+
+- Admin → **Avis clients** : créer un lien personnel (usage unique, 60 jours) et l’envoyer au client.
+- Le client note (1 à 5 étoiles) et commente sur `/avis/<jeton>` ; l’avis arrive « à valider ».
+- L’admin publie, retire ou refuse, sans pouvoir modifier la note ni le texte.
+- Les avis publiés apparaissent sur l’accueil, sur `/avis` et sur la page du projet lié. Rien n’est affiché tant qu’aucun avis n’est publié.
+- Seule l’empreinte SHA-256 du jeton est stockée (table `reviews`, migration `0004_reviews`).

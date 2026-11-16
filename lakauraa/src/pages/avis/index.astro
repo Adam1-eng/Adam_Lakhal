@@ -1,0 +1,70 @@
+---
+// Mur des avis : tous les avis vérifiés, chacun relié au projet réalisé.
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ReviewCard from '../../components/ReviewCard.astro';
+import Stars from '../../components/Stars.astro';
+import Icon from '../../components/Icon.astro';
+import Cta from '../../components/Cta.astro';
+import { getPublishedReviews, summarize } from '../../lib/reviews';
+
+const reviews = await getPublishedReviews();
+const s = summarize(reviews);
+const bars = [5, 4, 3, 2, 1].map((n) => {
+  const c = reviews.filter((r) => r.rating === n).length;
+  return { n, c, pct: s.count ? Math.round((c / s.count) * 100) : 0 };
+});
+---
+<Base title="Avis clients vérifiés" noindex={s.count === 0}
+  description="Les avis de mes clients sur leur site web. Chaque avis est laissé par un vrai client, à l’aide d’un lien personnel, et relié au projet réalisé.">
+  <PageHero eyebrow="Avis clients" title="Des avis de vrais clients." aura="vrais clients."
+    lead="Chaque avis est laissé par un client dont j’ai réalisé le site, à l’aide d’un lien personnel à usage unique. Je ne peux ni les écrire ni les modifier."
+    crumbs={[{ label: 'Avis clients' }]} />
+
+  <section class="section av" aria-label="Tous les avis">
+    <div class="wrap">
+      {s.count > 0 ? (
+        <>
+          <div class="card av__sum reveal">
+            <div class="av__score">
+              <strong>{s.label}</strong>
+              <Stars value={s.average} size={22} />
+              <small>{s.count} avis vérifié{s.count > 1 ? 's' : ''}</small>
+            </div>
+            <ul class="av__bars" aria-label="Répartition des notes">
+              {bars.map((b) => (
+                <li><span>{b.n} ★</span><i><b style={`--w:${b.pct}%`}></b></i><span>{b.c}</span></li>
+              ))}
+            </ul>
+          </div>
+          <ul class="av__wall">
+            {reviews.map((r, i) => <li class="reveal" style={`--i:${i % 3}`}><ReviewCard review={r} /></li>)}
+          </ul>
+        </>
+      ) : (
+        <div class="card av__empty reveal">
+          <p class="h-m">Les premiers avis arrivent bientôt.</p>
+          <p class="muted">Je n’affiche que de vrais avis de clients. En attendant, jugez par vous-même.</p>
+          <a href="/projets" class="btn btn--primary">Voir mes réalisations <Icon name="arrow" class="arrow" /></a>
+        </div>
+      )}
+    </div>
+  </section>
+  <Cta />
+</Base>
+
+<style>
+  .av__sum { display: grid; grid-template-columns: auto 1fr; gap: clamp(1.5rem, 5vw, 3.5rem); align-items: center; padding: clamp(1.5rem, 4vw, 2.5rem); max-width: 760px; margin: 0 auto clamp(2rem, 5vw, 3.5rem); }
+  .av__score { display: grid; justify-items: center; gap: 0.5rem; }
+  .av__score strong { font-family: var(--font-display); font-size: clamp(3.2rem, 9vw, 4.6rem); line-height: 1; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+  .av__score small { color: var(--muted); }
+  .av__bars { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+  .av__bars li { display: grid; grid-template-columns: 2.6rem 1fr 1.5rem; align-items: center; gap: 0.7rem; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .av__bars i { height: 8px; border-radius: 99px; background: rgb(255 255 255 / 0.08); overflow: hidden; }
+  .av__bars b { display: block; height: 100%; width: var(--w); border-radius: inherit; background: #fbbf24; transform-origin: left; animation: av-bar 1.1s var(--ease) both; }
+  .av__wall { list-style: none; padding: 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+  .av__empty { display: grid; justify-items: center; gap: 1rem; text-align: center; padding: clamp(2rem, 6vw, 4rem); max-width: 640px; margin-inline: auto; }
+  @keyframes av-bar { from { transform: scaleX(0); } }
+  @media (max-width: 560px) { .av__sum { grid-template-columns: 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .av__bars b { animation: none; } }
+</style>

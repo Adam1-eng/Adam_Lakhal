@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ProjectDetail from '../../components/ProjectDetail.astro';
 import Cta from '../../components/Cta.astro';
 import { getProjectBySlug, getPublishedProjects } from '../../lib/content';
+import { getPublishedReviews } from '../../lib/reviews';
 
 const slug = Astro.params.slug ?? '';
 const project = await getProjectBySlug(slug);
@@ -10,9 +11,10 @@ if (!project) return Astro.rewrite('/404');
 const all = await getPublishedProjects();
 const idx = all.findIndex((p) => p.id === project.id);
 const next = all.length > 1 ? all[(idx + 1) % all.length] : null;
+const reviews = (await getPublishedReviews()).filter((r) => r.projectId === project.id);
 ---
 <Base title={`${project.title}${project.category ? ' · ' + project.category.name : ''}`} description={project.summary}
   image={project.cover?.url} waMessage={`Bonjour Adam, j’ai vu le projet « ${project.title} » sur votre site. J’aimerais en savoir plus pour mon commerce.`}>
-  <ProjectDetail project={project} next={next} />
+  <ProjectDetail project={project} next={next} reviews={reviews} />
   <Cta />
 </Base>

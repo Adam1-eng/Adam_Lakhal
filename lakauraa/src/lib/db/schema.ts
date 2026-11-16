@@ -113,6 +113,24 @@ export const testimonials = pgTable('testimonials', {
   createdAt: createdAt(),
 });
 
+// Avis clients : une ligne = une invitation (lien personnel à usage unique) puis l’avis laissé par le client.
+export type ReviewStatus = 'invited' | 'pending' | 'published' | 'rejected';
+export const reviews = pgTable('reviews', {
+  id: id(),
+  tokenHash: text('token_hash').notNull(), // SHA-256 du jeton du lien (le jeton n’est jamais stocké)
+  projectId: text('project_id').references(() => projects.id, { onDelete: 'set null' }),
+  clientLabel: text('client_label').notNull().default(''), // note interne : à qui le lien a été envoyé
+  rating: integer('rating').notNull().default(0),
+  comment: text('comment').notNull().default(''),
+  author: text('author').notNull().default(''),
+  business: text('business').notNull().default(''),
+  status: text('status').$type<ReviewStatus>().notNull().default('invited'),
+  createdAt: createdAt(),
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+  submittedAt: timestamp('submitted_at', { withTimezone: true }),
+  publishedAt: timestamp('published_at', { withTimezone: true }),
+}, (t) => [uniqueIndex('reviews_token_idx').on(t.tokenHash), index('reviews_status_idx').on(t.status)]);
+
 export const services = pgTable('services', {
   id: text('id').primaryKey(), // vitrine, pro, boutique, entretien
   title: text('title').notNull(),
@@ -134,3 +152,4 @@ export type Category = typeof categories.$inferSelect;
 export type Faq = typeof faqs.$inferSelect;
 export type Testimonial = typeof testimonials.$inferSelect;
 export type Service = typeof services.$inferSelect;
+export type Review = typeof reviews.$inferSelect;

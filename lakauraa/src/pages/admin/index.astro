@@ -12,7 +12,7 @@ const [[pub], [draft], [feat], [faqN], [testiN], recent, settings] = await Promi
   db.select({ n: count() }).from(schema.projects).where(eq(schema.projects.status, 'draft')),
   db.select({ n: count() }).from(schema.projects).where(eq(schema.projects.featured, true)),
   db.select({ n: count() }).from(schema.faqs),
-  db.select({ n: count() }).from(schema.testimonials).where(eq(schema.testimonials.published, true)),
+  db.select({ n: count() }).from(schema.reviews).where(eq(schema.reviews.status, 'published')),
   db.select().from(schema.projects).orderBy(desc(schema.projects.updatedAt)).limit(5),
   getSettings(),
 ]);
@@ -25,7 +25,7 @@ const checks = [
   { ok: activeSocials(settings.socials).length > 0, label: 'Liens vers vos réseaux sociaux', href: '/admin/reseaux' },
   { ok: Boolean(l.legalStatus), label: 'Statut juridique (mentions légales)', href: '/admin/parametres#legal' },
   { ok: Boolean(l.address), label: 'Adresse professionnelle (mentions légales et confidentialité)', href: '/admin/parametres#legal' },
-  { ok: testiN.n > 0, label: 'Au moins un vrai témoignage client publié', href: '/admin/temoignages' },
+  { ok: testiN.n > 0, label: 'Au moins un avis client publié (envoyez un lien d’avis à un client)', href: '/admin/avis' },
 ];
 ---
 <AdminLayout title="Vue d’ensemble" active="dashboard">

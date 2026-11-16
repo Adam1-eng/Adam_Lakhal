@@ -1,0 +1,23 @@
+---
+// Note en étoiles (lecture seule). `value` peut être décimal (moyenne).
+interface Props { value: number; size?: number; class?: string }
+const { value, size = 18, class: cls = '' } = Astro.props;
+const pct = Math.max(0, Math.min(100, (value / 5) * 100));
+const label = `${value.toLocaleString('fr-CA', { maximumFractionDigits: 1 })} sur 5`;
+const star = 'M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z';
+---
+<span class:list={['stars', cls]} role="img" aria-label={label} style={`--pct:${pct}%;--s:${size}px`}>
+  <span class="stars__row stars__row--off" aria-hidden="true">{[0, 1, 2, 3, 4].map(() => <svg viewBox="0 0 24 24"><path d={star} /></svg>)}</span>
+  <span class="stars__row stars__row--on" aria-hidden="true">{[0, 1, 2, 3, 4].map(() => <svg viewBox="0 0 24 24"><path d={star} /></svg>)}</span>
+</span>
+
+<style>
+  .stars { position: relative; display: inline-block; line-height: 0; white-space: nowrap; }
+  .stars__row { display: inline-flex; gap: 2px; }
+  .stars__row svg { width: var(--s); height: var(--s); flex: none; }
+  .stars__row--off { fill: rgb(255 255 255 / 0.14); }
+  .stars__row--on { position: absolute; inset: 0 auto 0 0; width: var(--pct); overflow: hidden; fill: #fbbf24; }
+  :global(.reveal:not(.is-in)) .stars__row--on { width: 0; }
+  :global(.reveal) .stars__row--on { transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s; }
+  @media (prefers-reduced-motion: reduce) { :global(.reveal) .stars__row--on { transition: none; width: var(--pct) !important; } }
+</style>

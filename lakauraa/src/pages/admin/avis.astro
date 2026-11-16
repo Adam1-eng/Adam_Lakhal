@@ -1,0 +1,154 @@
+---
+// Avis clients : liens d'invitation personnels + modération. L'admin ne peut modifier ni la note ni le texte.
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import Icon from '../../components/Icon.astro';
+import BrandIcon from '../../components/BrandIcon.astro';
+import Stars from '../../components/Stars.astro';
+import { asc, desc, eq } from 'drizzle-orm';
+import { getDb, schema } from '../../lib/db';
+import { str } from '../../lib/admin';
+import { createInvite } from '../../lib/reviews';
+import { securityEvent } from '../../lib/security-log';
+
+const db = await getDb();
+const projects = await db.select({ id: schema.projects.id, title: schema.projects.title, status: schema.projects.status }).from(schema.projects).orderBy(asc(schema.projects.sort));
+
+let fresh: { url: string; label: string; wa: string } | null = null;
+
+if (Astro.request.method === 'POST') {
+  const fd = await Astro.request.formData();
+  const action = str(fd, 'action');
+  const id = str(fd, 'id');
+  let msg = '';
+  let err = '';
+  if (action === 'invite') {
+    const label = str(fd, 'clientLabel').slice(0, 80);
+    const projectId = projects.find((p) => p.id === str(fd, 'projectId'))?.id ?? null;
+    if (label.length < 2) err = 'Indiquez le nom du client (visible seulement par vous).';
+    else {
+      const inv = await createInvite(projectId, label);
+      securityEvent('review.invited', { review: inv.id, by: Astro.locals.admin?.email });
+      const url = `${Astro.url.origin}/avis/${inv.token}`;
+      const text = `Bonjour ! Merci pour votre confiance. Pourriez-vous laisser un petit avis sur mon travail ? Ça prend une minute : ${url}`;
+      fresh = { url, label, wa: `https://wa.me/?text=${encodeURIComponent(text)}` };
+    }
+  } else if (action === 'publish' || action === 'reject' || action === 'unpublish') {
+    const [r] = await db.select().from(schema.reviews).where(eq(schema.reviews.id, id)).limit(1);
+    if (!r || r.status === 'invited') err = 'Cet avis n’a pas encore été rempli par le client.';
+    else {
+      const status = action === 'publish' ? 'published' : action === 'reject' ? 'rejected' : 'pending';
+      await db.update(schema.reviews).set({ status, publishedAt: status === 'published' ? new Date() : null }).where(eq(schema.reviews.id, id));
+      securityEvent('review.moderated', { review: id, status, by: Astro.locals.admin?.email });
+      msg = status === 'published' ? 'Avis publié sur le site.' : status === 'rejected' ? 'Avis refusé (non affiché).' : 'Avis retiré du site.';
+    }
+  } else if (action === 'delete') {
+    await db.delete(schema.reviews).where(eq(schema.reviews.id, id));
+    securityEvent('review.deleted', { review: id, by: Astro.locals.admin?.email });
+    msg = 'Supprimé.';
+  }
+  if (!fresh) return Astro.redirect('/admin/avis?' + (err ? 'erreur=' + encodeURIComponent(err) : 'ok=' + encodeURIComponent(msg)), 303);
+}
+
+const all = await db.select().from(schema.reviews).orderBy(desc(schema.reviews.createdAt));
+const now = Date.now();
+const pending = all.filter((r) => r.status === 'pending');
+const published = all.filter((r) => r.status === 'published');
+const rejected = all.filter((r) => r.status === 'rejected');
+const invited = all.filter((r) => r.status === 'invited');
+const projectTitle = (id: string | null) => projects.find((p) => p.id === id)?.title ?? 'Aucun projet lié';
+const day = (d: Date | null) => (d ? d.toLocaleDateString('fr-CA', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
+const groups = [
+  { title: 'À valider', list: pending, empty: 'Aucun avis en attente.' },
+  { title: 'Publiés sur le site', list: published, empty: 'Aucun avis publié pour le moment.' },
+  { title: 'Refusés', list: rejected, empty: '' },
+];
+---
+<AdminLayout title="Avis clients" active="avis">
+  {fresh && (
+    <section class="panel panel--accent">
+      <div class="panel__head"><div><h2>Lien créé pour {fresh.label}</h2><p><strong>Copiez-le maintenant : il ne sera plus affiché.</strong> Il fonctionne une seule fois et expire dans 60 jours.</p></div></div>
+      <div class="adm-form">
+        <input class="input" id="inv-url" readonly value={fresh.url} aria-label="Lien d’invitation" />
+        <div class="row row--end">
+          <button type="button" class="btn btn--ghost btn--sm" data-copy="inv-url">Copier le lien</button>
+          <a class="btn btn--primary btn--sm" href={fresh.wa} target="_blank" rel="noopener noreferrer"><BrandIcon name="whatsapp" /> Envoyer par WhatsApp</a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="panel">
+    <div class="panel__head"><div><h2>Demander un avis</h2><p>Créez un lien personnel pour un client dont le site est terminé, puis envoyez-le-lui. Seule une personne qui a ce lien peut laisser un avis : impossible d’en inventer.</p></div></div>
+    <form method="post" class="adm-form">
+      <div class="grid-3">
+        <div class="field"><label for="cl">Client <span class="hint">(visible seulement par vous)</span></label><input class="input" id="cl" name="clientLabel" required minlength="2" maxlength="80" placeholder="Ex. : Karim, garage Atlas" /></div>
+        <div class="field"><label for="pj">Projet réalisé</label>
+          <select class="input" id="pj" name="projectId">
+            <option value="">Aucun projet lié</option>
+            {projects.map((p) => <option value={p.id}>{p.title}{p.status !== 'published' ? ' (brouillon)' : ''}</option>)}
+          </select>
+        </div>
+      </div>
+      <div class="row row--end"><button class="btn btn--primary btn--sm" name="action" value="invite"><Icon name="plus" /> Créer le lien</button></div>
+    </form>
+  </section>
+
+  {groups.filter((g) => g.list.length || g.empty).map((g) => (
+    <section class="panel">
+      <div class="panel__head"><h2>{g.title} · {g.list.length}</h2></div>
+      {g.list.length === 0 ? <p class="muted-s">{g.empty}</p> : (
+        <div class="av-list">
+          {g.list.map((r) => (
+            <article class="av">
+              <header><Stars value={r.rating} /><span class="muted-s">{day(r.submittedAt)}</span></header>
+              <p class="av__txt">« {r.comment} »</p>
+              <p class="muted-s"><strong>{r.author}</strong>{r.business && ` · ${r.business}`} · invité : {r.clientLabel} · {projectTitle(r.projectId)}</p>
+              <form method="post" class="row row--end">
+                <input type="hidden" name="id" value={r.id} />
+                <button class="btn btn--danger btn--xs" name="action" value="delete" data-confirm="Supprimer définitivement cet avis ?">Supprimer</button>
+                {r.status === 'pending' && <button class="btn btn--ghost btn--xs" name="action" value="reject">Refuser</button>}
+                {r.status === 'published' && <button class="btn btn--ghost btn--xs" name="action" value="unpublish">Retirer du site</button>}
+                {r.status !== 'published' && <button class="btn btn--primary btn--xs" name="action" value="publish">Publier</button>}
+              </form>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  ))}
+
+  {invited.length > 0 && (
+    <section class="panel">
+      <div class="panel__head"><div><h2>Liens envoyés, sans réponse · {invited.length}</h2><p>Le lien n’est plus affichable. Si le client l’a perdu, supprimez l’invitation et créez-en une nouvelle.</p></div></div>
+      <div class="av-list">
+        {invited.map((r) => (
+          <article class="av av--row">
+            <p><strong>{r.clientLabel}</strong> <span class="muted-s">· {projectTitle(r.projectId)} · créé le {day(r.createdAt)}</span></p>
+            <span class:list={['badge', r.expiresAt.getTime() > now ? 'badge--draft' : 'badge--off']}>{r.expiresAt.getTime() > now ? `expire le ${day(r.expiresAt)}` : 'expiré'}</span>
+            <form method="post"><input type="hidden" name="id" value={r.id} /><button class="btn btn--danger btn--xs" name="action" value="delete" data-confirm="Supprimer cette invitation ? Le lien ne fonctionnera plus.">Supprimer</button></form>
+          </article>
+        ))}
+      </div>
+    </section>
+  )}
+</AdminLayout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const input = document.getElementById(b.dataset.copy!) as HTMLInputElement;
+      try { await navigator.clipboard.writeText(input.value); } catch { input.select(); document.execCommand('copy'); }
+      b.textContent = 'Lien copié ✓';
+    }),
+  );
+</script>
+
+<style>
+  .badge--off { background: rgb(248 113 113 / 0.12); color: #fca5a5; }
+  .av-list { display: grid; gap: 0.8rem; }
+  .av { display: grid; gap: 0.6rem; padding: 1rem; border: 1px solid var(--line); border-radius: 14px; background: rgb(255 255 255 / 0.02); }
+  .av header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .av__txt { overflow-wrap: anywhere; line-height: 1.55; }
+  .av--row { grid-template-columns: 1fr auto auto; align-items: center; }
+  @media (max-width: 640px) { .av--row { grid-template-columns: 1fr; } }
+</style>
