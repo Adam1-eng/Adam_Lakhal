@@ -146,6 +146,15 @@ export const settings = pgTable('settings', {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+/* ---------- Mesure des contacts (anonyme, agrégée) ----------
+   Un compteur par jour × action × page. Aucun cookie, aucune IP, aucun identifiant : impossible de suivre une personne. */
+export const contactStats = pgTable('contact_stats', {
+  day: text('day').notNull(), // AAAA-MM-JJ (UTC)
+  event: text('event').notNull(),
+  path: text('path').notNull(),
+  count: integer('count').notNull().default(0),
+}, (t) => [uniqueIndex('contact_stats_key_idx').on(t.day, t.event, t.path), index('contact_stats_day_idx').on(t.day)]);
+
 export type Project = typeof projects.$inferSelect;
 export type ProjectImage = typeof projectImages.$inferSelect;
 export type Category = typeof categories.$inferSelect;

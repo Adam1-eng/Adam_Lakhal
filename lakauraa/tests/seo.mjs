@@ -4,7 +4,9 @@ const B = (process.env.BASE ?? 'http://localhost:4400').replace(/\/$/, '');
 const VERBOSE = process.env.VERBOSE === '1';
 let pass = 0, fail = 0;
 const ok = (cond, name, info = '') => { if (cond) { pass++; if (VERBOSE) console.log('PASS', name); } else { fail++; console.log('FAIL', name, info && '→ ' + info); } };
-const get = (p, opt = {}) => fetch(p.startsWith('http') ? p : B + p, { redirect: 'manual', ...opt });
+// COOKIE : facultatif, pour une préversion Vercel protégée (cookie _vercel_jwt). Jamais enregistré.
+const H = process.env.COOKIE ? { Cookie: process.env.COOKIE } : {};
+const get = (p, opt = {}) => fetch(p.startsWith('http') ? p : B + p, { redirect: 'manual', headers: H, ...opt });
 const attr = (tag, name) => (tag.match(new RegExp(`${name}="([^"]*)"`)) ?? [])[1];
 const meta = (html, key) => { const t = (html.match(new RegExp(`<meta[^>]+(?:name|property)="${key}"[^>]*>`)) ?? [])[0]; return t ? attr(t, 'content') : undefined; };
 const decode = (s) => s.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>');

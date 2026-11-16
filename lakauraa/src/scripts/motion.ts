@@ -131,7 +131,8 @@ function pageAnimations() {
   // 5. Hero : la vitrine s’éloigne doucement au défilement (transition vers la suite)
   const hero = document.querySelector<HTMLElement>('.hero');
   if (hero) {
-    gsap.to('.hero__show', {
+    // fromTo : départ explicite (l'apparition CSS du hero est peut-être encore en cours à cet instant)
+    gsap.fromTo('.hero__show', { yPercent: 0, opacity: 1 }, {
       yPercent: -8,
       opacity: 0.55,
       ease: 'none',

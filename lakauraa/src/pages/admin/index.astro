@@ -5,6 +5,7 @@ import { count, desc, eq } from 'drizzle-orm';
 import { getDb, schema } from '../../lib/db';
 import { getSettings, activeSocials } from '../../lib/content';
 import { isSeedDone } from '../../lib/seed';
+import { statSummary } from '../../lib/stats';
 
 const db = await getDb();
 const [[pub], [draft], [feat], [faqN], [testiN], recent, settings] = await Promise.all([
@@ -17,6 +18,7 @@ const [[pub], [draft], [feat], [faqN], [testiN], recent, settings] = await Promi
   getSettings(),
 ]);
 const seedPending = !(await isSeedDone());
+const stats = await statSummary(30).catch(() => null);
 const continuing = Astro.url.searchParams.get('seed') === 'continue';
 const l = settings.legal;
 const checks = [
@@ -45,6 +47,23 @@ const checks = [
     <div class="kpi"><strong>{feat.n}</strong><span>mis en avant sur l’accueil</span></div>
     <div class="kpi"><strong>{faqN.n}</strong><span>questions dans la FAQ</span></div>
   </section>
+
+  {stats && (
+    <section class="panel">
+      <div class="panel__head"><div><h2>Contacts · 30 derniers jours</h2><p>Compteurs anonymes (sans cookie). Un clic n’est pas un client : la personne peut ne pas envoyer son message. Comparez avec les messages réellement reçus.</p></div></div>
+      <div class="grid-2">
+        <ul class="checklist">
+          {stats.rows.map((r) => <li><strong class="stat-n">{r.n}</strong><span>{r.label}</span></li>)}
+        </ul>
+        <div>
+          <p class="muted-s">Pages d’où partent le plus de contacts</p>
+          {stats.topPages.length ? (
+            <ul class="checklist">{stats.topPages.map((t) => <li><strong class="stat-n">{t.n}</strong><a href={t.path} target="_blank" rel="noopener">{t.path}</a></li>)}</ul>
+          ) : <p class="muted-s">Aucune action mesurée pour le moment.</p>}
+        </div>
+      </div>
+    </section>
+  )}
 
   <div class="grid-2">
     <section class="panel">

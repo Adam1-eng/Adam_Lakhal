@@ -13,7 +13,9 @@
     "vercel-build": "tsx scripts/migrate.ts && astro build",
     "test:security:unit": "tsx tests/security.unit.mts",
     "test:security:http": "node tests/security.http.mjs",
-    "test:security": "npm run test:security:unit && npm run test:security:http"
+    "test:security": "npm run test:security:unit && npm run test:security:http",
+    "test:seo": "node tests/seo.mjs",
+    "test:e2e": "node tests/e2e.cjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",

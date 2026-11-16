@@ -195,6 +195,21 @@ await form('/admin/avis', { action: 'unpublish', id: revId }, { cookie: A });
 await t('avis : retiré par l’admin → disparaît du site', async () => !(await (await get('/avis')).text()).includes('Garage Test'));
 await t('avis : le jeton n’apparaît pas dans le journal de sécurité', () => !logs.split('\n').some((l) => l.includes('[security]') && l.includes(tok)));
 
+/* ---------- 11 ter. Compteurs de contact anonymes (/api/evt) ---------- */
+const evt = (body, origin = B) => fetch(B + '/api/evt', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(origin ? { Origin: origin } : {}) }, body: typeof body === 'string' ? body : JSON.stringify(body) });
+await t('compteur : action valide acceptée (204)', async () => (await evt({ e: 'whatsapp_ca', p: '/services' })).status === 204);
+await t('compteur : autre site → 403', async () => (await evt({ e: 'call', p: '/' }, 'https://evil.example')).status === 403);
+await t('compteur : sans Origin → 403', async () => (await evt({ e: 'call', p: '/' }, '')).status === 403);
+await t('compteur : action inconnue → 400', async () => (await evt({ e: 'login.success', p: '/' })).status === 400);
+await t('compteur : page admin ou lien d’avis refusés', async () => (await evt({ e: 'call', p: '/admin/avis' })).status === 400 && (await evt({ e: 'call', p: '/avis/' + 'a'.repeat(32) })).status === 400);
+await t('compteur : chemin avec paramètres / script refusé', async () => (await evt({ e: 'call', p: '/?email=a@b.c' })).status === 400 && (await evt({ e: 'call', p: '/<script>' })).status === 400);
+await t('compteur : JSON invalide → 400', async () => (await evt('{pas du json')).status === 400);
+await t('compteur : corps trop gros → 413', async () => (await evt({ e: 'call', p: '/', x: 'a'.repeat(400) })).status === 413);
+await t('compteur : pas de cookie posé', async () => !(await evt({ e: 'email', p: '/' })).headers.get('set-cookie'));
+const dash = await (await get('/admin', A)).text();
+await t('compteur : visible dans le tableau de bord admin', () => dash.includes('Contacts · 30 derniers jours') && /<strong class="stat-n"[^>]*>1<\/strong><span[^>]*>Ouverture de WhatsApp \(Canada\)/.test(dash));
+await t('compteur : invisible sans session admin', async () => (await get('/admin')).status === 302);
+
 /* ---------- 12. En-têtes, CORS, erreurs ---------- */
 r = await get('/admin/login');
 await t('admin : CSP présente (frame-ancestors none, object-src none)', () => /frame-ancestors 'none'/.test(r.headers.get('content-security-policy') ?? '') && /object-src 'none'/.test(r.headers.get('content-security-policy') ?? ''));

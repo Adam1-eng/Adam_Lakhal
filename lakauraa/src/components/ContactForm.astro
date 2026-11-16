@@ -184,6 +184,7 @@ const besoins = [
       mail.href = `mailto:${EMAIL}?subject=${encodeURIComponent(`Maquette gratuite – ${commerce}`)}&body=${encodeURIComponent(text)}`;
       const sep = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? '&' : '?';
       sms.href = `${SMS}${sep}body=${encodeURIComponent(text)}`;
+      document.dispatchEvent(new CustomEvent('lk:track', { detail: 'form_ready' }));
       form.hidden = true;
       done.hidden = false;
       done.focus();

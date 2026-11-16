@@ -140,7 +140,11 @@ const lines = [
       const line = await detect();
       highlight(line);
       // Un seul numéro configuré : ouverture directe
-      if (opts.length === 1) { window.open(opts[0].href, '_blank', 'noopener'); return; }
+      if (opts.length === 1) {
+        document.dispatchEvent(new CustomEvent('lk:track', { detail: opts[0].dataset.waLine === 'ma' ? 'whatsapp_ma' : 'whatsapp_ca' }));
+        window.open(opts[0].href, '_blank', 'noopener');
+        return;
+      }
       dialog.showModal();
       (dialog.querySelector('.is-reco') as HTMLElement ?? opts[0]).focus();
     };
