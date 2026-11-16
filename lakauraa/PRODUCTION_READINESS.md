@@ -59,3 +59,49 @@ Si le site n'affiche plus de contenu après le déploiement : cause probable S-0
 - GitHub → Settings → Code security : activer **Secret scanning** et **Dependabot alerts**.
 - Chaque mois : `npm audit` et `npm run test:security`.
 - Neon : vérifier la restauration à un instant donné (durée selon le forfait).
+
+---
+
+## 7. Mise à jour « SEO, performance, UX, conversion » (16 novembre 2026)
+
+État : **testée sur préversion Vercel, pas encore en production.** La mise en production attend ton accord.
+
+### Checklist
+
+| Domaine | Contrôle | Statut |
+|---|---|---|
+| SEO technique | Titres et descriptions uniques, canoniques, robots meta, 404 en noindex | ✅ 351/351 en local, 335/335 sur la préversion |
+| Robots.txt | `/admin`, `/api/`, `/avis/` exclus ; sitemap déclaré | ✅ |
+| Sitemap | Dynamique : pages fixes + projets publiés (brouillons exclus) | ✅ 20 URL sur la préversion |
+| Données structurées | `WebSite`, `ProfessionalService`, `Person`, fil d’Ariane, `FAQPage`, `Service`, `CreativeWork` ; aucun avis, note ni adresse inventés | ✅ JSON valide · ⏳ Test des résultats enrichis de Google après mise en ligne |
+| Partage social | OG + Twitter complets, image propre à chaque projet | ✅ |
+| Performance | Accueil mobile : JS −68 %, travail du processeur ≈ −50 %, score 77 → 79 (médianes) ; autres pages 97 à 100 | ✅ mesuré · objectif 90 sur l’accueil mobile **non atteint** |
+| Sécurité préservée | En-têtes, CSP, authentification, CSRF inchangés ; nouveau point `/api/evt` protégé | ✅ 168 tests de sécurité |
+| Responsive | 6 tailles d’écran × 8 pages : aucun débordement, aucune erreur | ✅ |
+| Accessibilité | axe WCAG 2.2 AA, 25 pages : 0 violation ; clavier et cibles tactiles | ✅ · ⏳ test au lecteur d’écran |
+| Fonctionnalités | WhatsApp Maroc/Canada, formulaire, avis, admin | ✅ |
+| Contacts | Liens `wa.me`, `tel:`, `sms:`, `mailto:` vérifiés | ✅ |
+| Formulaires | Validation, erreurs annoncées, jamais « envoyé » à tort | ✅ |
+| Mesure | Compteur anonyme (sans cookie, GPC respecté), tableau de bord admin | ✅ local · ⏳ un premier clic réel à vérifier en production |
+| Analytics tiers | GA4 non installé (exigerait un consentement) | — choix volontaire |
+| Search Console | Non connectée, **rien n’a été soumis** | ⏳ Adam |
+
+### À faire après la mise en production
+
+1. `BASE=https://lakauraa.vercel.app npm run test:seo` doit afficher 0 échec.
+2. Cliquer une fois sur WhatsApp depuis ton téléphone, puis vérifier que le compteur passe à 1 dans
+   Admin → Vue d’ensemble.
+3. PageSpeed Insights sur l’accueil.
+4. Search Console : ajouter la propriété, puis m’envoyer la balise de vérification (voir `SEO_AUDIT_REPORT.md`, § 10).
+5. Créer la fiche Google Business Profile (zone desservie, adresse masquée).
+
+### Limites de vérification
+
+- Mesures de performance **synthétiques** (Lighthouse), pas de données d’utilisateurs réels pour l’instant.
+- Aucun test sur de vrais téléphones, ni avec un vrai lecteur d’écran.
+- Volumes de mots-clés non disponibles (aucun outil SEO connecté) : la stratégie repose sur des hypothèses.
+
+### Base de données des préversions
+
+Les préversions Vercel utilisent la **même base que la production**. Recommandation : une branche Neon séparée
+pour les préversions (voir `WEBSITE_OPTIMIZATION_CHANGELOG.md`).
