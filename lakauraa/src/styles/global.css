@@ -317,13 +317,6 @@ p { text-wrap: pretty; }
 .reveal.is-in { opacity: 1; transform: none; filter: none; }
 .reveal--scale { transform: translateY(20px) scale(0.96); }
 
-/* Hero (visible dès l'ouverture) : même apparition, mais en CSS pur — n'attend pas le chargement de GSAP,
-   ce qui accélère l'affichage du contenu principal (LCP). « backwards » : aucun style conservé après l'animation,
-   GSAP peut ensuite animer librement ces éléments au défilement. */
-.intro { animation: intro-in 1.05s cubic-bezier(0.22, 1, 0.36, 1) calc(var(--i, 0) * 70ms + 80ms) backwards; }
-.intro--scale { animation-name: intro-in-scale; }
-@keyframes intro-in { from { opacity: 0; transform: translateY(28px); filter: blur(6px); } }
-@keyframes intro-in-scale { from { opacity: 0; transform: translateY(20px) scale(0.96); filter: blur(6px); } }
 
 .split-word {
   display: inline-block;

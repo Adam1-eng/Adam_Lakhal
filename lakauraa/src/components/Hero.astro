@@ -31,7 +31,7 @@ const slides = [
 
   <div class="wrap hero__grid">
     <div class="hero__copy">
-      <a href="/projets" class="hero__badge intro">
+      <a href="/projets" class="hero__badge reveal">
         <span class="hero__badge-dot"></span>
         Sites web pour commerces locaux · {site.city}
         <Icon name="arrow" />
@@ -39,12 +39,12 @@ const slides = [
 
       <HeroTitle id="hero-title" class="hero__title" text="Votre commerce mérite un site qui fait venir des clients." highlight="fait venir des clients." />
 
-      <p class="hero__lead intro" style="--i:4">
+      <p class="hero__lead reveal" style="--i:4">
         Je conçois des sites rapides, élégants et pensés pour le cellulaire : vos services, vos prix, vos heures et un bouton pour vous appeler.{' '}
         <strong>Vous voyez votre maquette avant de payer.</strong>
       </p>
 
-      <div class="hero__ctas intro" style="--i:5">
+      <div class="hero__ctas reveal" style="--i:5">
         <StarButton client:media="(min-width: 761px)" href="/contact">
           Obtenir ma maquette gratuite
           <Icon name="arrow" class="arrow" />
@@ -53,20 +53,20 @@ const slides = [
       </div>
 
       {rating && rating.count > 0 && (
-        <a href="/#avis" class="hero__rating intro" style="--i:6">
+        <a href="/#avis" class="hero__rating reveal" style="--i:6">
           <Stars value={rating.average} size={16} />
           <span><strong>{rating.label}</strong> / 5 · {rating.count} avis vérifié{rating.count > 1 ? 's' : ''}</span>
         </a>
       )}
 
-      <ul class="hero__checks intro" style="--i:6">
+      <ul class="hero__checks reveal" style="--i:6">
         <li><Icon name="check" /> Maquette gratuite</li>
         <li><Icon name="check" /> En ligne en {site.delay}</li>
         <li><Icon name="check" /> À partir de 600 $</li>
       </ul>
     </div>
 
-    <div class="hero__show intro intro--scale" style="--i:3" data-rotator>
+    <div class="hero__show reveal reveal--scale" style="--i:3" data-rotator>
       <div class="hero__stage" data-tilt="5">
         <div class="hero__browser browser">
           <div class="browser__bar" aria-hidden="true">
