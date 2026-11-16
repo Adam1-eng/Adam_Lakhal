@@ -92,7 +92,8 @@ const settings = Astro.locals.settings;
 </Base>
 
 <style>
-  .svd { display: grid; gap: clamp(5rem, 10vw, 8rem); }
+  .svd { display: grid; gap: clamp(3.5rem, 9vw, 8rem); }
+  @media (max-width: 959px) { .svd__num { display: none; } .svd__row { gap: 1.6rem; } }
   .svd__row { display: grid; gap: 2.5rem; align-items: center; scroll-margin-top: calc(var(--header-h) + 2rem); }
   @media (min-width: 960px) {
     .svd__row { grid-template-columns: 1fr 1.1fr; gap: 4.5rem; }

@@ -5,9 +5,7 @@ import Marquee from '../components/Marquee.astro';
 import Problems from '../components/Problems.astro';
 import Services from '../components/Services.astro';
 import Engagements from '../components/Engagements.astro';
-import Stats from '../components/Stats.astro';
 import Portfolio from '../components/Portfolio.astro';
-import Process from '../components/Process.astro';
 import Reviews from '../components/Reviews.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
@@ -15,18 +13,18 @@ import { getFaqs, getServices, getPublishedProjects } from '../lib/content';
 import { getPublishedReviews, summarize } from '../lib/reviews';
 
 const [faqs, services, reviews, featured] = await Promise.all([getFaqs(), getServices(), getPublishedReviews(), getPublishedProjects({ featured: true })]);
+// Accueil : les 5 questions principales (toutes les questions restent sur Services et Contact).
+const topFaqs = faqs.slice(0, 5);
 ---
-<Base title="Création de sites web à Montréal et au Maroc · Lakauraa" faqs={faqs}
+<Base title="Création de sites web à Montréal et au Maroc · Lakauraa" faqs={topFaqs}
   description="Sites web rapides et élégants pour les commerces de Montréal et du Maroc : salons, restos, garages, spas. À partir de 600 $, maquette gratuite avant de payer.">
   <Hero rating={summarize(reviews)} />
   <Marquee />
   <Problems />
   <Services services={services} />
-  <Engagements />
-  <Stats />
-  <Portfolio projects={featured} limit={6} />
-  <Process />
+  <Engagements compact />
+  <Portfolio projects={featured} limit={3} />
   <Reviews reviews={reviews} />
-  <Faq faqs={faqs} />
+  <Faq faqs={topFaqs} moreHref={faqs.length > topFaqs.length ? '/contact#faq' : undefined} />
   <Cta />
 </Base>

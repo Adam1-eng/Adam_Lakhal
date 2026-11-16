@@ -21,9 +21,7 @@ const year = (d: string) => d.slice(0, 4);
   <div class="wrap">
     {!full && (
       <SectionHead eyebrow="Réalisations" title="Du vrai travail. Pas des promesses." aura="Pas des promesses." align="split"
-        lead="Une boutique en ligne livrée et en ligne, un exemple complet et une sélection de maquettes réalisées pour des commerces d’ici.">
-        <a href="/projets" class="btn btn--ghost btn--sm">Toutes les réalisations <Icon name="arrow" class="arrow" /></a>
-      </SectionHead>
+        lead="Une boutique en ligne livrée, un exemple complet et des maquettes réalisées pour des commerces d’ici." />
     )}
     {full && <h2 class="sr-only">Toutes les réalisations</h2>}
 
@@ -37,7 +35,6 @@ const year = (d: string) => d.slice(0, 4);
           <h3>{flagship.title}</h3>
           {flagship.category && <p class="pf__sector">{flagship.category.name}</p>}
           <p class="muted">{flagship.summary}</p>
-          <ul class="pf__stack">{flagship.technologies.slice(0, 6).map((t) => <li>{t}</li>)}</ul>
           <div class="pf__actions">
             <a href={`/projets/${flagship.slug}`} class="btn btn--light btn--sm" data-magnetic>Voir l’étude de cas <Icon name="arrow" class="arrow" /></a>
             {flagship.liveUrl && <a href={flagship.liveUrl} class="link-arrow" target="_blank" rel="noopener">Visiter le site <Icon name="arrow-up-right" /></a>}
@@ -51,7 +48,7 @@ const year = (d: string) => d.slice(0, 4);
 
     {list.length > 0 && (
       <>
-        <div class="pf__bar reveal">
+        {full && <div class="pf__bar reveal">
           {cats.length > 1 ? (
             <div class="pf__filters" role="group" aria-label="Filtrer par catégorie">
               <button type="button" data-filter="all" aria-pressed="true">Tout <span>{list.length}</span></button>
@@ -59,9 +56,9 @@ const year = (d: string) => d.slice(0, 4);
             </div>
           ) : <span></span>}
           <p class="pf__count" aria-live="polite" data-filter-count>{list.length} projet{list.length > 1 ? 's' : ''}</p>
-        </div>
+        </div>}
 
-        <ul class="pf__grid">
+        <ul class:list={['pf__grid', { 'pf__grid--home': !full }]}>
           {list.map((p, i) => (
             <li data-cat={p.category?.slug ?? 'autres'} class:list={['reveal', { 'pf__wide': p.id === wideId }]} style={`--i:${i % 3}`}>
               <a href={`/projets/${p.slug}`} class="card spot pcard">
@@ -100,7 +97,7 @@ const year = (d: string) => d.slice(0, 4);
       </p>
     )}
 
-    {!full && rest.length > list.length && (
+    {!full && (
       <div class="pf__more reveal">
         <a href="/projets" class="btn btn--ghost">Voir toutes les réalisations <Icon name="arrow" class="arrow" /></a>
       </div>
@@ -110,7 +107,7 @@ const year = (d: string) => d.slice(0, 4);
 )}
 
 <style>
-  .pf__feat { display: grid; gap: 2rem; padding: clamp(1.4rem, 3vw, 2.6rem); align-items: center; margin-bottom: 3rem; background: radial-gradient(80% 120% at 100% 0%, rgb(224 177 74 / 0.08), transparent 55%), radial-gradient(70% 90% at 0% 100%, rgb(30 107 255 / 0.12), transparent 60%), var(--surface); }
+  .pf__feat { display: grid; gap: 2rem; padding: clamp(1.4rem, 3vw, 2.6rem); align-items: center; margin-bottom: 1.6rem; background: radial-gradient(80% 120% at 100% 0%, rgb(224 177 74 / 0.08), transparent 55%), radial-gradient(70% 90% at 0% 100%, rgb(30 107 255 / 0.12), transparent 60%), var(--surface); }
   @media (min-width: 1000px) { .pf__feat { grid-template-columns: 0.85fr 1.15fr; gap: 3rem; } }
   .pf__feat-copy { display: grid; gap: 1rem; justify-items: start; }
   .pf__meta { display: flex; flex-wrap: wrap; gap: 0.5rem; }
@@ -134,6 +131,12 @@ const year = (d: string) => d.slice(0, 4);
 
   .pf__grid { list-style: none; padding: 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
   .pf__grid li[hidden] { display: none; }
+  /* Accueil, cellulaire : les projets défilent au doigt (pas de longue colonne de cartes) */
+  @media (max-width: 759px) {
+    .pf__grid--home { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0.9rem; margin-inline: calc(var(--gutter, 1.25rem) * -1); padding: 0.2rem var(--gutter, 1.25rem) 0.8rem; scrollbar-width: none; }
+    .pf__grid--home::-webkit-scrollbar { display: none; }
+    .pf__grid--home > li { flex: 0 0 82%; scroll-snap-align: center; }
+  }
   @media (min-width: 1040px) {
     .pf__wide { grid-column: span 2; }
     .pf__wide .pcard { display: grid; grid-template-columns: 1.25fr 1fr; }
@@ -170,5 +173,5 @@ const year = (d: string) => d.slice(0, 4);
 
   .pf__note { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1.6rem; font-size: 0.85rem; color: var(--dim); max-width: 80ch; }
   .pf__note :global(svg) { width: 16px; height: 16px; flex: none; margin-top: 0.2rem; }
-  .pf__more { display: flex; justify-content: center; margin-top: 2.5rem; }
+  .pf__more { display: flex; justify-content: center; margin-top: 2rem; }
 </style>

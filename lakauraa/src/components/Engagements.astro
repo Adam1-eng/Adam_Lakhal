@@ -1,18 +1,24 @@
 ---
+// Engagements. `compact` (accueil) : les 4 engagements clés + les chiffres dans une même section.
+// La version complète (6 engagements) reste sur la page À propos.
 import Icon from './Icon.astro';
 import SplitText from './SplitText.astro';
-import { engagements } from '../data/site';
+import { engagements, stats } from '../data/site';
+interface Props { compact?: boolean }
+const { compact = false } = Astro.props;
+const KEY = ['Maquette gratuite', 'Un seul interlocuteur', 'Paiement en deux temps', 'Le site vous appartient'];
+const list = compact ? engagements.filter((e) => KEY.includes(e.title)) : engagements;
 ---
-<section class="section" aria-labelledby="eng-title">
+<section class:list={['section', { 'eng-s--compact': compact }]} aria-labelledby="eng-title">
   <div class="wrap eng">
     <div class="eng__side">
       <span class="eyebrow reveal">Pourquoi travailler avec moi</span>
       <SplitText id="eng-title" class="h-l" text="Zéro risque. Zéro mauvaise surprise." aura="Zéro mauvaise surprise." />
-      <p class="lead reveal" style="--i:2">Des engagements simples, tenus sur chaque projet. Et la personne qui vous répond est celle qui code votre site.</p>
-      <a href="/contact" class="btn btn--primary reveal" style="--i:3" data-magnetic>Recevoir ma maquette <Icon name="arrow" class="arrow" /></a>
+      <p class="lead reveal" style="--i:2">{compact ? 'La personne qui vous répond est celle qui code votre site.' : 'Des engagements simples, tenus sur chaque projet. Et la personne qui vous répond est celle qui code votre site.'}</p>
+      {!compact && <a href="/contact" class="btn btn--primary reveal" style="--i:3" data-magnetic>Recevoir ma maquette <Icon name="arrow" class="arrow" /></a>}
     </div>
     <div class="eng__grid">
-      {engagements.map((e, i) => (
+      {list.map((e, i) => (
         <article class="card spot eng__card reveal" style={`--i:${i % 2}`}>
           <span class="icon-badge"><Icon name={e.icon} /></span>
           <h3>{e.title}</h3>
@@ -21,6 +27,19 @@ import { engagements } from '../data/site';
       ))}
     </div>
   </div>
+
+  {compact && (
+    <div class="wrap">
+      <dl class="eng__stats reveal">
+        {stats.map((s) => (
+          <div>
+            <dt>{s.label}</dt>
+            <dd>{s.prefix && <span class="eng__affix">{s.prefix}</span>}<span data-count={s.value}>{s.value}</span>{s.suffix && <span class="eng__affix">{s.suffix}</span>}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )}
 </section>
 
 <style>
@@ -35,4 +54,19 @@ import { engagements } from '../data/site';
   .eng__card:hover .icon-badge { transform: rotate(-8deg) scale(1.08); }
   .eng__card h3 { font-size: 1.15rem; letter-spacing: -0.02em; }
   .eng__card p { color: var(--muted); font-size: 0.93rem; }
+
+  /* Accueil : version resserrée, icône à côté du titre */
+  .eng-s--compact .eng { gap: 2rem; }
+  .eng-s--compact .eng__side { gap: 1rem; }
+  .eng-s--compact .eng__grid { gap: 0.8rem; }
+  .eng-s--compact .eng__card { grid-template-columns: auto 1fr; column-gap: 0.9rem; row-gap: 0.3rem; padding: 1.2rem 1.3rem; }
+  .eng-s--compact .eng__card .icon-badge { grid-row: span 2; margin: 0; }
+  .eng-s--compact .eng__card h3 { font-size: 1.05rem; align-self: center; }
+
+  .eng__stats { margin-top: clamp(2.5rem, 5vw, 3.5rem); display: grid; grid-template-columns: repeat(2, 1fr); border: 1px solid var(--line); border-radius: var(--radius-l); overflow: hidden; background: linear-gradient(180deg, rgb(255 255 255 / 0.03), transparent); }
+  @media (min-width: 900px) { .eng__stats { grid-template-columns: repeat(4, 1fr); } }
+  .eng__stats > div { display: flex; flex-direction: column-reverse; gap: 0.5rem; padding: clamp(1.1rem, 2.5vw, 1.8rem); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .eng__stats dd { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+  .eng__affix { font-size: 0.6em; }
+  .eng__stats dt { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; max-width: 22ch; }
 </style>

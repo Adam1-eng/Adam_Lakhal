@@ -437,3 +437,6 @@ select.input option { background: var(--surface-2); }
 .ico { width: 1.15em; height: 1.15em; flex: none; }
 
 [hidden]:not(.mmenu) { display: none !important; }
+
+/* Un seul appel à l'action en bas de page : le bandeau du pied de page s'efface si la page a déjà sa section CTA */
+body:has(main .cta-s) .ftr__cta { display: none; }

@@ -4,8 +4,8 @@ import SplitText from './SplitText.astro';
 import BrandIcon from './BrandIcon.astro';
 import { telHref } from '../lib/content';
 import type { Faq } from '../lib/db/schema';
-interface Props { faqs: Faq[] }
-const { faqs } = Astro.props;
+interface Props { faqs: Faq[]; moreHref?: string }
+const { faqs, moreHref } = Astro.props;
 const { contact, whatsapp } = Astro.locals.settings;
 const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 ---
@@ -32,6 +32,7 @@ const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
           <div class="faq__a"><p>{f.answer}</p></div>
         </details>
       ))}
+      {moreHref && <a href={moreHref} class="link-arrow fq__more reveal">Toutes les questions <Icon name="arrow" /></a>}
     </div>
   </div>
 </section>
@@ -52,5 +53,6 @@ const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
   .fq__icon :global(svg) { width: 15px; height: 15px; }
   .fq__item.is-open .fq__icon { transform: rotate(135deg); background: var(--aura-btn); border-color: transparent; }
   .faq__a { overflow: hidden; }
+  .fq__more { justify-self: start; margin-top: 0.6rem; }
   .faq__a p { padding: 0 1.3rem 1.25rem; color: var(--muted); max-width: 64ch; }
 </style>

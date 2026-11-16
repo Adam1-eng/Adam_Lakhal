@@ -82,3 +82,62 @@ Elles **ne sont pas appliquées**.
 | Résumés de projets « métier + ville » (dans l’admin) | Meilleure compréhension et meilleur SEO | Faible (contenu) |
 | Mettre une vraie réalisation client en premier dans la vitrine du hero (AutoRefaatArt est déjà dans le diaporama) | Crédibilité | Faible |
 | Test réel au lecteur d’écran (VoiceOver sur iPhone) | Les tests automatiques ne couvrent pas tout | 30 min |
+
+---
+
+## 8. Simplification « Less is More » (16 novembre 2026)
+
+### Mesures, accueil sur téléphone (390 px)
+
+| | Avant | Après |
+|---|---|---|
+| Hauteur de page | 18 387 px (≈ 22 écrans) | **11 735 px (≈ 14 écrans, −36 %)** |
+| Mots visibles | 1 242 | **906 (−27 %)** |
+| Sections | 11 | **9** |
+| Appels à l’action en bas de page | 2 (doublon) | **1** |
+| Accueil sur ordinateur | 12 338 px | **9 521 px (−23 %)** |
+
+### Ce qui a changé
+
+| Section | Avant | Après | Où va le détail |
+|---|---|---|---|
+| Hero | 2 phrases d’accroche | 1 phrase + la promesse « maquette avant de payer » | — |
+| Problèmes | 3 grandes cartes illustrées, plus un bouton « Voir la solution » | Téléphone : 3 lignes compactes (icône, titre, phrase). Ordinateur : illustrations conservées. Bouton retiré (choix inutile). | — |
+| Services | 4 cartes avec étiquettes + liste « Inclus selon votre forfait » | 4 cartes : titre, phrase, prix | Page Services (liste détaillée par forfait) |
+| Engagements + Chiffres | 2 sections, 6 engagements | 1 section « Pourquoi moi » : les 4 engagements clés + les chiffres | Les 6 engagements sur À propos |
+| Processus en 4 étapes | Sur l’accueil | Retiré de l’accueil | Page Services |
+| Réalisations | Vedette + jusqu’à 6 projets, filtres, technologies, 2 liens « toutes les réalisations » | Vedette + 3 projets ; défilement au doigt sur téléphone ; un seul lien | Page Réalisations (filtres, tous les projets) |
+| FAQ | 12 questions | Les 5 premières + lien « Toutes les questions » | Contact (#faq) et Services |
+| Bas de page | Section CTA + bandeau CTA du pied de page | Le bandeau s’efface quand la page a déjà sa section CTA | — |
+| Services (page) | Grands numéros décoratifs, espacements très larges sur téléphone | Numéros masqués et espacements réduits sur téléphone | — |
+
+### Principes appliqués
+
+- **Divulgation progressive** : l’essentiel sur l’accueil, le détail sur la page dédiée. Aucun contenu supprimé du site.
+- **Loi de Hick** : un seul bouton principal par zone, et les liens en double retirés.
+- **Charge cognitive** : les étiquettes et listes secondaires sont retirées de l’accueil.
+- **Gestalt** : engagements et chiffres regroupés en une seule preuve de confiance.
+- **Mobile d’abord** : cartes compactes et portfolio à faire défiler au doigt.
+
+### SEO préservé
+
+- H1 inchangé, hiérarchie H2/H3 cohérente.
+- Toutes les pages et tous les textes de services restent indexés : `test:seo` donne 351/351.
+- FAQ de l’accueil : les données structurées ne contiennent que les 5 questions affichées. Les 12 restent sur Contact et Services.
+
+### Vérifications
+
+| Contrôle | Résultat |
+|---|---|
+| `astro check` | 0 erreur |
+| `npm run test:seo` | 351/351 |
+| `npm run test:e2e` (6 tailles d’écran, contacts, WhatsApp, clavier) | OK |
+| axe WCAG 2.2 AA, 25 pages | 0 violation |
+| `npm run test:security` | 168/168 |
+
+### Textes modifiés (à valider)
+
+- **Hero** : « Je conçois des sites rapides, élégants et pensés pour le cellulaire : vos services, vos prix, vos heures et un bouton pour vous appeler. » → « Des sites rapides et élégants, pensés pour le cellulaire. »
+- **Services**, intro : « De la simple page qui inspire confiance à la boutique en ligne complète. » → « De la simple page à la boutique en ligne. »
+- **Réalisations**, intro : « Une boutique en ligne livrée et en ligne, … une sélection de maquettes … » → « Une boutique en ligne livrée, un exemple complet et des maquettes réalisées pour des commerces d’ici. »
+- **Pourquoi moi**, intro (accueil seulement) : « La personne qui vous répond est celle qui code votre site. »
