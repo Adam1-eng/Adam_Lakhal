@@ -1,30 +1,18 @@
 ---
+// Accueil « une page par sujet » : l'accroche, puis une tuile par sujet (chaque sujet a sa propre page).
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Marquee from '../components/Marquee.astro';
-import Problems from '../components/Problems.astro';
-import Services from '../components/Services.astro';
-import Engagements from '../components/Engagements.astro';
-import Portfolio from '../components/Portfolio.astro';
-import Reviews from '../components/Reviews.astro';
-import Faq from '../components/Faq.astro';
-import Cta from '../components/Cta.astro';
-import { getFaqs, getServices, getPublishedProjects } from '../lib/content';
-import { getPublishedReviews, summarize } from '../lib/reviews';
+import TopicTiles from '../components/TopicTiles.astro';
+import { getFaqs, getPublishedProjects } from '../lib/content';
+import { getReviewSummary } from '../lib/reviews';
 
-const [faqs, services, reviews, featured] = await Promise.all([getFaqs(), getServices(), getPublishedReviews(), getPublishedProjects({ featured: true })]);
-// Accueil : les 5 questions principales (toutes les questions restent sur Services et Contact).
-const topFaqs = faqs.slice(0, 5);
+const [faqs, rating, projects] = await Promise.all([getFaqs(), getReviewSummary(), getPublishedProjects()]);
+const flagship = projects.find((p) => p.kind === 'client' && p.featured) ?? projects.find((p) => p.kind === 'client') ?? projects[0] ?? null;
 ---
-<Base title="Création de sites web à Montréal et au Maroc · Lakauraa" faqs={topFaqs}
+<Base title="Création de sites web à Montréal et au Maroc · Lakauraa"
   description="Sites web rapides et élégants pour les commerces de Montréal et du Maroc : salons, restos, garages, spas. À partir de 600 $, maquette gratuite avant de payer.">
-  <Hero rating={summarize(reviews)} />
+  <Hero rating={rating} />
   <Marquee />
-  <Problems />
-  <Services services={services} />
-  <Engagements compact />
-  <Portfolio projects={featured} limit={3} />
-  <Reviews reviews={reviews} />
-  <Faq faqs={topFaqs} moreHref={faqs.length > topFaqs.length ? '/contact#faq' : undefined} />
-  <Cta />
+  <TopicTiles flagship={flagship} projectCount={projects.length} rating={rating} faqCount={faqs.length} />
 </Base>

@@ -9,6 +9,7 @@ export const staticPages = [
   { path: '/projets', priority: 0.9, changefreq: 'weekly' },
   { path: '/contact', priority: 0.8, changefreq: 'yearly' },
   { path: '/a-propos', priority: 0.6, changefreq: 'yearly' },
+  { path: '/faq', priority: 0.6, changefreq: 'monthly' },
   { path: '/mentions-legales', priority: 0.2, changefreq: 'yearly' },
   { path: '/confidentialite', priority: 0.2, changefreq: 'yearly' },
   { path: '/conditions-utilisation', priority: 0.2, changefreq: 'yearly' },

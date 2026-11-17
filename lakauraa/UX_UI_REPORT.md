@@ -141,3 +141,22 @@ Elles **ne sont pas appliquées**.
 - **Services**, intro : « De la simple page qui inspire confiance à la boutique en ligne complète. » → « De la simple page à la boutique en ligne. »
 - **Réalisations**, intro : « Une boutique en ligne livrée et en ligne, … une sélection de maquettes … » → « Une boutique en ligne livrée, un exemple complet et des maquettes réalisées pour des commerces d’ici. »
 - **Pourquoi moi**, intro (accueil seulement) : « La personne qui vous répond est celle qui code votre site. »
+
+## 9. « Une page par sujet » (17 novembre 2026, choix d’Adam)
+
+- **Accueil** : accroche (hero) + bande des métiers + 6 tuiles, une par sujet : Services et prix, Réalisations, Pourquoi moi, Avis clients (si des avis sont publiés), Questions fréquentes, Contact.
+- **Chaque sujet a sa page** :
+  - Services : problèmes + forfaits + prix + processus ;
+  - Réalisations : tous les projets ;
+  - À propos : engagements + chiffres ;
+  - Avis ;
+  - **FAQ, nouvelle page `/faq`** ;
+  - Contact.
+- La FAQ n’est plus répétée sur Services et Contact : un lien y renvoie.
+- Accueil sur téléphone : **4 655 px**, contre 18 387 au départ (−75 %).
+- Disposition des tuiles sans case vide, avec ou sans tuile « Avis », sur téléphone, tablette et ordinateur.
+- Vérifié :
+  - `test:seo` 367/367 (22 pages) ;
+  - `test:e2e` OK ;
+  - axe 0 violation ;
+  - `test:security` 168/168.

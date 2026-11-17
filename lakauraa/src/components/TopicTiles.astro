@@ -1,0 +1,149 @@
+---
+// Accueil « une page par sujet » : une grande tuile par sujet, chacune mène à sa page.
+import Icon from './Icon.astro';
+import Stars from './Stars.astro';
+import BrandIcon from './BrandIcon.astro';
+import SectionHead from './SectionHead.astro';
+import { imageSrcset, type ProjectCard } from '../lib/content';
+
+interface Props {
+  flagship?: ProjectCard | null;
+  projectCount: number;
+  rating: { count: number; average: number; label: string };
+  faqCount: number;
+}
+const { flagship, projectCount, rating, faqCount } = Astro.props;
+const { contact, whatsapp } = Astro.locals.settings;
+const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
+const cover = flagship?.cover;
+---
+<section class="section tp" aria-labelledby="tp-title">
+  <div class="wrap">
+    <SectionHead eyebrow="Explorer" title="Que voulez-vous découvrir ?" aura="découvrir ?" align="center" />
+    <h2 id="tp-title" class="sr-only">Les pages du site</h2>
+
+    <ul class:list={['tp__grid', { 'tp__grid--no-reviews': rating.count === 0 }]}>
+      <li class="tp__item tp__item--services reveal">
+        <a href="/services" class="card spot tp__card">
+          <span class="icon-badge"><Icon name="layers" /></span>
+          <span class="tp__body">
+            <span class="tp__title">Services et prix</span>
+            <span class="tp__text">Site vitrine, site complet, boutique en ligne, entretien.</span>
+          </span>
+          <span class="tp__meta"><span class="chip chip--accent">À partir de 600 $</span></span>
+          <span class="tp__go" aria-hidden="true"><Icon name="arrow-up-right" /></span>
+        </a>
+      </li>
+
+      <li class="tp__item tp__item--work reveal" style="--i:1">
+        <a href="/projets" class="card spot tp__card">
+          {cover && (
+            <span class="tp__visual" aria-hidden="true">
+              <img src={cover.thumbUrl} srcset={imageSrcset(cover)} sizes="(min-width: 900px) 560px, 90vw" width={cover.width} height={cover.height} alt="" loading="lazy" decoding="async" />
+            </span>
+          )}
+          <span class="icon-badge"><Icon name="pages" /></span>
+          <span class="tp__body">
+            <span class="tp__title">Réalisations</span>
+            <span class="tp__text">{projectCount} projets : sites livrés, exemples et maquettes.</span>
+          </span>
+          <span class="tp__go" aria-hidden="true"><Icon name="arrow-up-right" /></span>
+        </a>
+      </li>
+
+      <li class="tp__item tp__item--why reveal" style="--i:2">
+        <a href="/a-propos" class="card spot tp__card">
+          <span class="icon-badge"><Icon name="user" /></span>
+          <span class="tp__body">
+            <span class="tp__title">Pourquoi moi</span>
+            <span class="tp__text">Maquette gratuite, un seul interlocuteur, paiement en deux temps.</span>
+          </span>
+          <span class="tp__go" aria-hidden="true"><Icon name="arrow-up-right" /></span>
+        </a>
+      </li>
+
+      {rating.count > 0 && (
+        <li class="tp__item tp__item--reviews reveal" style="--i:3">
+          <a href="/avis" class="card spot tp__card">
+            <span class="icon-badge"><Icon name="star" /></span>
+            <span class="tp__body">
+              <span class="tp__title">Avis clients</span>
+              <span class="tp__text tp__rating"><Stars value={rating.average} size={15} /> {rating.label} / 5 · {rating.count} avis vérifié{rating.count > 1 ? 's' : ''}</span>
+            </span>
+            <span class="tp__go" aria-hidden="true"><Icon name="arrow-up-right" /></span>
+          </a>
+        </li>
+      )}
+
+      <li class="tp__item tp__item--faq reveal" style="--i:4">
+        <a href="/faq" class="card spot tp__card">
+          <span class="icon-badge"><Icon name="message" /></span>
+          <span class="tp__body">
+            <span class="tp__title">Questions fréquentes</span>
+            <span class="tp__text">{faqCount} réponses : prix, délais, paiement, entretien.</span>
+          </span>
+          <span class="tp__go" aria-hidden="true"><Icon name="arrow-up-right" /></span>
+        </a>
+      </li>
+
+      <li class="tp__item tp__item--contact reveal" style="--i:5">
+        <a href="/contact" class="card spot tp__card">
+          <span class="icon-badge">{hasWa ? <BrandIcon name="whatsapp" /> : <Icon name="phone" />}</span>
+          <span class="tp__body">
+            <span class="tp__title">Contact</span>
+            <span class="tp__text">Maquette gratuite · réponse en {contact.responseTime}.</span>
+          </span>
+          <span class="tp__go" aria-hidden="true"><Icon name="arrow-up-right" /></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .tp__grid { list-style: none; padding: 0; display: grid; gap: 0.9rem; }
+  /* Disposition fixe : aucune case vide, avec ou sans tuile « Avis » */
+  @media (min-width: 760px) {
+    .tp__grid { grid-template-columns: repeat(2, 1fr); gap: 1.1rem; }
+    .tp__item--work { grid-column: 1 / -1; order: -1; }
+    .tp__item--work .tp__visual { aspect-ratio: 21 / 9; }
+    .tp__grid:not(.tp__grid--no-reviews) .tp__item--contact { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1080px) {
+    .tp__grid { grid-template-columns: repeat(3, 1fr); grid-template-areas: 'svc work why' 'rev work faq' 'contact contact contact'; }
+    .tp__grid.tp__grid--no-reviews { grid-template-areas: 'svc work why' 'faq work contact'; }
+    .tp__grid .tp__item--services { grid-area: svc; }
+    .tp__grid .tp__item--work { grid-area: work; }
+    .tp__grid .tp__item--why { grid-area: why; }
+    .tp__grid .tp__item--reviews { grid-area: rev; }
+    .tp__grid .tp__item--faq { grid-area: faq; }
+    .tp__grid .tp__item--contact { grid-area: contact; }
+    .tp__grid .tp__item--work { order: 0; }
+    .tp__grid .tp__item--work .tp__visual { aspect-ratio: auto; }
+  }
+  .tp__item { display: flex; }
+  .tp__card {
+    position: relative; flex: 1; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.4rem 1rem;
+    padding: 1.2rem 1.25rem; min-height: 96px; overflow: hidden;
+    transition: transform 0.5s var(--ease), border-color 0.4s, box-shadow 0.5s var(--ease);
+  }
+  .tp__card:hover { transform: translateY(-4px); border-color: var(--line-2); box-shadow: 0 30px 60px -30px rgb(0 0 0 / 0.9), 0 0 0 1px rgb(30 107 255 / 0.15); }
+  .tp__body { display: grid; gap: 0.2rem; min-width: 0; }
+  .tp__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.15rem, 2vw, 1.4rem); letter-spacing: -0.02em; }
+  .tp__text { color: var(--muted); font-size: 0.9rem; line-height: 1.45; }
+  .tp__rating { display: inline-flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
+  .tp__meta { grid-column: 2 / 4; }
+  .tp__go { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line-2); grid-column: 3; grid-row: 1; transition: background 0.35s, border-color 0.35s, transform 0.5s var(--ease); }
+  .tp__go :global(svg) { width: 15px; height: 15px; }
+  .tp__card:hover .tp__go { background: var(--aura-btn); border-color: transparent; transform: rotate(45deg); }
+  .tp__card .icon-badge { grid-row: 1; }
+  .tp__item--contact .tp__card { border-color: rgb(30 107 255 / 0.35); background: linear-gradient(135deg, rgb(30 107 255 / 0.16), transparent 70%), var(--surface); }
+  .tp__item--contact :global(.icon-badge svg) { color: #25d366; }
+
+  /* Tuile Réalisations : aperçu du projet vedette */
+  .tp__item--work .tp__card { grid-template-rows: auto auto; align-content: end; }
+  .tp__visual { grid-column: 1 / -1; display: block; margin: -1.2rem -1.25rem 0.6rem; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 1px solid var(--line); background: #0e0e13; }
+  .tp__visual img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 1.2s var(--ease); }
+  .tp__card:hover .tp__visual img { transform: scale(1.04); }
+  @media (min-width: 1080px) { .tp__item--work .tp__visual { aspect-ratio: auto; height: 100%; min-height: 230px; } .tp__item--work .tp__card { grid-template-rows: 1fr auto; } }
+</style>

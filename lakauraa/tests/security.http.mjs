@@ -149,7 +149,7 @@ await t('modifier une image inexistante → 404', async () => (await api('/api/a
 
 /* ---------- 10. XSS ---------- */
 await form('/admin/faq', { action: 'create', question: '<script>alert("faq")</script> Question ?', answer: '</script><script>alert(2)</script><img src=x onerror=alert(3)>', published: 'on' }, { cookie: A });
-const home = await (await get('/')).text();
+const home = await (await get('/faq')).text(); // la FAQ complète est sur /faq
 await t('XSS FAQ : balises affichées comme du texte (échappées)', () => home.includes('&lt;script&gt;alert(&quot;faq&quot;)&lt;/script&gt;') || home.includes('&lt;script&gt;alert("faq")&lt;/script&gt;'));
 await t('XSS FAQ : aucun <script>alert / onerror exécutable dans le HTML', () => !/<script>alert|<img src=x onerror/.test(tagsOnly(home)));
 await t('XSS JSON-LD : « </script> » neutralisé dans les données structurées', () => !/<\/script><script>alert\(2\)/.test(home) && home.includes('\\u003c/script'));
@@ -184,12 +184,12 @@ r = await form('/avis/' + tok, rv);
 await t('avis : envoi valide accepté', async () => r.status === 200 && (await r.text()).includes('Merci beaucoup'));
 await t('avis : lien à usage unique (2e envoi → 404)', async () => (await form('/avis/' + tok, { ...rv, comment: 'Deuxième tentative de bourrage.' })).status === 404);
 await t('avis : lien utilisé → page 404', async () => (await get('/avis/' + tok)).status === 404);
-await t('avis : en attente → invisible sur le site', async () => !(await (await get('/avis')).text()).includes('Garage Test') && !(await (await get('/')).text()).includes('Garage Test'));
+await t('avis : en attente → invisible sur le site', async () => !(await (await get('/avis')).text()).includes('Garage Test') && !(await (await get('/')).text()).includes('Garage Test') && !(await (await get('/projets/autorefaatart')).text()).includes('Garage Test'));
 const revId = ((await (await get('/admin/avis', A)).text()).match(/name="id" value="([0-9a-f-]{36})"/) ?? [])[1] ?? '';
 await t('avis : publication sans session → refusée', async () => (await form('/admin/avis', { action: 'publish', id: revId })).status === 302 && !(await (await get('/avis')).text()).includes('Garage Test'));
 await form('/admin/avis', { action: 'publish', id: revId }, { cookie: A });
 const wall = await (await get('/avis')).text();
-await t('avis : publié par l’admin → visible sur le mur et l’accueil', async () => wall.includes('Garage Test') && (await (await get('/')).text()).includes('Garage Test'));
+await t('avis : publié par l’admin → visible sur le mur et note sur l’accueil', async () => wall.includes('Garage Test') && /avis vérifié/.test(await (await get('/')).text()));
 await t('avis XSS : contenu affiché comme du texte', () => wall.includes('&lt;script&gt;') && wall.includes('Karim &lt;b&gt;T&lt;/b&gt;') && !/<script>alert\("avis"\)/.test(tagsOnly(wall)));
 await form('/admin/avis', { action: 'unpublish', id: revId }, { cookie: A });
 await t('avis : retiré par l’admin → disparaît du site', async () => !(await (await get('/avis')).text()).includes('Garage Test'));

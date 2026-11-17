@@ -4,12 +4,12 @@ import PageHero from '../components/PageHero.astro';
 import Icon from '../components/Icon.astro';
 import Pricing from '../components/Pricing.astro';
 import Process from '../components/Process.astro';
-import Faq from '../components/Faq.astro';
+import Problems from '../components/Problems.astro';
 import Cta from '../components/Cta.astro';
-import { getServices, getFaqs, getPublishedProjects, imageSrcset } from '../lib/content';
+import { getServices, getPublishedProjects, imageSrcset } from '../lib/content';
 import type { ProjectImage } from '../lib/db/schema';
 
-const [services, faqs, projects] = await Promise.all([getServices(), getFaqs(), getPublishedProjects()]);
+const [services, projects] = await Promise.all([getServices(), getPublishedProjects()]);
 const origin = (Astro.site?.href ?? '').replace(/\/$/, '');
 // Données structurées : seul le prix affiché sur le site (« à partir de 600 $ ») est indiqué ; le reste est sur devis.
 const serviceSchema = [{
@@ -43,7 +43,7 @@ const details: Record<string, string[]> = {
 const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique: 'shop', entretien: 'care' };
 const settings = Astro.locals.settings;
 ---
-<Base faqs={faqs} title="Services et prix d’un site web pour commerce" crumbs={[{ name: 'Services', path: '/services' }]} schema={serviceSchema} description="Sites web à partir de 600 $. Site complet, boutique en ligne et entretien sur devis gratuit, selon votre projet. Maquette gratuite avant de payer.">
+<Base title="Services et prix d’un site web pour commerce" crumbs={[{ name: 'Services', path: '/services' }]} schema={serviceSchema} description="Sites web à partir de 600 $. Site complet, boutique en ligne et entretien sur devis gratuit, selon votre projet. Maquette gratuite avant de payer.">
   <PageHero eyebrow="Services" title="Un site qui travaille pour vous, même quand vous êtes fermé." aura="même quand vous êtes fermé."
     lead="Du site d’une page à la boutique en ligne, chaque projet est conçu autour d’un seul objectif : que vos clients vous trouvent, vous fassent confiance et vous appellent."
     crumbs={[{ label: 'Services' }]}>
@@ -52,6 +52,8 @@ const settings = Astro.locals.settings;
       <a href="/contact" class="btn btn--ghost" data-magnetic>Demander une maquette</a>
     </div>
   </PageHero>
+
+  <Problems />
 
   <section class="section" aria-label="Détail des services">
     <div class="wrap svd">
@@ -87,7 +89,7 @@ const settings = Astro.locals.settings;
 
   <Pricing />
   <Process />
-  <Faq faqs={faqs} />
+  <p class="faq-link wrap reveal">Une question sur les prix, les délais ou le paiement ? <a href="/faq" class="link-arrow">Voir les questions fréquentes <Icon name="arrow" /></a></p>
   <Cta title="Pas sûr du forfait qui vous convient ?" aura="vous convient ?" text={`Décrivez-moi votre commerce en deux minutes. Je vous conseille honnêtement et je vous réponds en ${settings.contact.responseTime}.`} />
 </Base>
 

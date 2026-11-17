@@ -1,0 +1,18 @@
+---
+// Toutes les questions fréquentes, sur une seule page.
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Faq from '../components/Faq.astro';
+import Cta from '../components/Cta.astro';
+import { getFaqs } from '../lib/content';
+
+const faqs = await getFaqs();
+---
+<Base faqs={faqs} title="Questions fréquentes sur la création de site web" crumbs={[{ name: 'Questions fréquentes', path: '/faq' }]}
+  description="Prix, délais, paiement, maquette gratuite, entretien, propriété du site : les réponses aux questions les plus posées avant de créer un site web avec Lakauraa.">
+  <PageHero eyebrow="FAQ" title="Les réponses, avant même de demander." aura="avant même de demander."
+    lead="Prix, délais, paiement, entretien : tout ce qu’on me demande avant de commencer un projet."
+    crumbs={[{ label: 'Questions fréquentes' }]} />
+  <Faq faqs={faqs} />
+  <Cta title="Une autre question ?" aura="autre question ?" text="Écrivez-moi : je vous réponds personnellement, en général en moins de 24 h." />
+</Base>
