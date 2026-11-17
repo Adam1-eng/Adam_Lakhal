@@ -443,3 +443,19 @@ body:has(main .cta-s) .ftr__cta { display: none; }
 
 /* Renvoi vers la page FAQ (Services, Contact) */
 .faq-link { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; justify-content: center; text-align: center; padding-block: 0 clamp(3rem, 7vw, 5rem); color: var(--muted); }
+
+/* Changement de page : réaction immédiate au toucher (barre fine + page actuelle estompée) */
+html.is-navigating main { opacity: 0.55; transition: opacity 0.15s ease; }
+html.is-navigating::after {
+  content: ''; position: fixed; inset: 0 auto auto 0; z-index: 9999; height: 3px; width: 100%;
+  background: linear-gradient(90deg, var(--blue), #5b93ff); transform-origin: left;
+  animation: nav-bar 1.6s cubic-bezier(0.1, 0.7, 0.2, 1) forwards;
+}
+@keyframes nav-bar { from { transform: scaleX(0.05); } to { transform: scaleX(0.9); } }
+@media (prefers-reduced-motion: reduce) { html.is-navigating::after { animation: none; transform: scaleX(0.6); } }
+
+/* Écrans tactiles (html.io-motion) : apparitions en CSS, déclenchées par IntersectionObserver */
+html.io-motion .reveal { filter: none; transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
+html.io-motion .reveal.is-in { opacity: 1; transform: none; }
+html.io-motion .split-word > span { transition: transform 0.9s var(--ease); transition-delay: calc(var(--w, 0) * 45ms); }
+html.io-motion [data-progress] .pr__line span { transition: transform 1.6s var(--ease); }

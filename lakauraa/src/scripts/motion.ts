@@ -21,8 +21,12 @@ declare global {
 let lenis: Lenis | null = null;
 const tick = (time: number) => lenis?.raf(time * 1000);
 
+// Écrans tactiles : défilement natif du téléphone (Lenis n'y apporte rien et recalculait toute la page
+// à chaque changement de page — ≈ 140 ms de blocage mesurés sur un téléphone moyen).
+const touchOnly = () => window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
 function startLenis() {
-  if (lenis || reduced()) return;
+  if (lenis || reduced() || touchOnly()) return;
   lenis = new Lenis({
     lerp: lenisOptions.lerp,
     wheelMultiplier: lenisOptions.wheelMultiplier,
@@ -157,10 +161,43 @@ function pageAnimations() {
   });
 }
 
+/* ---------- Écrans tactiles : mêmes apparitions, déclenchées par le navigateur (IntersectionObserver)
+   et animées en CSS. Évite à GSAP de mesurer toute la page à chaque changement de page sur téléphone. ---------- */
+let io: IntersectionObserver | null = null;
+function countUp(el: HTMLElement) {
+  const target = Number(el.dataset.count);
+  if (!Number.isFinite(target) || target === 0) { el.textContent = String(target); return; }
+  const t0 = performance.now(); const dur = counters.duration * 1000;
+  const step = (now: number) => {
+    const k = Math.min(1, (now - t0) / dur); const v = 1 - Math.pow(1 - k, 2);
+    el.textContent = String(Math.round(target * v));
+    if (k < 1) requestAnimationFrame(step);
+  };
+  el.textContent = '0'; requestAnimationFrame(step);
+}
+function lightAnimations() {
+  document.documentElement.classList.add('io-motion');
+  io?.disconnect();
+  io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const el = e.target as HTMLElement;
+      io!.unobserve(el);
+      if (el.hasAttribute('data-count')) countUp(el);
+      else if (el.hasAttribute('data-progress')) {
+        el.style.setProperty('--p', '1');
+        el.querySelectorAll<HTMLElement>('[data-step]').forEach((s, k) => setTimeout(() => s.classList.add('is-on'), 250 + k * 350));
+      } else el.classList.add('is-in');
+    }
+  }, { rootMargin: '0px 0px -10% 0px' });
+  document.querySelectorAll<HTMLElement>('.reveal, [data-split], [data-count], [data-progress]').forEach((el) => io!.observe(el));
+}
+
 function init() {
   ctx?.revert();
   ctx = null;
   if (reduced()) { showEverything(); return; }
+  if (touchOnly()) { lightAnimations(); return; }
   startLenis();
   lenis?.resize();
   try {
@@ -174,7 +211,7 @@ function init() {
 }
 
 // Changement de page : on nettoie les animations, Lenis repart en haut
-document.addEventListener('astro:before-swap', () => { ctx?.revert(); ctx = null; });
+document.addEventListener('astro:before-swap', () => { ctx?.revert(); ctx = null; io?.disconnect(); io = null; });
 document.addEventListener('astro:after-swap', () => lenis?.scrollTo(0, { immediate: true, force: true }));
 document.addEventListener('astro:page-load', init);
 window.addEventListener('load', () => ScrollTrigger.refresh());
