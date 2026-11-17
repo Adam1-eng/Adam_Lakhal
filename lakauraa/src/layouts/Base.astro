@@ -9,7 +9,7 @@ import Footer from '../components/Footer.astro';
 import WhatsApp from '../components/WhatsApp.astro';
 import CookiePrefs from '../components/CookiePrefs.astro';
 import { site } from '../data/site';
-import { entryPrice, money } from '../config/site';
+import { SITE, entryPrice, money } from '../config/site';
 import { activeSocials } from '../lib/content';
 import type { Faq as FaqRow } from '../lib/db/schema';
 
@@ -58,7 +58,7 @@ const graph: Record<string, unknown>[] = [
     ],
     ...(entryPrice() != null ? { priceRange: `À partir de ${money(entryPrice()!)}` } : {}),
   },
-  { '@type': 'Person', '@id': id('adam'), name: site.owner, jobTitle: 'Développeur web', worksFor: { '@id': id('business') }, url: `${origin}/a-propos` },
+  { '@type': 'Person', '@id': id('adam'), name: site.owner, jobTitle: 'Développeur web', worksFor: { '@id': id('business') }, url: `${origin}/a-propos`, ...(SITE.ownerPhoto ? { image: `${origin}${SITE.ownerPhoto}` } : {}) },
 ];
 if (crumbs.length) {
   graph.push({

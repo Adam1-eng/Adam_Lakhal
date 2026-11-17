@@ -67,7 +67,7 @@ export const SITE = {
   /* ---------- Photo du propriétaire ----------
      Chemin d’une vraie photo déposée dans /public (ex. '/adam-lakhal.jpg'), idéalement carrée.
      Vide = monogramme « AL ». Ne jamais mettre de photo de banque d’images ni d’avatar généré. */
-  ownerPhoto: '', // ← À FOURNIR : vraie photo du fondateur
+  ownerPhoto: '/adam-lakhal.webp', // vraie photo du fondateur (fournie le 17/11/2026, 352×352, sans métadonnées)
 
   /* ---------- Témoignages fournis par le propriétaire ----------
      Texte EXACT d’un vrai client, avec son accord. Vide = section « Témoignages » masquée.
