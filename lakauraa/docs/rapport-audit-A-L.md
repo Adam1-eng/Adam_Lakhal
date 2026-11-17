@@ -45,15 +45,14 @@ Source unique de vérité : `src/config/site.ts`.
 - Les textes de la FAQ saisis dans l'admin sont harmonisés automatiquement (40 %, 24 h, CAD)
 - Dans l'admin, Courriel et Délai sont en lecture seule (ils viennent de la config)
 
-## d) Domaine propre : ce que tu dois faire toi-même
+## d) Domaine propre — FAIT le 17/11/2026
 
-1. Acheter le domaine (ex. lakauraa.ca) chez un registraire ou dans Vercel (Domains → Buy).
-2. Vercel → projet **lakauraa** → Settings → Domains → Add → `lakauraa.ca` (+ `www.lakauraa.ca`).
-3. Chez le registraire, ajouter les enregistrements DNS que Vercel affiche (en général : A `@` → 76.76.21.21 et CNAME `www` → cname.vercel-dns.com).
-4. Attendre que Vercel affiche « Valid Configuration ».
-5. Dans `src/config/site.ts`, changer `url: 'https://lakauraa.ca'`, puis redéployer.
-6. Créer la boîte courriel (ex. bonjour@lakauraa.ca) et la mettre dans `publicEmail`, puis redéployer.
-7. Optionnel : retirer `lakauraa.vercel.app` de l'ancien projet « lakauraa-ancien ».
+- lakauraa.com acheté chez Vercel et branché sur le projet (HTTPS actif). www.lakauraa.com → lakauraa.com (308).
+- `SITE.url` = https://lakauraa.com : canoniques, Open Graph, sitemap, robots, données structurées.
+- lakauraa.vercel.app et lakauraa-v3.vercel.app → redirection 301 vers la même page sur lakauraa.com.
+- Courriel : enregistrements MX ImprovMX (mx1/mx2.improvmx.com) et SPF ajoutés dans le DNS Vercel.
+  Reste à faire par le propriétaire : créer le compte ImprovMX (alias bonjour → Gmail). Le courriel ne sera
+  affiché sur le site qu'après un test de réception réussi.
 
 ## e) Résultat du build
 
@@ -62,7 +61,7 @@ Source unique de vérité : `src/config/site.ts`.
 - Tests SEO : 351 réussis, 0 échoué (21 pages).
 - Accessibilité (axe) : 0 violation sur 25 pages.
 - Liens internes : 36, 0 en erreur. Liens externes (maquettes, AutoRefaatArt, WhatsApp) : tous 200. Instagram répond 429 (blocage des robots) : à tester à la main.
-- Mise en ligne : déploiement `dpl_GstEMikimZQVTxMYoaYUVQJeYwE7` (commit 8252e78) sur https://lakauraa.vercel.app.
+- Mise en ligne : déploiement `dpl_GstEMikimZQVTxMYoaYUVQJeYwE7` (commit 8252e78) sur https://lakauraa.com (anciennement lakauraa.vercel.app).
   Revérifié en production : recherches (0 partout, acompte {40}, délai {24 h}), SEO 351/0, en-tête/boutons/vides
   sur 21 pages × 2 écrans, carrousel, filtres, FAQ, cookies, formulaire → WhatsApp, parcours e2e : tout OK.
 - Lenteur des liens (« quand je clique sur un hyperlien ça lag ») : la cause était l'animation de transition
