@@ -24,9 +24,9 @@ export const SITE = {
 
   /* ---------- Coordonnées ----------
      Courriel public : vide = tous les liens « courriel » sont masqués sur le site.
-     (lakauraa.ca n’est pas enregistré au 17/11/2026 : bonjour@lakauraa.ca ne peut rien recevoir.)
+     info@lakauraa.com : redirection ImprovMX → Gmail (enregistrements MX/SPF dans le DNS Vercel).
      Le courriel personnel n’est volontairement JAMAIS affiché. */
-  publicEmail: '',
+  publicEmail: 'info@lakauraa.com',
   phone: '438-528-0259',
   /** WhatsApp, format international, chiffres seulement. Modifiables aussi dans l’admin. */
   whatsapp: { ma: '212621971718', ca: '14385280259' },
