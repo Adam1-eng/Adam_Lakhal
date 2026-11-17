@@ -4,15 +4,18 @@ const { class: cls = '' } = Astro.props;
 ---
 <a href="/" class:list={['logo', cls]} aria-label="Lakauraa, retour à l’accueil">
   <span class="logo__mark" aria-hidden="true">
-    <svg viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e6bff"/><stop offset="1" stop-color="#e0122f"/></linearGradient></defs><path d="M20 14v36h24" fill="none" stroke="url(#lg)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="18" r="5" fill="#e0122f"/></svg>
+    <svg viewBox="0 0 512 512" aria-hidden="true"><defs><linearGradient id="lkr" x1="0" y1="0.15" x2="1" y2="0.85"><stop offset="0" stop-color="#1e6bff"/><stop offset="0.55" stop-color="#7b3fd6"/><stop offset="1" stop-color="#e0122f"/></linearGradient>
+<radialGradient id="lkg" cx=".5" cy=".5" r=".5"><stop offset=".45" stop-color="#1e6bff" stop-opacity=".26"/><stop offset="1" stop-color="#1e6bff" stop-opacity="0"/></radialGradient>
+<radialGradient id="lkd" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e0122f" stop-opacity=".55"/><stop offset="1" stop-color="#e0122f" stop-opacity="0"/></radialGradient></defs><path d="M 417.8 177.1 A 180 180 0 1 1 334.9 94.2" fill="none" stroke="url(#lkr)" stroke-width="24" stroke-linecap="round"/><path d="M206 158v196h104" fill="none" stroke="#fff" stroke-width="58" stroke-linecap="round" stroke-linejoin="round"/><circle cx="383.3" cy="128.7" r="31" fill="#e0122f"/></svg>
   </span>
   <span class="logo__word">Lakauraa<span class="logo__dot">.</span></span>
 </a>
 
 <style>
   .logo { display: inline-flex; align-items: center; gap: 0.6rem; font-family: var(--font-display); font-weight: 700; font-size: 1.28rem; letter-spacing: -0.04em; }
-  .logo__mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #131319; border: 1px solid var(--line-2); transition: transform 0.6s var(--ease), box-shadow 0.4s; }
-  .logo__mark :global(svg) { width: 22px; height: 22px; }
-  .logo:hover .logo__mark { transform: rotate(-8deg) scale(1.06); box-shadow: 0 0 24px -4px rgb(224 18 47 / 0.6); }
+  /* Symbole : « L » dans l'anneau d'aura bleu → rouge, le point rouge ferme l'anneau */
+  .logo__mark { display: grid; place-items: center; width: 38px; height: 38px; transition: transform 0.6s var(--ease), filter 0.4s; }
+  .logo__mark :global(svg) { width: 38px; height: 38px; }
+  .logo:hover .logo__mark { transform: rotate(-12deg) scale(1.06); filter: drop-shadow(0 0 10px rgb(224 18 47 / 0.55)); }
   .logo__dot { color: var(--red); }
 </style>

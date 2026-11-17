@@ -45,7 +45,7 @@ const graph: Record<string, unknown>[] = [
     description: site.description,
     url: `${origin}/`,
     image: `${origin}/og.jpg`,
-    logo: `${origin}/favicon.svg`,
+    logo: `${origin}/icon-512.png`,
     telephone: settings.contact.phone,
     ...(settings.contact.email ? { email: settings.contact.email } : {}),
     sameAs: activeSocials(settings.socials).map((x) => x.url),
@@ -84,6 +84,8 @@ const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').repl
     <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
     <meta name="theme-color" content="#0b0b0f" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:type" content={schema.some((x) => x['@type'] === 'CreativeWork') ? 'article' : 'website'} />
