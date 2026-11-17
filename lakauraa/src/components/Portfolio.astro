@@ -93,7 +93,7 @@ const year = (d: string) => d.slice(0, 4);
 
     {rest.some((p) => p.kind === 'maquette') && (
       <p class="pf__note reveal">
-        <Icon name="eye" /> Les maquettes sont des démonstrations préparées gratuitement pour des commerces, avant toute commande. Chacune porte la mention « Maquette de démonstration » : ce ne sont pas leurs sites officiels.
+        <Icon name="eye" /> <span><strong>Les maquettes ne sont pas de vrais sites.</strong> Ce sont des visions : des propositions de design préparées gratuitement pour montrer ce que pourrait devenir le site d’un commerce. Ce ne sont pas leurs sites officiels.</span>
       </p>
     )}
 
@@ -171,7 +171,8 @@ const year = (d: string) => d.slice(0, 4);
   .pcard:hover .pcard__go { color: var(--text); }
   .pcard:hover .pcard__go span { background: var(--aura-btn); border-color: transparent; transform: rotate(45deg); }
 
-  .pf__note { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1.6rem; font-size: 0.85rem; color: var(--dim); max-width: 80ch; }
+  .pf__note { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1.6rem; font-size: 0.88rem; color: var(--muted); max-width: 80ch; }
+  .pf__note strong { color: var(--text); }
   .pf__note :global(svg) { width: 16px; height: 16px; flex: none; margin-top: 0.2rem; }
   .pf__more { display: flex; justify-content: center; margin-top: 2rem; }
 </style>

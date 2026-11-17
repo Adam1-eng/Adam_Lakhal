@@ -62,6 +62,20 @@ let fails = 0; const bad = (m) => { fails++; console.log('FAIL', m); };
   const p2 = await ctx2.newPage(); let n2 = 0; await p2.route('**/api/evt', (r) => { n2++; r.continue(); });
   await p2.goto(B + '/services', { waitUntil: 'networkidle' }); await p2.locator('main a[href="/contact"]').first().click(); await p2.waitForTimeout(800);
   if (n2) bad('GPC ignoré : ' + n2 + ' événement(s) envoyé(s)'); else console.log('GPC respecté : 0 événement');
+  // 3 bis. Menu mobile : ouverture, navigation, fermeture, défilement rétabli
+  const pm = await (await b.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })).newPage();
+  await pm.goto(B + '/', { waitUntil: 'networkidle' });
+  for (const target of ['/services', '/projets', '/contact']) {
+    await pm.locator('[data-menu-toggle]').click();
+    await pm.waitForSelector('#mobile-menu.is-open');
+    await pm.locator(`#mobile-menu nav a[href="${target}"]`).click();
+    await pm.waitForURL('**' + target);
+    await pm.waitForTimeout(500);
+    const st = await pm.evaluate(() => ({ open: !!document.querySelector('#mobile-menu.is-open'), hidden: document.querySelector('#mobile-menu').hidden, overflow: document.documentElement.style.overflow, y: scrollY }));
+    if (st.open || !st.hidden || st.overflow) bad(`menu après navigation vers ${target} : ${JSON.stringify(st)}`);
+  }
+  console.log('menu mobile : 3 navigations OK');
+
   // 4. Clavier : lien d'évitement + focus visible
   const p3 = await (await b.newContext()).newPage(); await p3.goto(B + '/', { waitUntil: 'networkidle' });
   await p3.keyboard.press('Tab');

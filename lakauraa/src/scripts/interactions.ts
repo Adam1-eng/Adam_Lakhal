@@ -57,7 +57,7 @@ function initHeader() {
   const toggle = header.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = header.querySelector<HTMLElement>('[data-menu]');
   if (toggle && menu) {
-    const setOpen = (open: boolean) => {
+    const setOpen = (open: boolean, instant = false) => {
       toggle.setAttribute('aria-expanded', String(open));
       toggle.querySelector('.sr-only')!.textContent = open ? 'Fermer le menu' : 'Ouvrir le menu';
       document.documentElement.style.overflow = open ? 'hidden' : '';
@@ -67,12 +67,17 @@ function initHeader() {
         requestAnimationFrame(() => menu.classList.add('is-open'));
         menu.querySelector<HTMLElement>('a')?.focus({ preventScroll: true });
       } else {
+        if (instant) menu.classList.add('is-instant');
         menu.classList.remove('is-open');
-        window.setTimeout(() => { if (!menu.classList.contains('is-open')) menu.hidden = true; }, reduced() ? 0 : 650);
+        window.setTimeout(() => {
+          if (!menu.classList.contains('is-open')) menu.hidden = true;
+          menu.classList.remove('is-instant');
+        }, instant || reduced() ? 0 : 420);
       }
     };
     toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
-    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    // Lien du menu : fermeture immédiate, la nouvelle page s'affiche sans attendre l'animation
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false, true)));
     on(window, 'keydown', (e) => {
       if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { setOpen(false); toggle.focus(); }
     });

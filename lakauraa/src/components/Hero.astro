@@ -16,7 +16,7 @@ const slides = [
   { name: refaat.name, label: 'Projet client · en ligne', url: 'autorefaatart.com', desktop: refaat.cover, mobile: refaat.mobile },
   ...pick.map((s) => {
     const m = maquettes.find((x) => x.slug === s)!;
-    return { name: m.name, label: `Maquette · ${m.sector}`, url: `maquette-${m.slug}.vercel.app`, desktop: m.desktop, mobile: m.mobile };
+    return { name: m.name, label: `Maquette (concept) · ${m.sector}`, url: `maquette-${m.slug}.vercel.app`, desktop: m.desktop, mobile: m.mobile };
   }),
 ];
 ---
@@ -155,6 +155,7 @@ const slides = [
   .hero__blob--1 { width: 620px; height: 620px; right: -120px; top: -160px; background: radial-gradient(circle, #1e6bff, transparent 65%); opacity: 0.32; animation: float1 18s ease-in-out infinite alternate; }
   .hero__blob--2 { width: 520px; height: 520px; left: -200px; bottom: -220px; background: radial-gradient(circle, #e0122f, transparent 65%); opacity: 0.35; animation: float2 22s ease-in-out infinite alternate; }
   .hero__follow { position: absolute; inset: 0; background: radial-gradient(500px circle at var(--ax) var(--ay), rgb(224 18 47 / 0.1), transparent 60%); transition: background 0.2s; }
+  @media (max-width: 760px) { .hero__blob { animation: none; filter: blur(60px); } }
   @keyframes float1 { to { transform: translate(-80px, 90px) scale(1.1); } }
   @keyframes float2 { to { transform: translate(120px, -60px) scale(0.92); } }
 

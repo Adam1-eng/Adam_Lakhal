@@ -104,7 +104,7 @@ export const kindLabel: Record<Project['kind'], string> = {
   client: 'Projet client',
   personnel: 'Projet personnel',
   exemple: 'Exemple',
-  maquette: 'Maquette',
+  maquette: 'Maquette (concept)',
 };
 
 async function hydrate(list: Project[]): Promise<ProjectCard[]> {

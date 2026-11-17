@@ -117,6 +117,9 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   .hdr__phone { display: none; align-items: center; gap: 0.45rem; font-size: 0.88rem; color: var(--muted); padding: 0.4rem 0.6rem; border-radius: 999px; transition: color 0.25s; }
   .hdr__phone :global(svg) { width: 16px; height: 16px; }
   .hdr__phone:hover { color: var(--text); }
+  @media (max-width: 760px) {
+    .hdr.is-scrolled .hdr__inner { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(14 14 19 / 0.94); }
+  }
   .hdr__burger { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.04); position: relative; z-index: 2; }
   .hdr__burger-lines { display: grid; gap: 6px; width: 18px; }
   .hdr__burger-lines i { display: block; height: 2px; border-radius: 2px; background: var(--text); transition: transform 0.45s var(--ease); }
@@ -139,15 +142,18 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     position: fixed; inset: 0; z-index: 1;
     display: flex; flex-direction: column; justify-content: space-between;
     padding: calc(var(--header-h) + 2rem) var(--gutter) 2rem;
-    background: radial-gradient(120% 60% at 100% 0%, rgb(30 107 255 / 0.25), transparent 60%), rgb(11 11 15 / 0.97);
-    backdrop-filter: blur(20px);
-    clip-path: circle(0% at calc(100% - 40px) 45px);
-    transition: clip-path 0.7s var(--ease-in-out);
+    background: radial-gradient(120% 60% at 100% 0%, rgb(30 107 255 / 0.25), transparent 60%), #0b0b0f;
+    /* Animation fluide sur téléphone : seulement opacité + déplacement (calculés par la carte graphique).
+       Pas de flou d'arrière-plan ni de découpe animée, qui forçaient à redessiner tout l'écran à chaque image. */
+    opacity: 0; transform: translateY(-12px);
+    transition: opacity 0.32s var(--ease), transform 0.4s var(--ease), visibility 0s linear 0.4s;
+    visibility: hidden;
   }
   .mmenu[hidden] { display: flex; visibility: hidden; }
-  .mmenu.is-open { clip-path: circle(150% at calc(100% - 40px) 45px); visibility: visible; }
+  .mmenu.is-open { opacity: 1; transform: none; visibility: visible; transition: opacity 0.32s var(--ease), transform 0.4s var(--ease), visibility 0s; }
+  .mmenu.is-instant, .mmenu.is-instant li, .mmenu.is-instant .mmenu__foot { transition: none !important; }
   .mmenu ul { list-style: none; padding: 0; display: grid; gap: 0.2rem; }
-  .mmenu li, .mmenu__foot { opacity: 0; transform: translateY(20px); transition: opacity 0.5s var(--ease), transform 0.6s var(--ease); transition-delay: calc(var(--i) * 60ms + 150ms); }
+  .mmenu li, .mmenu__foot { opacity: 0; transform: translateY(14px); transition: opacity 0.4s var(--ease), transform 0.45s var(--ease); transition-delay: calc(var(--i) * 40ms + 60ms); }
   .mmenu.is-open li, .mmenu.is-open .mmenu__foot { opacity: 1; transform: none; }
   .mmenu nav a {
     display: flex; align-items: baseline; gap: 1rem;
