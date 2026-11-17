@@ -1,6 +1,7 @@
 ---
-// Affiche la valeur si elle est renseignée dans l’admin, sinon un repère « À compléter » bien visible.
-interface Props { value?: string; label: string }
-const { value, label } = Astro.props;
+// Valeur légale facultative : affichée si elle est renseignée dans l’admin, sinon RIEN n’est affiché
+// (jamais de repère « à compléter » visible par le public).
+interface Props { value?: string; label?: string }
+const { value } = Astro.props;
 ---
-{value?.trim() ? <>{value}</> : <span class="todo">[À compléter : {label}]</span>}
+{value?.trim() ? <>{value}</> : null}

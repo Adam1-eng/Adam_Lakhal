@@ -1,22 +1,26 @@
 // Données fixes du site (textes de sections). Les contenus modifiables — projets, FAQ, services,
 // témoignages, coordonnées, WhatsApp, réseaux — sont gérés dans l’admin (/admin) et stockés en base.
 
+import { SITE, money } from '../config/site';
+
+/** Prix d’un forfait depuis la configuration : montant + « CAD, avant taxes », ou « Sur devis ». */
+const offerPrice = (key: keyof typeof SITE.prices) => {
+  const p = SITE.prices[key];
+  return p == null ? { price: 'Sur devis', unit: 'Devis gratuit, selon votre projet' } : { from: 'À partir de', price: money(p).replace(` ${SITE.currency}`, ''), unit: `${SITE.currency}, ${SITE.taxesNote}` };
+};
+
+/** Alias historique : toutes les valeurs viennent de src/config/site.ts. */
 export const site = {
-  name: 'Lakauraa',
-  owner: 'Adam Lakhal',
-  city: 'Montréal',
+  name: SITE.name,
+  owner: SITE.owner,
+  city: SITE.city,
   tagline: 'Sites web pour commerces locaux',
   description:
     "Lakauraa crée des sites web rapides, élégants et abordables pour les commerces de Montréal : salons, restos, garages, spas, photographes et travailleurs autonomes. Maquette gratuite avant de payer.",
-  url: 'https://lakauraa.vercel.app',
-  phone: '438-528-0259',
-  phoneHref: 'tel:+14385280259',
-  smsHref: 'sms:+14385280259',
-  email: 'adamlakhal800@gmail.com',
-  school: 'Cégep du Vieux Montréal',
-  responseTime: 'moins de 24 h',
-  delay: '1 à 2 semaines',
-  maquettesCount: 48,
+  url: SITE.url,
+  school: SITE.school,
+  responseTime: SITE.responseTime,
+  delay: SITE.delay,
 };
 
 export const nav = [
@@ -44,8 +48,7 @@ export const offers: Offer[] = [
   {
     id: 'essentiel',
     name: 'Essentiel',
-    from: 'À partir de',
-    price: '600 $',
+    ...offerPrice('essentiel'),
     pitch: 'Une page complète pour être présent en ligne, sans complication.',
     features: [
       "Site d'une page, adapté au cellulaire",
@@ -58,7 +61,7 @@ export const offers: Offer[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 'Sur devis',
+    ...offerPrice('pro'),
     pitch: 'Pour se démarquer et attirer de nouveaux clients chaque semaine.',
     features: [
       "Jusqu'à 5 pages",
@@ -73,7 +76,7 @@ export const offers: Offer[] = [
   {
     id: 'entretien',
     name: 'Entretien',
-    price: 'Sur devis',
+    ...offerPrice('entretien'),
     pitch: "Je m'occupe de tout, vous vous occupez de vos clients.",
     features: [
       'Hébergement et nom de domaine',
@@ -133,7 +136,7 @@ export const engagements = [
   {
     icon: 'split',
     title: 'Paiement en deux temps',
-    text: '40 % au départ, le reste seulement quand votre site est en ligne et qu’il vous plaît.',
+    text: `${SITE.depositPercent} % au départ, le reste seulement quand votre site est en ligne et qu’il vous plaît.`,
   },
   {
     icon: 'clock',
@@ -147,11 +150,12 @@ export const engagements = [
   },
 ];
 
+/** Chiffres affichés (À propos) : aucune statistique inventée. Le nombre de projets est calculé
+ *  depuis les projets publiés (voir Stats.astro), les autres valeurs viennent de la configuration. */
 export const stats = [
-  { value: 48, suffix: '', label: 'maquettes réalisées pour des commerces' },
-  { value: 2, prefix: '1–', suffix: ' sem.', label: 'pour mettre votre site en ligne' },
-  { value: 24, prefix: '< ', suffix: ' h', label: 'pour recevoir une réponse' },
-  { value: 0, suffix: ' $', label: 'pour voir votre maquette' },
+  { value: SITE.delay, label: 'pour mettre votre site en ligne' },
+  { value: SITE.responseTime.replace('moins de ', '< '), label: 'pour recevoir une réponse' },
+  { value: '0 $', label: 'pour voir votre maquette' },
 ];
 
 export const process = [

@@ -1,6 +1,6 @@
 ---
 import LegalPage from '../components/LegalPage.astro';
-import Todo from '../components/Todo.astro';
+import { telHref } from '../lib/content';
 const { contact } = Astro.locals.settings;
 const sections = [
   { id: 'objet', title: 'Objet' },
@@ -29,6 +29,6 @@ const sections = [
   <p>Le site contient des liens vers des sites tiers (projets clients, maquettes, réseaux sociaux, WhatsApp). Je ne contrôle pas leur contenu ni leurs pratiques de confidentialité.</p>
 
   <h2 id="droit">Droit applicable</h2>
-  <p>Les présentes conditions sont régies par les lois applicables au Québec et au Canada, sans préjudice des droits impératifs dont bénéficie l’utilisateur dans son pays de résidence. <Todo label="tribunal compétent à faire valider par un juriste" /></p>
-  <p>Questions : <a href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
+  <p>En cas de question ou de désaccord concernant l’utilisation du site, nous chercherons d’abord une solution à l’amiable. Les droits impératifs dont bénéficie l’utilisateur dans son pays de résidence s’appliquent dans tous les cas.</p>
+  <p>Questions : {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : <>par téléphone ou texto au <a href={telHref(contact.phone)}>{contact.phone}</a></>}.</p>
 </LegalPage>

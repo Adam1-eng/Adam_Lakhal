@@ -6,7 +6,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
-import { lenisOptions, ease, reveal, titleWords, counters } from '../lib/motion-config';
+import { lenisOptions, ease, reveal } from '../lib/motion-config';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -58,65 +58,43 @@ reducedQuery.addEventListener('change', () => {
 
 /* ---------- Affichage immédiat (animations réduites ou erreur) ---------- */
 function showEverything() {
-  gsap.set('.reveal, .split-word > span, [data-count]', { clearProps: 'all' });
-  document.querySelectorAll('.reveal, [data-split]').forEach((el) => el.classList.add('is-in'));
-  document.querySelectorAll<HTMLElement>('[data-count]').forEach((el) => (el.textContent = el.dataset.count ?? el.textContent));
+  document.querySelectorAll('.pre').forEach((el) => el.classList.remove('pre'));
   document.querySelectorAll<HTMLElement>('[data-progress]').forEach((el) => el.style.setProperty('--p', '1'));
   document.querySelectorAll('[data-step]').forEach((el) => el.classList.add('is-on'));
+}
+
+/* ---------- Apparitions au défilement (tous les écrans) ----------
+   Seuls les blocs situés SOUS l'écran au chargement sont masqués (.pre) ; ce qui est visible
+   au chargement n'est jamais caché. Double déclencheur : IntersectionObserver + vérification
+   au défilement (si l'observateur ne se déclenche pas, le contenu s'affiche quand même). */
+let io: IntersectionObserver | null = null;
+let revealCleanup: (() => void) | null = null;
+function revealOnScroll() {
+  revealCleanup?.();
+  if (reduced() || !('IntersectionObserver' in window)) return;
+  const vh = window.innerHeight;
+  const pending = new Set<HTMLElement>();
+  const show = (el: HTMLElement) => { el.classList.remove('pre'); pending.delete(el); io?.unobserve(el); };
+  io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && show(e.target as HTMLElement)), { rootMargin: '0px 0px 0px 0px' });
+  document.querySelectorAll<HTMLElement>('.reveal, [data-split]').forEach((el) => {
+    const r = el.getBoundingClientRect();
+    if (r.height > 0 && r.top > vh * 0.94) { el.classList.add('pre'); pending.add(el); io!.observe(el); }
+  });
+  let raf = 0;
+  const check = () => {
+    raf = 0;
+    const h = window.innerHeight;
+    pending.forEach((el) => { const r = el.getBoundingClientRect(); if (r.top < h && r.bottom > 0) show(el); });
+  };
+  const onScroll = () => { if (!raf) raf = requestAnimationFrame(check); };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  revealCleanup = () => { window.removeEventListener('scroll', onScroll); io?.disconnect(); io = null; pending.forEach((el) => el.classList.remove('pre')); pending.clear(); revealCleanup = null; };
 }
 
 /* ---------- Animations de la page ---------- */
 let ctx: gsap.Context | null = null;
 
 function pageAnimations() {
-  // 1. Titres de section : mots qui montent un à un
-  gsap.utils.toArray<HTMLElement>('[data-split]').forEach((title) => {
-    const words = title.querySelectorAll('.split-word > span');
-    gsap.fromTo(words, { y: 0, yPercent: 105 }, {
-      yPercent: 0,
-      duration: titleWords.duration,
-      ease: ease.expo,
-      stagger: titleWords.stagger,
-      scrollTrigger: { trigger: title, start: titleWords.start, once: true },
-      onStart: () => title.classList.add('is-in'),
-    });
-  });
-
-  // 2. Apparitions : fondu + léger mouvement vertical, décalées par groupe (cartes, grilles)
-  ScrollTrigger.batch('.reveal', {
-    start: reveal.start,
-    once: true,
-    onEnter: (batch) => {
-      gsap.to(batch, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        filter: 'blur(0px)',
-        duration: reveal.duration,
-        ease: ease.out,
-        stagger: { each: reveal.stagger, from: 'start' },
-        overwrite: true,
-        onComplete: () => batch.forEach((el) => { el.classList.add('is-in'); gsap.set(el, { clearProps: 'filter,transform' }); }),
-      });
-    },
-  });
-
-  // 3. Compteurs : progression fluide jusqu’à la valeur exacte
-  gsap.utils.toArray<HTMLElement>('[data-count]').forEach((el) => {
-    const target = Number(el.dataset.count);
-    if (!Number.isFinite(target) || target === 0) { el.textContent = String(target); return; }
-    const state = { v: 0 };
-    el.textContent = '0';
-    gsap.to(state, {
-      v: target,
-      duration: counters.duration,
-      ease: counters.ease,
-      scrollTrigger: { trigger: el, start: counters.start, once: true },
-      onUpdate: () => (el.textContent = String(Math.round(state.v))),
-      onComplete: () => (el.textContent = String(target)),
-    });
-  });
-
   // 4. Processus : la ligne se remplit au rythme du défilement, les étapes s’allument
   gsap.utils.toArray<HTMLElement>('[data-progress]').forEach((list) => {
     const steps = list.querySelectorAll<HTMLElement>('[data-step]');
@@ -161,43 +139,28 @@ function pageAnimations() {
   });
 }
 
-/* ---------- Écrans tactiles : mêmes apparitions, déclenchées par le navigateur (IntersectionObserver)
-   et animées en CSS. Évite à GSAP de mesurer toute la page à chaque changement de page sur téléphone. ---------- */
-let io: IntersectionObserver | null = null;
-function countUp(el: HTMLElement) {
-  const target = Number(el.dataset.count);
-  if (!Number.isFinite(target) || target === 0) { el.textContent = String(target); return; }
-  const t0 = performance.now(); const dur = counters.duration * 1000;
-  const step = (now: number) => {
-    const k = Math.min(1, (now - t0) / dur); const v = 1 - Math.pow(1 - k, 2);
-    el.textContent = String(Math.round(target * v));
-    if (k < 1) requestAnimationFrame(step);
-  };
-  el.textContent = '0'; requestAnimationFrame(step);
-}
-function lightAnimations() {
+/* ---------- Écrans tactiles : processus animé sans GSAP (pas de mesure de toute la page) ---------- */
+let pio: IntersectionObserver | null = null;
+function lightProcess() {
   document.documentElement.classList.add('io-motion');
-  io?.disconnect();
-  io = new IntersectionObserver((entries) => {
+  pio?.disconnect();
+  pio = new IntersectionObserver((entries) => {
     for (const e of entries) {
       if (!e.isIntersecting) continue;
-      const el = e.target as HTMLElement;
-      io!.unobserve(el);
-      if (el.hasAttribute('data-count')) countUp(el);
-      else if (el.hasAttribute('data-progress')) {
-        el.style.setProperty('--p', '1');
-        el.querySelectorAll<HTMLElement>('[data-step]').forEach((s, k) => setTimeout(() => s.classList.add('is-on'), 250 + k * 350));
-      } else el.classList.add('is-in');
+      const el = e.target as HTMLElement; pio!.unobserve(el);
+      el.style.setProperty('--p', '1');
+      el.querySelectorAll<HTMLElement>('[data-step]').forEach((st, k) => setTimeout(() => st.classList.add('is-on'), 200 + k * 250));
     }
   }, { rootMargin: '0px 0px -10% 0px' });
-  document.querySelectorAll<HTMLElement>('.reveal, [data-split], [data-count], [data-progress]').forEach((el) => io!.observe(el));
+  document.querySelectorAll<HTMLElement>('[data-progress]').forEach((el) => pio!.observe(el));
 }
 
 function init() {
   ctx?.revert();
   ctx = null;
   if (reduced()) { showEverything(); return; }
-  if (touchOnly()) { lightAnimations(); return; }
+  revealOnScroll();
+  if (touchOnly()) { lightProcess(); return; }
   startLenis();
   lenis?.resize();
   try {
@@ -211,7 +174,7 @@ function init() {
 }
 
 // Changement de page : on nettoie les animations, Lenis repart en haut
-document.addEventListener('astro:before-swap', () => { ctx?.revert(); ctx = null; io?.disconnect(); io = null; });
+document.addEventListener('astro:before-swap', () => { ctx?.revert(); ctx = null; revealCleanup?.(); pio?.disconnect(); pio = null; });
 document.addEventListener('astro:after-swap', () => lenis?.scrollTo(0, { immediate: true, force: true }));
 document.addEventListener('astro:page-load', init);
 window.addEventListener('load', () => ScrollTrigger.refresh());

@@ -18,7 +18,7 @@ function initHeader() {
   let ticking = false;
   const update = () => {
     const y = window.scrollY;
-    header.classList.toggle('is-scrolled', y > 20);
+    header.classList.toggle('is-scrolled', y > 2); // fond opaque dès les premiers pixels
     const menuOpen = header.querySelector('[data-menu]')?.classList.contains('is-open');
     if (!menuOpen) header.classList.toggle('is-hidden', y > 400 && y > lastY + 4);
     if (y < lastY - 4 || y < 400) header.classList.remove('is-hidden');
@@ -207,25 +207,35 @@ function initFilters() {
 
 /* ---------- FAQ : ouverture animée ---------- */
 function initFaq() {
-  document.querySelectorAll<HTMLDetailsElement>('[data-faq] details').forEach((d) => {
-    const summary = d.querySelector('summary')!;
-    const body = d.querySelector<HTMLElement>('.faq__a')!;
-    summary.addEventListener('click', (e) => {
-      if (reduced()) return;
-      e.preventDefault();
-      if (d.open) {
+  // Accordéon : une seule réponse ouverte à la fois ; vrais boutons avec aria-expanded à jour.
+  document.querySelectorAll<HTMLElement>('[data-faq]').forEach((list) => {
+    const items = [...list.querySelectorAll<HTMLElement>('[data-faq-item]')];
+    const parts = (it: HTMLElement) => ({ btn: it.querySelector<HTMLButtonElement>('.fq__q button')!, body: it.querySelector<HTMLElement>('.faq__a')! });
+    const set = (it: HTMLElement, open: boolean, animate: boolean) => {
+      const { btn, body } = parts(it);
+      if ((btn.getAttribute('aria-expanded') === 'true') === open && body.hidden === !open) return;
+      btn.setAttribute('aria-expanded', String(open));
+      it.classList.toggle('is-open', open);
+      if (!animate || reduced()) { body.hidden = !open; return; }
+      if (open) {
+        body.hidden = false;
         const h = body.scrollHeight;
-        body.animate([{ height: `${h}px`, opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 380, easing: 'cubic-bezier(.65,0,.35,1)' }).onfinish = () => { d.open = false; };
-        d.classList.remove('is-open');
+        body.animate([{ height: '0px', opacity: 0 }, { height: `${h}px`, opacity: 1 }], { duration: 320, easing: 'cubic-bezier(.22,1,.36,1)' });
       } else {
-        d.open = true;
-        d.classList.add('is-open');
         const h = body.scrollHeight;
-        body.animate([{ height: '0px', opacity: 0 }, { height: `${h}px`, opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.22,1,.36,1)' });
+        body.animate([{ height: `${h}px`, opacity: 1 }, { height: '0px', opacity: 0 }], { duration: 260, easing: 'cubic-bezier(.65,0,.35,1)' }).onfinish = () => {
+          if (parts(it).btn.getAttribute('aria-expanded') === 'false') body.hidden = true;
+        };
       }
-    });
-    if (d.open) d.classList.add('is-open');
-    d.addEventListener('toggle', () => d.classList.toggle('is-open', d.open));
+    };
+    // État initial : seule la première réponse est ouverte
+    items.forEach((it, i) => set(it, i === 0, false));
+    items.forEach((it) => parts(it).btn.addEventListener('click', () => {
+      const willOpen = parts(it).btn.getAttribute('aria-expanded') !== 'true';
+      items.forEach((other) => { if (other !== it) set(other, false, true); });
+      set(it, willOpen, true);
+      document.dispatchEvent(new CustomEvent('lk:layout'));
+    }));
   });
 }
 

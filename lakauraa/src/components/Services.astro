@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
+import { servicePrice } from '../config/site';
 import type { Service } from '../lib/db/schema';
 interface Props { services: Service[]; showAllLink?: boolean }
 const { services, showAllLink = true } = Astro.props;
@@ -21,7 +22,7 @@ const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique:
           <h3>{s.title}</h3>
           <p>{s.text}</p>
           <div class="sv__foot">
-            <span class="chip chip--accent">{s.price}</span>
+            <span class="chip chip--accent">{servicePrice(s.id)}</span>
             <span class="sv__go">Découvrir <span class="sv__arrow"><Icon name="arrow-up-right" /></span></span>
           </div>
         </a>

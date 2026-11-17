@@ -34,7 +34,7 @@ const list = compact ? engagements.filter((e) => KEY.includes(e.title)) : engage
         {stats.map((s) => (
           <div>
             <dt>{s.label}</dt>
-            <dd>{s.prefix && <span class="eng__affix">{s.prefix}</span>}<span data-count={s.value}>{s.value}</span>{s.suffix && <span class="eng__affix">{s.suffix}</span>}</dd>
+            <dd>{s.value}</dd>
           </div>
         ))}
       </dl>

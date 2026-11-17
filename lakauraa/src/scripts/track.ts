@@ -2,7 +2,10 @@
 // Respecte « Global Privacy Control » : si le navigateur le demande, rien n'est envoyé.
 type Ev = 'whatsapp_ma' | 'whatsapp_ca' | 'call' | 'sms' | 'email' | 'cta_contact' | 'form_ready';
 
-const optOut = () => (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true;
+// Compte seulement si le visiteur a ACCEPTÉ dans la bannière (stockage local « lk_consent »),
+// et jamais si le navigateur envoie Global Privacy Control.
+const accepted = () => { try { return JSON.parse(localStorage.getItem('lk_consent') ?? 'null')?.analytics === true; } catch { return false; } };
+const optOut = () => (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true || !accepted();
 
 export function track(e: Ev) {
   if (optOut()) return;

@@ -1,18 +1,25 @@
 ---
-// Accueil « une page par sujet » : l'accroche, puis une tuile par sujet (chaque sujet a sa propre page).
+// Accueil : accroche, résumé des services, des tarifs et du processus, puis une tuile par sujet.
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Marquee from '../components/Marquee.astro';
 import TopicTiles from '../components/TopicTiles.astro';
-import { getFaqs, getPublishedProjects } from '../lib/content';
+import Services from '../components/Services.astro';
+import PricingSummary from '../components/PricingSummary.astro';
+import Process from '../components/Process.astro';
+import { getFaqs, getPublishedProjects, getServices } from '../lib/content';
 import { getReviewSummary } from '../lib/reviews';
+import { entryPrice, money } from '../config/site';
 
-const [faqs, rating, projects] = await Promise.all([getFaqs(), getReviewSummary(), getPublishedProjects()]);
+const [faqs, rating, projects, services] = await Promise.all([getFaqs(), getReviewSummary(), getPublishedProjects(), getServices()]);
 const flagship = projects.find((p) => p.kind === 'client' && p.featured) ?? projects.find((p) => p.kind === 'client') ?? projects[0] ?? null;
 ---
 <Base title="Création de sites web à Montréal et au Maroc · Lakauraa"
-  description="Sites web rapides et élégants pour les commerces de Montréal et du Maroc : salons, restos, garages, spas. À partir de 600 $, maquette gratuite avant de payer.">
+  description={`Sites web rapides et élégants pour les commerces de Montréal et du Maroc : salons, restos, garages, spas. ${entryPrice() != null ? `À partir de ${money(entryPrice()!)}, ` : ''}maquette gratuite avant de payer.`}>
   <Hero rating={rating} />
   <Marquee />
-  <TopicTiles flagship={flagship} projectCount={projects.length} rating={rating} faqCount={faqs.length} />
+  <Services services={services} />
+  <PricingSummary />
+  <Process />
+  <TopicTiles flagship={flagship} projectCount={projects.length} rating={rating} faqCount={faqs.length} showServices={false} />
 </Base>

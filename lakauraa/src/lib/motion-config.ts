@@ -45,10 +45,10 @@ export const counters = {
 
 /** Titre du hero (React Bits · BlurText). */
 export const heroTitle = {
-  delay: 90, // ms entre deux mots
-  stepDuration: 0.5,
-  blur: 12,
-  distance: 26,
+  delay: 25, // ms entre deux mots (10 mots : le dernier commence à 225 ms)
+  stepDuration: 0.25, // durée totale par mot = 0,5 s
+  blur: 8,
+  distance: 18,
 };
 
 /** Rayons lumineux du hero (React Bits · LightRays) — discrets pour garder le texte lisible. */

@@ -24,13 +24,16 @@ const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 
     <div class="fq__list" data-faq>
       {faqs.map((f, i) => (
-        <details class="fq__item reveal" style={`--i:${Math.min(i, 4)}`} open={i === 0}>
-          <summary>
-            <span>{f.question}</span>
-            <span class="fq__icon" aria-hidden="true"><Icon name="plus" /></span>
-          </summary>
-          <div class="faq__a"><p>{f.answer}</p></div>
-        </details>
+        <div class:list={['fq__item reveal', { 'is-open': i === 0 }]} style={`--i:${Math.min(i, 4)}`} data-faq-item>
+          <h3 class="fq__q">
+            <button type="button" id={`faq-q-${i}`} aria-expanded={i === 0 ? 'true' : 'false'} aria-controls={`faq-a-${i}`}>
+              <span>{f.question}</span>
+              <span class="fq__icon" aria-hidden="true"><Icon name="plus" /></span>
+            </button>
+          </h3>
+          <!-- Sans JavaScript, toutes les réponses restent visibles ; le script les replie (une seule ouverte à la fois). -->
+          <div class="faq__a" id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`}><p>{f.answer}</p></div>
+        </div>
       ))}
       {moreHref && <a href={moreHref} class="link-arrow fq__more reveal">Toutes les questions <Icon name="arrow" /></a>}
     </div>
@@ -47,8 +50,9 @@ const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
   .fq__item { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); transition: border-color 0.3s, background 0.3s; }
   .fq__item:hover { border-color: var(--line-2); }
   .fq__item.is-open { border-color: rgb(30 107 255 / 0.35); background: linear-gradient(180deg, rgb(30 107 255 / 0.06), transparent), var(--surface); }
-  .fq__item summary { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.15rem 1.3rem; cursor: pointer; list-style: none; font-weight: 600; font-size: 1.02rem; }
-  .fq__item summary::-webkit-details-marker { display: none; }
+  .fq__q { font: inherit; letter-spacing: 0; margin: 0; }
+  .fq__q button { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.15rem 1.3rem; cursor: pointer; text-align: left; font-weight: 600; font-size: 1.02rem; color: var(--text); border-radius: 16px; }
+  .fq__q button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   .fq__icon { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line-2); transition: transform 0.5s var(--ease), background 0.3s, border-color 0.3s; }
   .fq__icon :global(svg) { width: 15px; height: 15px; }
   .fq__item.is-open .fq__icon { transform: rotate(135deg); background: var(--aura-btn); border-color: transparent; }

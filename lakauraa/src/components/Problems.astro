@@ -18,7 +18,9 @@ import { problems } from '../data/site';
           <h3>{p.title}</h3>
           <p>{p.text}</p>
 
-          <div class="pb__ill" aria-hidden="true">
+          <div class="pb__ill">
+            <span class="pb__tag">{p.kind === 'facebook' ? 'Exemple de conversation' : 'Exemple illustratif'}</span>
+            <div aria-hidden="true">
             {p.kind === 'google' && (
               <div class="ill-google">
                 <div class="ill-google__bar"><span>coiffeur près de moi</span><Icon name="search" /></div>
@@ -46,6 +48,7 @@ import { problems } from '../data/site';
                 <small>Chargement… 8 s</small>
               </div>
             )}
+            </div>
           </div>
         </article>
       ))}
@@ -77,6 +80,8 @@ import { problems } from '../data/site';
   .pb > p { color: var(--muted); font-size: 0.95rem; }
   .pb__ill { margin-top: 1rem; padding: 1rem; border-radius: 14px; background: rgb(0 0 0 / 0.3); border: 1px solid var(--line); min-height: 170px; font-size: 0.78rem; transition: transform 0.5s var(--ease); }
   .pb:hover .pb__ill { transform: translateY(-4px); }
+  /* Étiquette : ces illustrations sont des exemples, pas de vrais échanges clients */
+  .pb__tag { display: inline-flex; margin-bottom: 0.8rem; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: rgb(255 255 255 / 0.06); border: 1px dashed var(--line-2); }
   .ln { display: block; height: 7px; border-radius: 6px; background: rgb(255 255 255 / 0.1); }
   .w55 { width: 55%; } .w60 { width: 60%; } .w62 { width: 62%; } .w70 { width: 70%; } .w80 { width: 80%; }
 

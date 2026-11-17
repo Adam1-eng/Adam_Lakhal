@@ -24,7 +24,7 @@ const SALON = {
   intro: "Un salon de quartier chaleureux où chaque coupe est pensée pour vous. Coupes, couleurs et soins pour toute la famille.",
   quartier: "Rosemont",
   adresse: "1234, rue Beaubien Est, Montréal (QC) H2S 1T2",
-  telephone: "514-555-0123",
+  telephone: "(514) XXX-XXXX", // exemple fictif : format seulement, aucun vrai numéro
   facebook: "https://facebook.com/",
   instagram: "",
   lienReservation: "",            // ex. lien Fresha / Booksy ; vide = bouton « Appeler »
@@ -287,7 +287,7 @@ const SALON = {
 <script>
   const $ = s => document.querySelectorAll(s);
   const S = SALON;
-  const telHref = "tel:+1" + S.telephone.replace(/\D/g, "");
+  const telHref = "#"; // site d'exemple : le bouton d'appel ne compose aucun numéro
 
   document.documentElement.style.setProperty("--accent", S.couleurPrincipale);
   document.documentElement.style.setProperty("--bg", S.couleurFond);

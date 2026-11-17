@@ -120,7 +120,7 @@ const year = (d: string) => d.slice(0, 4);
   .pf__feat-visual { position: relative; display: block; transition: transform 0.6s var(--ease); }
 
   .pf__bar { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: center; margin-bottom: 1.4rem; }
-  .pf__filters { display: flex; gap: 0.4rem; overflow-x: auto; scrollbar-width: none; max-width: 100%; padding: 2px; }
+  .pf__filters { display: flex; flex-wrap: wrap; gap: 0.4rem; max-width: 100%; padding: 2px; }
   .pf__filters::-webkit-scrollbar { display: none; }
   .pf__filters button { flex: none; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.55rem 1rem; border-radius: 999px; border: 1px solid var(--line-2); font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: all 0.3s var(--ease); min-height: 44px; }
   .pf__filters button span { font-size: 0.75rem; padding: 0.05rem 0.45rem; border-radius: 999px; background: rgb(255 255 255 / 0.07); }

@@ -17,7 +17,7 @@ const star = 'M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9
   .stars__row svg { width: var(--s); height: var(--s); flex: none; }
   .stars__row--off { fill: rgb(255 255 255 / 0.14); }
   .stars__row--on { position: absolute; inset: 0 auto 0 0; width: var(--pct); overflow: hidden; fill: #fbbf24; }
-  :global(.reveal:not(.is-in)) .stars__row--on { width: 0; }
+  :global(.reveal.pre) .stars__row--on { width: 0; }
   :global(.reveal) .stars__row--on { transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.2s; }
   @media (prefers-reduced-motion: reduce) { :global(.reveal) .stars__row--on { transition: none; width: var(--pct) !important; } }
 </style>

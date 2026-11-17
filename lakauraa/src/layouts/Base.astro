@@ -9,6 +9,7 @@ import Footer from '../components/Footer.astro';
 import WhatsApp from '../components/WhatsApp.astro';
 import CookiePrefs from '../components/CookiePrefs.astro';
 import { site } from '../data/site';
+import { entryPrice, money } from '../config/site';
 import { activeSocials } from '../lib/content';
 import type { Faq as FaqRow } from '../lib/db/schema';
 
@@ -46,7 +47,7 @@ const graph: Record<string, unknown>[] = [
     image: `${origin}/og.jpg`,
     logo: `${origin}/favicon.svg`,
     telephone: settings.contact.phone,
-    email: settings.contact.email,
+    ...(settings.contact.email ? { email: settings.contact.email } : {}),
     sameAs: activeSocials(settings.socials).map((x) => x.url),
     founder: { '@id': id('adam') },
     address: { '@type': 'PostalAddress', addressLocality: 'Montréal', addressRegion: 'QC', addressCountry: 'CA' },
@@ -55,7 +56,7 @@ const graph: Record<string, unknown>[] = [
       { '@type': 'Country', name: 'Canada' },
       { '@type': 'Country', name: 'Maroc' },
     ],
-    priceRange: 'À partir de 600 $',
+    ...(entryPrice() != null ? { priceRange: `À partir de ${money(entryPrice()!)}` } : {}),
   },
   { '@type': 'Person', '@id': id('adam'), name: site.owner, jobTitle: 'Développeur web', worksFor: { '@id': id('business') }, url: `${origin}/a-propos` },
 ];

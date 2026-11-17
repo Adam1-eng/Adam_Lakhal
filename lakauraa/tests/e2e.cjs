@@ -13,7 +13,7 @@ let fails = 0; const bad = (m) => { fails++; console.log('FAIL', m); };
     const p = await ctx.newPage(); const errs = [];
     p.on('pageerror', (e) => errs.push(e.message)); p.on('console', (m) => m.type() === 'error' && errs.push(m.text()));
     for (const path of pages) {
-      await p.goto(B + path, { waitUntil: 'networkidle' });
+      await p.goto(B + path, { waitUntil: 'load' }); await new Promise((r) => setTimeout(r, 700));
       const r = await p.evaluate(() => {
         const over = document.documentElement.scrollWidth - innerWidth;
         const culprits = over > 1 ? [...document.querySelectorAll('body *')].filter((e) => { const b = e.getBoundingClientRect(); return b.right > innerWidth + 1 && getComputedStyle(e).position !== 'fixed' && !e.closest('[aria-hidden="true"], .rw__marquee, .marquee, [class*="marquee"]'); }).slice(0, 3).map((e) => e.tagName + '.' + e.className) : [];
@@ -34,18 +34,20 @@ let fails = 0; const bad = (m) => { fails++; console.log('FAIL', m); };
   }
   // 2. Mesure des contacts : chaque action envoie bien un événement (requêtes interceptées)
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 } });
+  // Le compteur ne fonctionne qu'après acceptation dans la bannière de confidentialité
+  await ctx.addInitScript(() => localStorage.setItem('lk_consent', JSON.stringify({ analytics: true, date: 'test' })));
   const p = await ctx.newPage(); const sent = [];
   await p.route('**/api/evt', async (r) => { sent.push(JSON.parse(r.request().postData())); await r.continue(); });
   await ctx.route(/wa\.me|^tel:|^sms:|^mailto:/, (r) => r.abort());
   p.on('popup', (pp) => pp.close().catch(() => {}));
-  await p.goto(B + '/services', { waitUntil: 'networkidle' });
+  await p.goto(B + '/services', { waitUntil: 'load' }); await new Promise((r) => setTimeout(r, 700));
   await p.locator('main a[href="/contact"]').first().click(); await p.waitForURL('**/contact');
   await p.waitForTimeout(300);
   await p.fill('#cf-commerce', 'Test'); await p.fill('#cf-nom', 'Test'); await p.fill('#cf-joindre', '5145550123');
   await p.click('.cf__submit button'); await p.waitForSelector('[data-done]:not([hidden])');
   await p.evaluate(() => document.querySelectorAll('a[href^="tel:"], a[href^="mailto:"], a[href^="sms:"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault())));
   await p.locator('main a[href^="tel:"]:visible').first().click();
-  await p.locator('main a[href^="mailto:"]:visible').first().click();
+  await p.locator('main a[href^="sms:"]:visible').first().click(); // aucun courriel public configuré : le texto remplace le courriel
   await p.locator('main [data-wa-open]:visible').first().click();
   await p.waitForSelector('dialog[open]');
   const hint = await p.locator('[data-wa-hint]').textContent();
@@ -55,16 +57,16 @@ let fails = 0; const bad = (m) => { fails++; console.log('FAIL', m); };
   const evs = sent.map((x) => `${x.e}@${x.p}`);
   console.log('événements envoyés :', evs.join(', '));
   console.log('choix WhatsApp :', lines.join(' | '), '· conseil :', hint);
-  for (const want of ['cta_contact@/services', 'form_ready@/contact', 'call@/contact', 'email@/contact', 'whatsapp_ma@/contact']) if (!evs.includes(want)) bad('événement manquant ' + want);
+  for (const want of ['cta_contact@/services', 'form_ready@/contact', 'call@/contact', 'sms@/contact', 'whatsapp_ma@/contact']) if (!evs.includes(want)) bad('événement manquant ' + want);
   if (new Set(evs).size !== evs.length) bad('événement envoyé en double');
   // 3. Respect de Global Privacy Control
-  const ctx2 = await b.newContext(); await ctx2.addInitScript(() => Object.defineProperty(navigator, 'globalPrivacyControl', { get: () => true }));
+  const ctx2 = await b.newContext(); await ctx2.addInitScript(() => { localStorage.setItem('lk_consent', JSON.stringify({ analytics: true, date: 'test' })); Object.defineProperty(navigator, 'globalPrivacyControl', { get: () => true }); });
   const p2 = await ctx2.newPage(); let n2 = 0; await p2.route('**/api/evt', (r) => { n2++; r.continue(); });
-  await p2.goto(B + '/services', { waitUntil: 'networkidle' }); await p2.locator('main a[href="/contact"]').first().click(); await p2.waitForTimeout(800);
+  await p2.goto(B + '/services', { waitUntil: 'load' }); await new Promise((r) => setTimeout(r, 700)); await p2.locator('main a[href="/contact"]').first().click(); await p2.waitForTimeout(800);
   if (n2) bad('GPC ignoré : ' + n2 + ' événement(s) envoyé(s)'); else console.log('GPC respecté : 0 événement');
   // 3 bis. Menu mobile : ouverture, navigation, fermeture, défilement rétabli
   const pm = await (await b.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })).newPage();
-  await pm.goto(B + '/', { waitUntil: 'networkidle' });
+  await pm.goto(B + '/', { waitUntil: 'load' }); await new Promise((r) => setTimeout(r, 700));
   for (const target of ['/services', '/projets', '/contact']) {
     await pm.locator('[data-menu-toggle]').click();
     await pm.waitForSelector('#mobile-menu.is-open');
@@ -82,7 +84,7 @@ let fails = 0; const bad = (m) => { fails++; console.log('FAIL', m); };
   console.log('menu mobile : 3 navigations + WhatsApp OK');
 
   // 4. Clavier : lien d'évitement + focus visible
-  const p3 = await (await b.newContext()).newPage(); await p3.goto(B + '/', { waitUntil: 'networkidle' });
+  const p3 = await (await b.newContext()).newPage(); await p3.goto(B + '/', { waitUntil: 'load' }); await new Promise((r) => setTimeout(r, 700));
   await p3.keyboard.press('Tab');
   const skip = await p3.evaluate(() => ({ t: document.activeElement?.textContent?.trim(), ol: getComputedStyle(document.activeElement).outlineStyle, vis: document.activeElement.getBoundingClientRect().top >= 0 }));
   console.log('1re tabulation :', JSON.stringify(skip));

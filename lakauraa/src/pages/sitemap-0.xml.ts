@@ -1,9 +1,10 @@
 import type { APIRoute } from 'astro';
+import { SITE } from '../config/site';
 import { sitemapEntries, xmlEscape } from '../lib/seo';
 
 // Sitemap dynamique : un projet publié dans l’admin y apparaît automatiquement (cache CDN de 10 min).
 export const GET: APIRoute = async ({ site }) => {
-  const base = (site?.href ?? 'https://lakauraa.vercel.app/').replace(/\/$/, '');
+  const base = (site?.href ?? SITE.url).replace(/\/$/, '');
   const urls = (await sitemapEntries()).map((e) =>
     `<url><loc>${xmlEscape(base + e.path)}</loc>${e.lastmod ? `<lastmod>${e.lastmod.toISOString().slice(0, 10)}</lastmod>` : ''}<changefreq>${e.changefreq}</changefreq><priority>${e.priority.toFixed(1)}</priority></url>`,
   );

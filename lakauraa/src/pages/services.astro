@@ -7,11 +7,13 @@ import Process from '../components/Process.astro';
 import Problems from '../components/Problems.astro';
 import Cta from '../components/Cta.astro';
 import { getServices, getPublishedProjects, imageSrcset } from '../lib/content';
+import { SITE, servicePrice, entryPrice, money } from '../config/site';
+const entry = entryPrice();
 import type { ProjectImage } from '../lib/db/schema';
 
 const [services, projects] = await Promise.all([getServices(), getPublishedProjects()]);
 const origin = (Astro.site?.href ?? '').replace(/\/$/, '');
-// Données structurées : seul le prix affiché sur le site (« à partir de 600 $ ») est indiqué ; le reste est sur devis.
+// Données structurées : seul le prix d’entrée de la configuration est indiqué ; le reste est sur devis.
 const serviceSchema = [{
   '@type': 'Service',
   name: 'Création de sites web pour commerces',
@@ -19,10 +21,10 @@ const serviceSchema = [{
   provider: { '@id': `${origin}/#business` },
   areaServed: [{ '@type': 'City', name: 'Montréal' }, { '@type': 'Country', name: 'Canada' }, { '@type': 'Country', name: 'Maroc' }],
   url: `${origin}/services`,
-  offers: { '@type': 'Offer', priceCurrency: 'CAD', priceSpecification: { '@type': 'PriceSpecification', minPrice: 600, priceCurrency: 'CAD' }, description: 'Site web à partir de 600 $ ; les autres services sont sur devis.' },
+  ...(entry != null ? { offers: { '@type': 'Offer', priceCurrency: SITE.currency, priceSpecification: { '@type': 'PriceSpecification', minPrice: entry, priceCurrency: SITE.currency }, description: `Site web à partir de ${money(entry)}, ${SITE.taxesNote} ; les autres services sont sur devis.` } } : {}),
 }];
 const bySlug = (s: string) => projects.find((p) => p.slug === s);
-const pick = (slug: string, imgIndex = -1) => {
+const pick = (slug: string) => {
   const p = bySlug(slug);
   if (!p) return null;
   return { project: p, img: p.cover as ProjectImage | null };
@@ -43,7 +45,7 @@ const details: Record<string, string[]> = {
 const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique: 'shop', entretien: 'care' };
 const settings = Astro.locals.settings;
 ---
-<Base title="Services et prix d’un site web pour commerce" crumbs={[{ name: 'Services', path: '/services' }]} schema={serviceSchema} description="Sites web à partir de 600 $. Site complet, boutique en ligne et entretien sur devis gratuit, selon votre projet. Maquette gratuite avant de payer.">
+<Base title="Services et prix d’un site web pour commerce" crumbs={[{ name: 'Services', path: '/services' }]} schema={serviceSchema} description={`Sites web à partir de ${entry != null ? money(entry) : 'un prix sur devis'}. Site complet, boutique en ligne et entretien sur devis gratuit, selon votre projet. Maquette gratuite avant de payer.`}>
   <PageHero eyebrow="Services" title="Un site qui travaille pour vous, même quand vous êtes fermé." aura="même quand vous êtes fermé."
     lead="Du site d’une page à la boutique en ligne, chaque projet est conçu autour d’un seul objectif : que vos clients vous trouvent, vous fassent confiance et vous appellent."
     crumbs={[{ label: 'Services' }]}>
@@ -68,7 +70,7 @@ const settings = Astro.locals.settings;
               <p class="lead reveal" style="--i:1">{s.text}</p>
               {(details[s.id] ?? s.points).length > 0 && <ul class="checks reveal" style="--i:2">{(details[s.id] ?? s.points).map((d) => <li>{d}</li>)}</ul>}
               <div class="svd__foot reveal" style="--i:3">
-                <span class="chip chip--accent">{s.price}</span>
+                <span class="chip chip--accent">{servicePrice(s.id)}</span>
                 <a href={`/contact?forfait=${s.id === 'vitrine' ? 'essentiel' : s.id}`} class="link-arrow">En parler <Icon name="arrow-up-right" /></a>
               </div>
             </div>
@@ -94,7 +96,7 @@ const settings = Astro.locals.settings;
 </Base>
 
 <style>
-  .svd { display: grid; gap: clamp(3.5rem, 9vw, 8rem); }
+  .svd { display: grid; gap: clamp(3rem, 6vw, 5rem); }
   @media (max-width: 959px) { .svd__num { display: none; } .svd__row { gap: 1.6rem; } }
   .svd__row { display: grid; gap: 2.5rem; align-items: center; scroll-margin-top: calc(var(--header-h) + 2rem); }
   @media (min-width: 960px) {

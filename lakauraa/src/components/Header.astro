@@ -4,7 +4,7 @@ import Icon from './Icon.astro';
 import BrandIcon from './BrandIcon.astro';
 import SocialLinks from './SocialLinks.astro';
 import { nav } from '../data/site';
-import { telHref } from '../lib/content';
+import { telHref, smsHref } from '../lib/content';
 const { contact, whatsapp } = Astro.locals.settings;
 const phoneHref = telHref(contact.phone);
 const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
@@ -61,7 +61,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       <div class="mmenu__quick">
         {hasWa && <button type="button" class="mmenu__q mmenu__q--wa" data-wa-open><BrandIcon name="whatsapp" /> WhatsApp</button>}
         <a class="mmenu__q" href={phoneHref}><Icon name="phone" /> Appeler</a>
-        <a class="mmenu__q" href={`mailto:${contact.email}`}><Icon name="mail" /> Courriel</a>
+        {contact.email ? <a class="mmenu__q" href={`mailto:${contact.email}`}><Icon name="mail" /> Courriel</a>
+          : <a class="mmenu__q" href={smsHref(contact.phone)}><Icon name="message" /> Texto</a>}
       </div>
       <SocialLinks />
     </div>
@@ -83,12 +84,15 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     border: 1px solid transparent;
     transition: background-color 0.4s, border-color 0.4s, box-shadow 0.4s, backdrop-filter 0.4s;
   }
+  /* Bandeau derrière la pastille : le contenu qui défile ne se voit pas non plus autour d’elle */
+  .hdr::before { content: ''; position: absolute; inset: 0 0 -18px; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 0.25s;
+    background: linear-gradient(180deg, #0b0b0f 0%, #0b0b0f 72%, rgb(11 11 15 / 0) 100%); }
+  .hdr.is-scrolled::before { opacity: 1; }
+  /* Au défilement : fond OPAQUE (rien ne se lit à travers), bordure et ombre qui le séparent du contenu */
   .hdr.is-scrolled .hdr__inner {
-    background: rgb(14 14 19 / 0.72);
+    background: #111117;
     border-color: var(--line-2);
-    backdrop-filter: blur(18px) saturate(1.4);
-    -webkit-backdrop-filter: blur(18px) saturate(1.4);
-    box-shadow: 0 20px 40px -24px rgb(0 0 0 / 0.9);
+    box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.95), 0 0 0 1px rgb(0 0 0 / 0.4);
   }
   .hdr__nav ul {
     position: relative;
@@ -118,7 +122,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   .hdr__phone :global(svg) { width: 16px; height: 16px; }
   .hdr__phone:hover { color: var(--text); }
   @media (max-width: 760px) {
-    .hdr.is-scrolled .hdr__inner { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(14 14 19 / 0.94); }
+
   }
   .hdr__burger { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.04); position: relative; z-index: 2; }
   .hdr__burger-lines { display: grid; gap: 6px; width: 18px; }

@@ -1,4 +1,5 @@
 ---
+import { SITE } from '../config/site';
 import Icon from './Icon.astro';
 import BrandIcon from './BrandIcon.astro';
 import { offers } from '../data/site';
@@ -15,7 +16,7 @@ const besoins = [
 ];
 ---
 <div class="cf card" data-contact data-email={contact.email} data-sms={smsHref(contact.phone)}>
-  <form class="cf__form" novalidate data-form action={`mailto:${contact.email}`} method="post" enctype="text/plain">
+  <form class="cf__form" novalidate data-form>
     <div class="cf__progress" aria-hidden="true"><span data-bar></span></div>
 
     <fieldset class="field">
@@ -49,8 +50,8 @@ const besoins = [
       <div class="cf__chips">
         {offers.map((o) => (
           <label class="cf__chip">
-            <input type="radio" name="forfait" value={o.id} data-label={`${o.name} (${[o.from, o.price].filter(Boolean).join(' ')})`} />
-            <span>{o.name} · {[o.from, o.price].filter(Boolean).join(' ')}</span>
+            <input type="radio" name="forfait" value={o.id} data-label={`${o.name} (${[o.from, o.price, o.from ? o.unit : ''].filter(Boolean).join(' ')})`} />
+            <span>{o.name} · {o.from ? `Dès ${o.price} ${SITE.currency}` : o.price}</span>
           </label>
         ))}
         <label class="cf__chip">
@@ -68,7 +69,7 @@ const besoins = [
       </div>
       <div class="field">
         <label for="cf-joindre">Téléphone ou courriel <span class="hint">(obligatoire)</span></label>
-        <input class="input" id="cf-joindre" name="joindre" autocomplete="tel" placeholder="514-555-0123 ou vous@exemple.com" required aria-describedby="err-joindre" />
+        <input class="input" id="cf-joindre" name="joindre" autocomplete="tel" placeholder="Votre numéro (10 chiffres) ou votre courriel" required aria-describedby="err-joindre" />
         <p class="error-msg" id="err-joindre" aria-live="polite"></p>
       </div>
     </div>
@@ -79,7 +80,13 @@ const besoins = [
     </div>
 
     <div class="cf__submit">
-      <button type="submit" class="btn btn--primary" data-magnetic>Préparer ma demande <Icon name="arrow" class="arrow" /></button>
+      <button type="submit" class="btn btn--primary" data-magnetic>{hasWa ? 'Préparer mon message WhatsApp' : 'Préparer mon message'} <Icon name="arrow" class="arrow" /></button>
+      <p class="cf__how">
+        {hasWa
+          ? <>Votre message est rédigé ici, puis il s’ouvre dans <strong>WhatsApp</strong>, prêt à envoyer. <strong>Rien n’est envoyé</strong> tant que vous n’appuyez pas sur « Envoyer » dans WhatsApp.</>
+          : <>Votre message est rédigé ici, puis il s’ouvre dans votre application de messages. <strong>Rien n’est envoyé</strong> tant que vous n’appuyez pas sur « Envoyer ».</>}
+        {' '}Pas WhatsApp ? Vous pourrez l’envoyer par texto au {contact.phone}{contact.email ? <>, par courriel ({contact.email})</> : ''} ou simplement le copier.
+      </p>
       <p class="cf__privacy"><Icon name="shield" /> Vos informations servent uniquement à vous répondre.</p>
     </div>
   </form>
@@ -87,11 +94,11 @@ const besoins = [
   <div class="cf__done" data-done hidden tabindex="-1" aria-labelledby="cf-done-title">
     <span class="cf__done-icon"><Icon name="check" /></span>
     <h3 id="cf-done-title">Votre demande est prête.</h3>
-    <p class="muted">Choisissez comment me l’envoyer : votre application s’ouvre avec le message déjà rédigé. Il ne reste qu’à appuyer sur « Envoyer ».</p>
+    <p class="muted">{hasWa ? 'Appuyez sur « Envoyer sur WhatsApp » : WhatsApp s’ouvre avec ce message déjà rédigé. Il ne reste qu’à appuyer sur « Envoyer ». Pas WhatsApp ? Utilisez le texto ou copiez le message.' : 'Choisissez comment me l’envoyer : votre application s’ouvre avec le message déjà rédigé. Il ne reste qu’à appuyer sur « Envoyer ».'}</p>
     <pre class="cf__preview" data-preview></pre>
     <div class="cf__send">
       {hasWa && <button type="button" class="btn btn--primary cf__wa" data-wa-open data-send-wa><BrandIcon name="whatsapp" /> Envoyer sur WhatsApp</button>}
-      <a class:list={['btn', hasWa ? 'btn--ghost' : 'btn--primary']} data-send-mail href="#"><Icon name="mail" /> Envoyer par courriel</a>
+      {contact.email && <a class="btn btn--ghost" data-send-mail href="#"><Icon name="mail" /> Envoyer par courriel</a>}
       <a class="btn btn--ghost" data-send-sms href="#"><Icon name="message" /> Envoyer par texto</a>
       <button type="button" class="btn btn--ghost" data-copy><Icon name="layers" /> <span>Copier le message</span></button>
     </div>
@@ -109,7 +116,7 @@ const besoins = [
     const done = root.querySelector<HTMLElement>('[data-done]')!;
     const bar = root.querySelector<HTMLElement>('[data-bar]')!;
     const preview = root.querySelector<HTMLElement>('[data-preview]')!;
-    const mail = root.querySelector<HTMLAnchorElement>('[data-send-mail]')!;
+    const mail = root.querySelector<HTMLAnchorElement>('[data-send-mail]');
     const sms = root.querySelector<HTMLAnchorElement>('[data-send-sms]')!;
     const copy = root.querySelector<HTMLButtonElement>('[data-copy]')!;
     const waBtn = root.querySelector<HTMLButtonElement>('[data-send-wa]');
@@ -181,7 +188,7 @@ const besoins = [
       const { text, commerce } = buildMessage();
       preview.textContent = text;
       if (waBtn) waBtn.dataset.waMessage = text;
-      mail.href = `mailto:${EMAIL}?subject=${encodeURIComponent(`Maquette gratuite – ${commerce}`)}&body=${encodeURIComponent(text)}`;
+      if (mail) mail.href = `mailto:${EMAIL}?subject=${encodeURIComponent(`Maquette gratuite – ${commerce}`)}&body=${encodeURIComponent(text)}`;
       const sep = /iPhone|iPad|Macintosh/.test(navigator.userAgent) ? '&' : '?';
       sms.href = `${SMS}${sep}body=${encodeURIComponent(text)}`;
       document.dispatchEvent(new CustomEvent('lk:track', { detail: 'form_ready' }));
@@ -212,6 +219,10 @@ const besoins = [
 </script>
 
 <style>
+  /* Petits écrans : le libellé du bouton peut passer à la ligne au lieu d'élargir la page */
+  .cf__submit .btn { max-width: 100%; white-space: normal; text-align: center; justify-content: center; }
+  .cf__how { font-size: 0.88rem; color: var(--muted); line-height: 1.5; max-width: 60ch; }
+  .cf__how strong { color: var(--text); font-weight: 600; }
   .cf { padding: clamp(1.4rem, 4vw, 2.6rem); }
   .cf__form { display: grid; gap: 1.6rem; }
   .cf__form fieldset { border: 0; padding: 0; min-width: 0; }

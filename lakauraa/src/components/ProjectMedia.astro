@@ -5,7 +5,7 @@ interface Props { project: ProjectCard; sizes?: string; eager?: boolean }
 const { project: p, sizes = '(min-width: 1000px) 640px, 92vw', eager = false } = Astro.props;
 const host = p.liveUrl ? p.liveUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/.*$/, '') || 'aperçu' : p.slug;
 ---
-<div class:list={['pm', { 'pm--phone': Boolean(p.mobile) }]}>
+<div class:list={['pm', { 'pm--phone': Boolean(p.mobile), 'pm--video': Boolean(p.videoUrl) }]}>
   <figure class="browser pm__browser">
     <div class="browser__bar" aria-hidden="true"><i></i><i></i><i></i><span class="browser__url">{p.liveUrl.startsWith('/') ? 'Exemple' : host}</span></div>
     {p.videoUrl ? (
@@ -29,7 +29,15 @@ const host = p.liveUrl ? p.liveUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/
 
 <style>
   .pm { position: relative; }
-  .pm--phone { padding-right: 9%; padding-bottom: 6%; }
   .pm__video, .pm__browser img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; display: block; background: #0e0e13; }
-  .pm__phone { position: absolute; right: 0; bottom: 0; width: 24%; }
+  /* Petits écrans : la vidéo / l'aperçu s'affiche seul, en entier — rien ne le recouvre.
+     (Les captures cellulaires restent visibles plus bas, dans « En images ».) */
+  .pm__phone { display: none; }
+  @media (min-width: 900px) {
+    .pm--phone { padding-right: 9%; padding-bottom: 6%; }
+    .pm__phone { display: block; position: absolute; right: 0; bottom: 0; width: 24%; }
+    /* Avec une vidéo : la vidéo s'affiche seule, rien ne la recouvre (captures cellulaires dans « En images ») */
+    .pm--phone.pm--video { padding: 0; }
+    .pm--phone.pm--video .pm__phone { display: none; }
+  }
 </style>

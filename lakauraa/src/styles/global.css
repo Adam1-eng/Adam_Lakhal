@@ -33,7 +33,7 @@
   --radius-l: 28px;
   --max: 1200px;
   --gutter: clamp(1.1rem, 4vw, 2rem);
-  --section-y: clamp(5rem, 11vw, 8.5rem);
+  --section-y: clamp(3.25rem, 6.5vw, 5.25rem); /* rythme vertical commun : ≈ 52 px (téléphone) à 84 px (ordinateur) */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --header-h: 76px;
@@ -308,33 +308,18 @@ p { text-wrap: pretty; }
 }
 .phone img { width: 100%; aspect-ratio: 9 / 19.5; object-fit: cover; object-position: top; }
 
-/* ---------- Animations d'entrée (pilotées par GSAP · src/scripts/motion.ts) ---------- */
-.reveal {
-  opacity: 0;
-  transform: translateY(28px);
-  filter: blur(6px);
-}
-.reveal.is-in { opacity: 1; transform: none; filter: none; }
-.reveal--scale { transform: translateY(20px) scale(0.96); }
+/* ---------- Animations d'entrée (src/scripts/motion.ts) ----------
+   ÉTAT PAR DÉFAUT : VISIBLE. L'animation est un bonus, jamais une condition d'affichage.
+   Seuls les blocs encore SOUS l'écran au chargement reçoivent `.pre` (masqués), puis apparaissent
+   en 0,35 s quand on y arrive. Sans JavaScript, sans observateur ou avec « réduire les animations » :
+   rien n'est jamais masqué. */
+.reveal, [data-split] { transition: opacity 0.35s var(--ease), transform 0.35s var(--ease); transition-delay: min(calc(var(--i, 0) * 40ms), 120ms); }
+.reveal.pre, [data-split].pre { opacity: 0; transform: translateY(18px); }
+.reveal--scale.pre { transform: translateY(12px) scale(0.97); }
 
 
-.split-word {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: bottom;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
-}
-.split-word > span {
-  display: inline-block;
-  transform: translateY(105%);
-  will-change: transform;
-}
-.is-in .split-word > span, .split-word.is-in > span { transform: none; }
-
-/* Aucun JS : tout reste visible */
-.no-js .reveal { opacity: 1; transform: none; filter: none; }
-.no-js .split-word > span { transform: none; }
+.split-word { display: inline-block; }
+.split-word > span { display: inline-block; }
 
 /* Titre du hero (React Bits · BlurText) */
 .blur-title { flex-wrap: wrap; }
@@ -372,8 +357,7 @@ astro-island[ssr] .btn--star::after {
     transition-delay: 0ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal { opacity: 1; transform: none; filter: none; }
-  .split-word > span { transform: none; }
+  .reveal.pre, [data-split].pre { opacity: 1; transform: none; }
 }
 
 /* ---------- Fonds décoratifs ---------- */
@@ -454,8 +438,6 @@ html.is-navigating::after {
 @keyframes nav-bar { from { transform: scaleX(0.05); } to { transform: scaleX(0.9); } }
 @media (prefers-reduced-motion: reduce) { html.is-navigating::after { animation: none; transform: scaleX(0.6); } }
 
-/* Écrans tactiles (html.io-motion) : apparitions en CSS, déclenchées par IntersectionObserver */
-html.io-motion .reveal { filter: none; transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
-html.io-motion .reveal.is-in { opacity: 1; transform: none; }
-html.io-motion .split-word > span { transition: transform 0.9s var(--ease); transition-delay: calc(var(--w, 0) * 45ms); }
-html.io-motion [data-progress] .pr__line span { transition: transform 1.6s var(--ease); }
+
+/* Processus (téléphone) : la ligne se remplit quand la liste apparaît */
+html.io-motion [data-progress] .pr__line span { transition: transform 1.2s var(--ease); }

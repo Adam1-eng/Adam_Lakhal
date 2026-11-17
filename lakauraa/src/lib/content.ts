@@ -2,6 +2,7 @@
 import { and, asc, eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from './db';
 import type { Project, ProjectImage, Category } from './db/schema';
+import { SITE, harmonize } from '../config/site';
 
 /* ---------- Paramètres modifiables depuis l’admin ---------- */
 export type ContactSettings = { email: string; phone: string; city: string; responseTime: string };
@@ -21,23 +22,24 @@ export type LegalSettings = {
 export type SiteSettings = { contact: ContactSettings; whatsapp: WhatsappSettings; socials: SocialSettings; legal: LegalSettings };
 
 export const defaultSettings: SiteSettings = {
-  contact: { email: 'adamlakhal800@gmail.com', phone: '438-528-0259', city: 'Montréal', responseTime: 'moins de 24 h' },
+  // Courriel public et délai de réponse : imposés par src/config/site.ts (voir applyConfig plus bas).
+  contact: { email: SITE.publicEmail, phone: SITE.phone, city: SITE.city, responseTime: SITE.responseTime },
   // Numéros WhatsApp au format international, chiffres seulement (ex. 212600000000 / 14385280259). Vides = masqués.
   whatsapp: {
-    ma: '212621971718',
-    ca: '14385280259',
+    ma: SITE.whatsapp.ma,
+    ca: SITE.whatsapp.ca,
     message: 'Bonjour Adam, je vous contacte depuis le site Lakauraa. J’aimerais en savoir plus pour un site web.',
   },
-  socials: { instagram: '', tiktok: '', linkedin: '', github: '', facebook: '', youtube: '' },
+  socials: { ...SITE.socials },
   legal: {
-    ownerName: 'Adam Lakhal',
-    businessName: 'Lakauraa',
+    ownerName: SITE.owner,
+    businessName: SITE.name,
     legalStatus: '',
     registrationCa: '',
     registrationMa: '',
     address: '',
-    privacyOfficer: 'Adam Lakhal',
-    privacyEmail: 'adamlakhal800@gmail.com',
+    privacyOfficer: SITE.owner,
+    privacyEmail: SITE.publicEmail,
     updatedOn: '',
   },
 };
@@ -68,8 +70,17 @@ export async function getSettings(): Promise<SiteSettings> {
     for (const r of rows) {
       if (r.key in out) Object.assign((out as any)[r.key], r.value as object);
     }
-    return out;
+    return applyConfig(out);
   }, defaultSettings, 'paramètres');
+}
+
+/** Valeurs imposées par la configuration, quelles que soient celles enregistrées dans la base :
+ *  une seule promesse de délai et un seul courriel public sur tout le site (le courriel personnel n’est jamais exposé). */
+function applyConfig(s: SiteSettings): SiteSettings {
+  s.contact.email = SITE.publicEmail;
+  s.contact.responseTime = SITE.responseTime;
+  s.legal.privacyEmail = SITE.publicEmail;
+  return s;
 }
 
 export async function saveSetting<K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) {
@@ -87,7 +98,9 @@ export const activeSocials = (s: SocialSettings) =>
 export const getFaqs = () =>
   safe(async () => {
     const db = await getDb();
-    return db.select().from(schema.faqs).where(eq(schema.faqs.published, true)).orderBy(asc(schema.faqs.sort), asc(schema.faqs.createdAt));
+    const rows = await db.select().from(schema.faqs).where(eq(schema.faqs.published, true)).orderBy(asc(schema.faqs.sort), asc(schema.faqs.createdAt));
+    // Textes saisis dans l’admin harmonisés avec la configuration (acompte, délai, devise)
+    return rows.map((f) => ({ ...f, question: harmonize(f.question), answer: harmonize(f.answer) }));
   }, [], 'FAQ');
 
 export const getServices = () =>

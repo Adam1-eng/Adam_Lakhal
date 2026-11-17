@@ -1,6 +1,7 @@
 ---
 import LegalPage from '../components/LegalPage.astro';
-import Todo from '../components/Todo.astro';
+import { telHref } from '../lib/content';
+import { SITE } from '../config/site';
 import { offers } from '../data/site';
 const { contact, legal } = Astro.locals.settings;
 const sections = [
@@ -25,7 +26,7 @@ const sections = [
   <table>
     <thead><tr><th>Forfait</th><th>Prix</th><th>Contenu principal</th></tr></thead>
     <tbody>
-      {offers.map((o) => <tr><td><strong>{o.name}</strong></td><td>{[o.from, o.price].filter(Boolean).join(' ')}</td><td>{o.features.join(' · ')}</td></tr>)}
+      {offers.map((o) => <tr><td><strong>{o.name}</strong></td><td>{[o.from, o.price, o.unit && o.from ? o.unit : ''].filter(Boolean).join(' ')}</td><td>{o.features.join(' · ')}</td></tr>)}
     </tbody>
   </table>
   <p>Hormis le prix de départ du forfait Essentiel, les prix sont établis sur devis, selon le travail demandé.</p>
@@ -34,14 +35,14 @@ const sections = [
   <p>Avant tout engagement, je peux préparer une maquette gratuite. Elle n’engage pas le client et ne donne lieu à aucun paiement si le projet ne se poursuit pas. Le devis précise le contenu, le prix, la devise et l’échéancier ; il est valable 30 jours.</p>
 
   <h2 id="prix">Prix et taxes</h2>
-  <p>Les prix affichés sur le site sont en dollars canadiens, avant taxes. Pour les clients au Maroc, le montant et la devise sont indiqués dans le devis. Les taxes applicables sont ajoutées selon la situation fiscale du prestataire et du client. <Todo label="numéros de TPS/TVQ, si inscrit" /></p>
+  <p>Les prix affichés sur le site sont en dollars canadiens ({SITE.currency}), {SITE.taxesNote}. Pour les clients au Maroc, le montant et la devise sont indiqués dans le devis. Les taxes applicables, s’il y a lieu, sont indiquées sur le devis et sur la facture.</p>
 
   <h2 id="paiement">Paiement</h2>
   <ul>
-    <li><strong>40 %</strong> à la signature de l’entente, pour lancer le projet ;</li>
-    <li><strong>60 %</strong> à la mise en ligne du site.</li>
+    <li><strong>{SITE.depositPercent} %</strong> à la signature de l’entente, pour lancer le projet ;</li>
+    <li><strong>{100 - SITE.depositPercent} %</strong> à la mise en ligne du site.</li>
   </ul>
-  <p>Les moyens de paiement acceptés sont précisés dans le devis. <Todo label="moyens de paiement acceptés (virement, Interac, etc.)" /></p>
+  <p>Les moyens de paiement acceptés sont précisés dans le devis.</p>
 
   <h2 id="realisation">Réalisation et révisions</h2>
   <p>Le délai indicatif d’un site vitrine est d’une à deux semaines à compter de la réception des contenus (textes, photos, accès). Le forfait Essentiel comprend 2 séries de révisions ; les demandes supplémentaires ou hors périmètre peuvent faire l’objet d’un ajustement de prix, accepté au préalable par le client. Le client est responsable des contenus qu’il fournit et garantit en détenir les droits.</p>
@@ -59,6 +60,6 @@ const sections = [
   <p>Je m’engage à réaliser les services avec soin et selon les règles de l’art. Je ne peux garantir un positionnement précis sur Google ni un volume de clients. Ma responsabilité est limitée au montant payé pour le service concerné, sauf disposition légale contraire, notamment les protections dont bénéficient les consommateurs.</p>
 
   <h2 id="droit">Droit applicable et litiges</h2>
-  <p>En cas de désaccord, nous chercherons d’abord une solution à l’amiable. À défaut, le droit applicable et le tribunal compétent sont ceux prévus à l’entente. <Todo label="clause de droit applicable (Québec / Maroc) à faire valider par un juriste" /></p>
-  <p>Contact : <a href={`mailto:${contact.email}`}>{contact.email}</a> · {contact.phone}</p>
+  <p>En cas de désaccord, nous chercherons d’abord une solution à l’amiable. À défaut, le droit applicable et le tribunal compétent sont ceux prévus à l’entente écrite signée pour le projet.</p>
+  <p>Contact : {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : <>par téléphone ou texto au <a href={telHref(contact.phone)}>{contact.phone}</a></>}.</p>
 </LegalPage>

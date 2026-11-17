@@ -5,6 +5,7 @@ import HeroTitle from './HeroTitle.astro';
 import HeroRays from './islands/HeroRays';
 import StarButton from './islands/StarButton';
 import { site } from '../data/site';
+import { entryPrice, money } from '../config/site';
 import Stars from './Stars.astro';
 interface Props { rating?: { count: number; average: number; label: string } }
 const { rating } = Astro.props;
@@ -62,7 +63,7 @@ const slides = [
       <ul class="hero__checks reveal" style="--i:6">
         <li><Icon name="check" /> Maquette gratuite</li>
         <li><Icon name="check" /> En ligne en {site.delay}</li>
-        <li><Icon name="check" /> À partir de 600 $</li>
+        {entryPrice() != null && <li><Icon name="check" /> Dès {money(entryPrice()!)}</li>}
       </ul>
     </div>
 

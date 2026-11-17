@@ -13,10 +13,10 @@ const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 const channels = [
   { icon: 'phone', label: 'Appel', value: contact.phone, href: telHref(contact.phone), note: 'Le plus rapide au Canada' },
   { icon: 'message', label: 'Texto', value: contact.phone, href: smsHref(contact.phone), note: 'Même numéro' },
-  { icon: 'mail', label: 'Courriel', value: contact.email, href: `mailto:${contact.email}?subject=${encodeURIComponent('Maquette de site web')}`, note: `Réponse en ${contact.responseTime}` },
+  ...(contact.email ? [{ icon: 'mail', label: 'Courriel', value: contact.email, href: `mailto:${contact.email}?subject=${encodeURIComponent('Maquette de site web')}`, note: `Réponse en ${contact.responseTime}` }] : []),
 ];
 ---
-<Base title="Contact · Obtenir une maquette gratuite" crumbs={[{ name: 'Contact', path: '/contact' }]} description={`Demandez votre maquette de site web gratuite : WhatsApp, appel ou texto au ${contact.phone}, ou courriel. Réponse en ${contact.responseTime}.`}>
+<Base title="Contact · Obtenir une maquette gratuite" crumbs={[{ name: 'Contact', path: '/contact' }]} description={`Demandez votre maquette de site web gratuite : WhatsApp, appel ou texto au ${contact.phone}${contact.email ? ', ou courriel' : ''}. Réponse en ${contact.responseTime}.`}>
   <PageHero eyebrow="Contact" title="Parlons de votre commerce." aura="votre commerce."
     lead={`Deux minutes pour me décrire votre projet. Je vous prépare une maquette gratuite, sans engagement, et je vous réponds en ${contact.responseTime}.`}
     crumbs={[{ label: 'Contact' }]}>

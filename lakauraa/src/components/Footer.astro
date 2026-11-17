@@ -53,7 +53,7 @@ const legal = [
           {hasWa && <li><button type="button" data-wa-open><BrandIcon name="whatsapp" /> WhatsApp ({waLabel})</button></li>}
           <li><a href={telHref(contact.phone)}><Icon name="phone" /> {contact.phone}</a></li>
           <li><a href={smsHref(contact.phone)}><Icon name="message" /> Texto au même numéro</a></li>
-          <li><a href={`mailto:${contact.email}`}><Icon name="mail" /> {contact.email}</a></li>
+          {contact.email && <li><a href={`mailto:${contact.email}`}><Icon name="mail" /> {contact.email}</a></li>}
           <li><span><Icon name="pin" /> {contact.city} · projets au Maroc à distance</span></li>
         </ul>
       </div>

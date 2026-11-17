@@ -3,9 +3,10 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 import node from '@astrojs/node';
 import react from '@astrojs/react';
+import { SITE } from './src/config/site.ts';
 
 export default defineConfig({
-  site: 'https://lakauraa.vercel.app',
+  site: SITE.url, // domaine public : une seule variable, dans src/config/site.ts
   output: 'server',
   // LOCAL_NODE=1 : build Node local, uniquement pour mesurer les performances (Lighthouse) hors Vercel.
   adapter: process.env.LOCAL_NODE ? node({ mode: 'standalone' }) : vercel({ maxDuration: 30 }),

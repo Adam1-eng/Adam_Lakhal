@@ -1,18 +1,18 @@
 ---
 // Gestion du consentement.
-// Aujourd'hui, le site n'utilise que des éléments strictement nécessaires (aucune publicité, aucun pistage) :
-// la bannière n'est donc PAS affichée. Si un outil optionnel est ajouté (ex. mesure d'audience),
-// passer OPTIONAL_TOOLS à true : la bannière s'affichera et le choix sera disponible dans window.lkConsent.
+// Un seul outil optionnel : le compteur anonyme des clics de contact (src/scripts/track.ts).
+// Il ne fonctionne QUE si le visiteur l'accepte. Bannière au premier chargement, Accepter et Refuser
+// au même niveau ; choix mémorisé (stockage local « lk_consent ») et modifiable dans les préférences.
 import Icon from './Icon.astro';
-const OPTIONAL_TOOLS = false;
+const OPTIONAL_TOOLS = true;
 ---
 <div data-consent data-optional={String(OPTIONAL_TOOLS)}>
   {OPTIONAL_TOOLS && (
     <div class="ck-banner" data-ck-banner hidden role="region" aria-label="Cookies">
-      <p>J’utilise un outil de mesure d’audience pour améliorer le site. Vous pouvez l’accepter ou le refuser. <a href="/politique-cookies">En savoir plus</a></p>
+      <p><strong>Confidentialité.</strong> Puis-je compter de façon anonyme les clics sur les boutons de contact (WhatsApp, appel, texto) pour améliorer le site ? Aucun cookie publicitaire, aucun identifiant. <a href="/politique-cookies">En savoir plus</a></p>
       <div class="ck-banner__actions">
-        <button type="button" class="btn btn--ghost btn--sm" data-ck-choice="refuse">Refuser</button>
-        <button type="button" class="btn btn--primary btn--sm" data-ck-choice="accept">Accepter</button>
+        <button type="button" class="btn btn--ghost btn--sm ck-banner__btn" data-ck-choice="refuse">Refuser</button>
+        <button type="button" class="btn btn--ghost btn--sm ck-banner__btn" data-ck-choice="accept">Accepter</button>
       </div>
     </div>
   )}
@@ -32,13 +32,13 @@ const OPTIONAL_TOOLS = false;
       </div>
       <div class="ck__row">
         <div>
-          <h3>Mesure d’audience</h3>
-          <p>{OPTIONAL_TOOLS ? 'Statistiques de visite anonymisées pour améliorer le site.' : 'Aucun outil de mesure d’audience ni de publicité n’est utilisé sur ce site actuellement.'}</p>
+          <h3 id="ck-analytics-title">Mesure anonyme des contacts</h3>
+          <p>Compte les clics sur WhatsApp, appel, texto et « Contact », par jour et par page. Aucun cookie, aucune adresse IP, aucun identifiant.</p>
+          <p class="ck__state" data-ck-state aria-live="polite"></p>
         </div>
         <label class="ck__switch">
-          <input type="checkbox" name="analytics" disabled={!OPTIONAL_TOOLS} data-ck-analytics />
+          <input type="checkbox" role="switch" name="analytics" data-ck-analytics aria-labelledby="ck-analytics-title" />
           <span aria-hidden="true"></span>
-          <span class="sr-only">Autoriser la mesure d’audience</span>
         </label>
       </div>
       <p class="ck__more">Détails dans la <a href="/politique-cookies">politique relative aux cookies</a> et la <a href="/confidentialite">politique de confidentialité</a>.</p>
@@ -66,7 +66,7 @@ const OPTIONAL_TOOLS = false;
     e.preventDefault();
     const d = document.getElementById('cookie-prefs') as HTMLDialogElement | null;
     const box = d?.querySelector<HTMLInputElement>('[data-ck-analytics]');
-    if (box) box.checked = Boolean(read()?.analytics);
+    if (box) { box.checked = Boolean(read()?.analytics); box.dispatchEvent(new Event('change')); }
     d?.showModal();
   });
 
@@ -80,8 +80,11 @@ const OPTIONAL_TOOLS = false;
     root.querySelectorAll<HTMLButtonElement>('[data-ck-choice]').forEach((b) =>
       b.addEventListener('click', () => { write({ analytics: b.dataset.ckChoice === 'accept', date: new Date().toISOString() }); banner!.hidden = true; }),
     );
+    const box = root.querySelector<HTMLInputElement>('[data-ck-analytics]');
+    const state = root.querySelector<HTMLElement>('[data-ck-state]');
+    const paint = () => { if (state && box) state.textContent = box.checked ? 'Activé' : 'Désactivé'; };
+    box?.addEventListener('change', paint); paint();
     root.querySelector('[data-ck-save]')?.addEventListener('click', () => {
-      const box = root.querySelector<HTMLInputElement>('[data-ck-analytics]');
       write({ analytics: optional && Boolean(box?.checked), date: new Date().toISOString() });
       if (banner) banner.hidden = true;
     });
@@ -116,4 +119,7 @@ const OPTIONAL_TOOLS = false;
   .ck-banner { position: fixed; z-index: 85; left: 1rem; right: 1rem; bottom: 1rem; max-width: 560px; display: grid; gap: 0.9rem; padding: 1.1rem 1.2rem; border-radius: 18px; background: var(--surface); border: 1px solid var(--line-2); box-shadow: 0 30px 60px -30px #000; font-size: 0.9rem; }
   .ck-banner a { text-decoration: underline; }
   .ck-banner__actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+  /* Accepter et Refuser : exactement le même style (aucun choix mis en avant) */
+  .ck-banner__btn { min-width: 7.5rem; justify-content: center; }
+  .ck__state { font-size: 0.78rem !important; font-weight: 600; color: var(--text) !important; }
 </style>

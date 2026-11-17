@@ -2,11 +2,13 @@
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
 import { offers } from '../data/site';
+import { SITE, entryPrice, money } from '../config/site';
+const entry = entryPrice();
 ---
 <section class="section section--alt" id="forfaits" aria-label="Forfaits">
   <div class="wrap">
     <SectionHead eyebrow="Forfaits" title="Des prix simples, sans surprise." aura="sans surprise." align="center"
-      lead="Paiement en deux temps : 40 % au départ, le reste à la mise en ligne. La maquette, elle, est toujours gratuite." />
+      lead={`Paiement en deux temps : ${SITE.depositPercent} % au départ, le reste à la mise en ligne. La maquette, elle, est toujours gratuite.`} />
 
     <div class="pc__grid">
       {offers.map((o, i) => (
@@ -20,7 +22,7 @@ import { offers } from '../data/site';
         </article>
       ))}
     </div>
-    <p class="pc__note reveal">Sites à partir de 600 $ avant taxes. Les autres projets sont réalisés sur devis gratuit, selon le travail demandé.</p>
+    <p class="pc__note reveal">{entry != null && <>Sites à partir de {money(entry)}, {SITE.taxesNote}. </>}Les forfaits sur devis sont chiffrés gratuitement, selon le travail demandé.</p>
   </div>
 </section>
 

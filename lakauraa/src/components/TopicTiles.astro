@@ -4,6 +4,7 @@ import Icon from './Icon.astro';
 import Stars from './Stars.astro';
 import BrandIcon from './BrandIcon.astro';
 import SectionHead from './SectionHead.astro';
+import { entryPrice, money } from '../config/site';
 import { imageSrcset, type ProjectCard } from '../lib/content';
 
 interface Props {
@@ -11,18 +12,21 @@ interface Props {
   projectCount: number;
   rating: { count: number; average: number; label: string };
   faqCount: number;
+  /** false quand la page affiche déjà un résumé des services (accueil) */
+  showServices?: boolean;
 }
-const { flagship, projectCount, rating, faqCount } = Astro.props;
+const { flagship, projectCount, rating, faqCount, showServices = true } = Astro.props;
 const { contact, whatsapp } = Astro.locals.settings;
 const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 const cover = flagship?.cover;
 ---
 <section class="section tp" id="explorer" aria-labelledby="tp-title">
   <div class="wrap">
-    <SectionHead eyebrow="Explorer" title="Que voulez-vous découvrir ?" aura="découvrir ?" align="center" />
+    <SectionHead eyebrow="Explorer" title={showServices ? 'Que voulez-vous découvrir ?' : 'Pour aller plus loin.'} aura={showServices ? 'découvrir ?' : 'plus loin.'} align="center" />
     <h2 id="tp-title" class="sr-only">Les pages du site</h2>
 
-    <ul class:list={['tp__grid', { 'tp__grid--no-reviews': rating.count === 0 }]}>
+    <ul class:list={['tp__grid', { 'tp__grid--no-reviews': rating.count === 0, 'tp__grid--no-services': !showServices }]}>
+      {showServices && (
       <li class="tp__item tp__item--services reveal">
         <a href="/services" class="card spot tp__card">
           <span class="icon-badge"><Icon name="layers" /></span>
@@ -30,10 +34,11 @@ const cover = flagship?.cover;
             <span class="tp__title">Services et prix</span>
             <span class="tp__text">Site vitrine, site complet, boutique en ligne, entretien.</span>
           </span>
-          <span class="tp__meta"><span class="chip chip--accent">À partir de 600 $</span></span>
+          {entryPrice() != null && <span class="tp__meta"><span class="chip chip--accent">Dès {money(entryPrice()!)}</span></span>}
           <span class="tp__go" aria-hidden="true"><Icon name="arrow-up-right" /></span>
         </a>
       </li>
+      )}
 
       <li class="tp__item tp__item--work reveal" style="--i:1">
         <a href="/projets" class="card spot tp__card">
@@ -120,6 +125,12 @@ const cover = flagship?.cover;
     .tp__grid .tp__item--contact { grid-area: contact; }
     .tp__grid .tp__item--work { order: 0; }
     .tp__grid .tp__item--work .tp__visual { aspect-ratio: auto; }
+    .tp__grid.tp__grid--no-services { grid-template-areas: 'work why rev' 'work faq contact'; }
+    .tp__grid.tp__grid--no-services.tp__grid--no-reviews { grid-template-areas: 'work why faq' 'work contact contact'; }
+  }
+  @media (min-width: 760px) and (max-width: 1079px) {
+    .tp__grid--no-services .tp__item--contact { grid-column: auto; }
+    .tp__grid--no-services.tp__grid--no-reviews .tp__item--contact { grid-column: 1 / -1; }
   }
   .tp__item { display: flex; }
   .tp__card {

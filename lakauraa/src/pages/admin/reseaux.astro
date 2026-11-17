@@ -1,8 +1,9 @@
 ---
+import { SITE } from '../../config/site';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import BrandIcon from '../../components/BrandIcon.astro';
 import { getSettings, saveSetting, socialLabels, type SocialSettings } from '../../lib/content';
-import { str, isEmail } from '../../lib/admin';
+import { str } from '../../lib/admin';
 
 const placeholders: Record<keyof SocialSettings, string> = {
   instagram: 'https://www.instagram.com/votre-compte',
@@ -28,13 +29,12 @@ if (Astro.request.method === 'POST') {
     if (v && !/^https:\/\/[^\s<>"']+$/i.test(v)) errors.push(`${socialLabels[k]} : le lien doit commencer par https://`);
     socials[k] = v.slice(0, 300);
   }
-  const email = str(fd, 'email');
-  if (!isEmail(email)) errors.push('Courriel de contact invalide.');
   if (errors.length) return Astro.redirect('/admin/reseaux?erreur=' + encodeURIComponent(errors.join(' ')), 303);
 
   await saveSetting('whatsapp', { ma, ca, message: str(fd, 'wa_message').slice(0, 400) || 'Bonjour Adam, je vous contacte depuis le site Lakauraa.' });
   await saveSetting('socials', socials);
-  await saveSetting('contact', { email, phone: str(fd, 'phone').slice(0, 30), city: str(fd, 'city').slice(0, 60) || 'Montréal', responseTime: str(fd, 'responseTime').slice(0, 40) || 'moins de 24 h' });
+  // Courriel public et délai de réponse : définis dans src/config/site.ts (source unique), non modifiables ici.
+  await saveSetting('contact', { email: SITE.publicEmail, phone: str(fd, 'phone').slice(0, 30), city: str(fd, 'city').slice(0, 60) || SITE.city, responseTime: SITE.responseTime });
   return Astro.redirect('/admin/reseaux?ok=' + encodeURIComponent('Coordonnées enregistrées. Le site est à jour.'), 303);
 }
 const s = await getSettings();
@@ -65,10 +65,10 @@ const s = await getSettings();
     <section class="panel">
       <div class="panel__head"><h2>Coordonnées</h2></div>
       <div class="grid-2">
-        <div class="field"><label for="email">Courriel</label><input class="input" id="email" name="email" type="email" value={s.contact.email} required /></div>
+        <div class="field"><label for="email">Courriel public</label><input class="input" id="email" value={SITE.publicEmail || 'Aucun (liens courriel masqués sur le site)'} readonly aria-describedby="email-h" /><p class="muted-s" id="email-h">Défini dans <code>src/config/site.ts</code> (<code>publicEmail</code>). Le courriel personnel n’est jamais affiché.</p></div>
         <div class="field"><label for="phone">Téléphone (appel et texto)</label><input class="input" id="phone" name="phone" value={s.contact.phone} inputmode="tel" /></div>
         <div class="field"><label for="city">Ville</label><input class="input" id="city" name="city" value={s.contact.city} /></div>
-        <div class="field"><label for="responseTime">Délai de réponse affiché</label><input class="input" id="responseTime" name="responseTime" value={s.contact.responseTime} /></div>
+        <div class="field"><label for="responseTime">Délai de réponse affiché</label><input class="input" id="responseTime" value={SITE.responseTime} readonly aria-describedby="rt-h" /><p class="muted-s" id="rt-h">Une seule promesse sur tout le site : <code>responseTime</code> dans <code>src/config/site.ts</code>.</p></div>
       </div>
     </section>
 

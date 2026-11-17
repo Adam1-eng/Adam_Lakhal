@@ -1,6 +1,6 @@
 ---
 import LegalPage from '../components/LegalPage.astro';
-import Todo from '../components/Todo.astro';
+import { telHref } from '../lib/content';
 const { legal, contact } = Astro.locals.settings;
 const sections = [
   { id: 'editeur', title: 'Éditeur du site' },
@@ -15,12 +15,13 @@ const sections = [
   <dl>
     <dt>Nom commercial</dt><dd>{legal.businessName || 'Lakauraa'}</dd>
     <dt>Responsable</dt><dd>{legal.ownerName || 'Adam Lakhal'}</dd>
-    <dt>Statut juridique</dt><dd><Todo value={legal.legalStatus} label="ex. travailleur autonome / entreprise individuelle" /></dd>
-    <dt>Immatriculation (Québec)</dt><dd><Todo value={legal.registrationCa} label="NEQ, si l’entreprise est immatriculée" /></dd>
-    <dt>Identifiants (Maroc)</dt><dd><Todo value={legal.registrationMa} label="ICE / IF / RC, si applicable" /></dd>
-    <dt>Adresse</dt><dd><Todo value={legal.address} label="adresse postale professionnelle" /></dd>
-    <dt>Courriel</dt><dd><a href={`mailto:${contact.email}`}>{contact.email}</a></dd>
-    <dt>Téléphone</dt><dd>{contact.phone}</dd>
+    {legal.legalStatus && <><dt>Statut juridique</dt><dd>{legal.legalStatus}</dd></>}
+    {legal.registrationCa && <><dt>Immatriculation (Québec)</dt><dd>{legal.registrationCa}</dd></>}
+    {legal.registrationMa && <><dt>Identifiants (Maroc)</dt><dd>{legal.registrationMa}</dd></>}
+    {legal.address && <><dt>Adresse</dt><dd>{legal.address}</dd></>}
+    <dt>Ville</dt><dd>{contact.city}</dd>
+    {contact.email && <><dt>Courriel</dt><dd><a href={`mailto:${contact.email}`}>{contact.email}</a></dd></>}
+    <dt>Téléphone</dt><dd><a href={telHref(contact.phone)}>{contact.phone}</a></dd>
     <dt>Directeur de la publication</dt><dd>{legal.ownerName || 'Adam Lakhal'}</dd>
   </dl>
 
@@ -32,8 +33,8 @@ const sections = [
   <p>Les captures d’écran de projets clients sont publiées avec leur accord ou à partir de sites accessibles publiquement. Les noms et marques des clients appartiennent à leurs titulaires respectifs.</p>
 
   <h2 id="maquettes">Maquettes de démonstration</h2>
-  <p>Certaines réalisations présentées sont des <strong>maquettes de démonstration</strong>, préparées gratuitement pour des commerces avant toute commande. Elles portent la mention « Maquette de démonstration » et ne constituent pas le site officiel de ces entreprises. Les noms, logos et photographies éventuellement utilisés restent la propriété de leurs titulaires. Un commerce qui souhaite le retrait de sa maquette peut l’obtenir sur simple demande à <a href={`mailto:${contact.email}`}>{contact.email}</a>.</p>
+  <p>Certaines réalisations présentées sont des <strong>maquettes de démonstration</strong>, préparées gratuitement pour des commerces avant toute commande. Elles portent la mention « Maquette de démonstration » et ne constituent pas le site officiel de ces entreprises. Les noms, logos et photographies éventuellement utilisés restent la propriété de leurs titulaires. Un commerce qui souhaite le retrait de sa maquette peut l’obtenir sur simple demande, {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : <>par téléphone ou texto au <a href={telHref(contact.phone)}>{contact.phone}</a></>}.</p>
 
   <h2 id="contact">Contact</h2>
-  <p>Pour toute question concernant le site : <a href={`mailto:${contact.email}`}>{contact.email}</a> ou {contact.phone}.</p>
+  <p>Pour toute question concernant le site : {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : <>par téléphone ou texto au <a href={telHref(contact.phone)}>{contact.phone}</a></>}.</p>
 </LegalPage>

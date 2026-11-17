@@ -5,6 +5,7 @@ import PageHero from '../components/PageHero.astro';
 import Faq from '../components/Faq.astro';
 import Cta from '../components/Cta.astro';
 import { getFaqs } from '../lib/content';
+import { SITE } from '../config/site';
 
 const faqs = await getFaqs();
 ---
@@ -14,5 +15,5 @@ const faqs = await getFaqs();
     lead="Prix, délais, paiement, entretien : tout ce qu’on me demande avant de commencer un projet."
     crumbs={[{ label: 'Questions fréquentes' }]} />
   <Faq faqs={faqs} />
-  <Cta title="Une autre question ?" aura="autre question ?" text="Écrivez-moi : je vous réponds personnellement, en général en moins de 24 h." />
+  <Cta title="Une autre question ?" aura="autre question ?" text={`Écrivez-moi : je vous réponds personnellement, en ${SITE.responseTime}.`} />
 </Base>
