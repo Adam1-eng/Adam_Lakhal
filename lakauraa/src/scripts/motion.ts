@@ -175,7 +175,14 @@ function init() {
 
 // Changement de page : on nettoie les animations, Lenis repart en haut
 document.addEventListener('astro:before-swap', () => { ctx?.revert(); ctx = null; revealCleanup?.(); pio?.disconnect(); pio = null; });
-document.addEventListener('astro:after-swap', () => lenis?.scrollTo(0, { immediate: true, force: true }));
+document.addEventListener('astro:after-swap', () => {
+  if (!lenis) return;
+  // Lien vers une section (ex. /services#forfaits) : on y va directement ; sinon, haut de page.
+  const id = decodeURIComponent(location.hash.slice(1));
+  const target = id ? document.getElementById(id) : null;
+  lenis.resize();
+  lenis.scrollTo(target ?? 0, { immediate: true, force: true, offset: target ? lenisOptions.anchorOffset : 0 });
+});
 document.addEventListener('astro:page-load', init);
 window.addEventListener('load', () => ScrollTrigger.refresh());
 

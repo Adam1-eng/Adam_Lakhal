@@ -120,7 +120,7 @@ const legalFields: { k: keyof LegalSettings; label: string; hint?: string; ph?: 
 ---
 <AdminLayout title="Paramètres" active="parametres">
   <section class="panel" id="legal">
-    <div class="panel__head"><div><h2>Informations légales</h2><p>Utilisées dans les mentions légales, la politique de confidentialité et les conditions. Les champs vides s’affichent « À compléter » sur le site. Faites valider les pages légales par un juriste.</p></div></div>
+    <div class="panel__head"><div><h2>Informations légales</h2><p>Utilisées dans les mentions légales, la politique de confidentialité et les conditions. Les champs vides sont simplement masqués sur le site (rien n’est inventé). Faites valider les pages légales par un juriste.</p></div></div>
     <form method="post" class="adm-form">
       <div class="grid-2">
         {legalFields.map((f) => (

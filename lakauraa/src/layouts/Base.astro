@@ -104,6 +104,10 @@ const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').repl
 
     <script type="application/ld+json" set:html={safeJson({ '@context': 'https://schema.org', '@graph': graph })} />
 
+    <!-- Changement de page instantané : on désactive l'animation native (capture + fondu de 0,4 à 0,5 s
+         après chaque clic, ressentie comme du « lag », surtout au cellulaire). Le routeur Astro bascule alors
+         sur fallback="swap" : la nouvelle page remplace l'ancienne dès qu'elle est prête, sans animation. -->
+    <script is:inline>try { delete Document.prototype.startViewTransition; } catch (e) {}</script>
     <ClientRouter fallback="swap" />
     <script>
       import '../scripts/motion';
@@ -115,7 +119,7 @@ const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').repl
   <body id="top">
     <a class="skip-link" href="#contenu">Aller au contenu</a>
     <Header />
-    <main id="contenu" transition:animate="fade">
+    <main id="contenu" transition:animate="none">
       <slot />
     </main>
     <Footer />
