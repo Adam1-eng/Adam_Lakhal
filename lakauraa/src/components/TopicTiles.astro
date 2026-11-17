@@ -17,7 +17,7 @@ const { contact, whatsapp } = Astro.locals.settings;
 const hasWa = Boolean((whatsapp.ma + whatsapp.ca).replace(/\D/g, ''));
 const cover = flagship?.cover;
 ---
-<section class="section tp" aria-labelledby="tp-title">
+<section class="section tp" id="explorer" aria-labelledby="tp-title">
   <div class="wrap">
     <SectionHead eyebrow="Explorer" title="Que voulez-vous découvrir ?" aura="découvrir ?" align="center" />
     <h2 id="tp-title" class="sr-only">Les pages du site</h2>
