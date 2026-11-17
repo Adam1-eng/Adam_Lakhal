@@ -16,8 +16,11 @@ export const SITE = {
 
   /* ---------- Domaine ----------
      Adresse publique du site (canoniques, Open Graph, sitemap, robots).
-     Le jour où un domaine propre est branché dans Vercel, changer UNIQUEMENT cette ligne. */
-  url: 'https://lakauraa.vercel.app',
+     Le jour où un domaine propre est branché dans Vercel, changer UNIQUEMENT cette ligne.
+     Domaine lakauraa.com acheté le 17/11/2026 (Vercel) et branché sur le projet. */
+  url: 'https://lakauraa.com',
+  /** Anciennes adresses : redirigées en permanence (301) vers `url`, même chemin. */
+  oldHosts: ['lakauraa.vercel.app', 'lakauraa-v3.vercel.app'] as readonly string[],
 
   /* ---------- Coordonnées ----------
      Courriel public : vide = tous les liens « courriel » sont masqués sur le site.

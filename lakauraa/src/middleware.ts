@@ -3,6 +3,7 @@ import { getSessionUser } from './lib/auth';
 import { getSettings, defaultSettings } from './lib/content';
 import { securityEvent, maskIp } from './lib/security-log';
 import { clientIp } from './lib/admin';
+import { SITE } from './config/site';
 
 const OPEN_ADMIN = new Set(['/admin/login', '/admin/setup']);
 const DEV = import.meta.env.DEV;
@@ -48,6 +49,12 @@ function securityHeaders(h: Headers, admin: boolean) {
 
 export const onRequest = defineMiddleware(async (ctx, next) => {
   const { pathname } = ctx.url;
+  // Ancienne adresse (….vercel.app) → domaine officiel, même page (redirection permanente).
+  // (en-tête Host lu directement : Astro remplace l'hôte par défaut dans ctx.url ; sans risque, la cible est toujours SITE.url)
+  const host = (ctx.request.headers.get('x-forwarded-host') ?? ctx.request.headers.get('host') ?? '').split(',')[0].split(':')[0].trim().toLowerCase();
+  if (SITE.oldHosts.includes(host)) {
+    return new Response(null, { status: 301, headers: { Location: SITE.url + pathname + ctx.url.search } });
+  }
   // Une seule adresse par page : « /contact/ » → « /contact » (redirection permanente, paramètres conservés).
   if (pathname.length > 1 && pathname.endsWith('/') && ['GET', 'HEAD'].includes(ctx.request.method) && !pathname.startsWith('/_')) {
     return new Response(null, { status: 308, headers: { Location: pathname.replace(/\/+$/, '') + ctx.url.search } });
