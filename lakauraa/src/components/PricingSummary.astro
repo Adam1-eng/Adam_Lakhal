@@ -4,7 +4,7 @@
 import Icon from './Icon.astro';
 import SectionHead from './SectionHead.astro';
 import { offers } from '../data/site';
-import { SITE } from '../config/site';
+import { SITE, madNote } from '../config/site';
 ---
 <section class="section ps" aria-label="Tarifs">
   <div class="wrap">
@@ -15,10 +15,11 @@ import { SITE } from '../config/site';
         <li class="card ps__row reveal" style={`--i:${i}`}>
           <span class="ps__name">{o.name}</span>
           <span class="ps__pitch">{o.pitch}</span>
-          <span class="ps__price">{o.from ? <><small>{o.from}</small> {o.price} <small>{o.unit}</small></> : <>{o.price} <small>{o.unit}</small></>}</span>
+          <span class="ps__price">{o.from ? <><small>{o.from}</small> {o.price} <small>{o.unit}</small></> : <>{o.price} <small>{o.unit}</small></>}{o.mad && <small class="ps__mad">Au Maroc : {o.mad}</small>}</span>
         </li>
       ))}
     </ul>
+    <p class="ps__note">{madNote()}</p>
     <div class="ps__more reveal"><a href="/services#forfaits" class="btn btn--ghost">Détail des forfaits <Icon name="arrow" class="arrow" /></a></div>
   </div>
 </section>
@@ -31,5 +32,7 @@ import { SITE } from '../config/site';
   .ps__pitch { color: var(--muted); font-size: 0.92rem; }
   .ps__price { font-weight: 700; font-size: 1.05rem; white-space: nowrap; }
   .ps__price small { font-weight: 500; color: var(--muted); font-size: 0.8rem; }
-  .ps__more { display: flex; justify-content: center; margin-top: 1.6rem; }
+  .ps__mad { display: block; margin-top: 0.15rem; }
+  .ps__note { text-align: center; margin-top: 1.2rem; color: var(--dim); font-size: 0.88rem; }
+  .ps__more { display: flex; justify-content: center; margin-top: 1.2rem; }
 </style>

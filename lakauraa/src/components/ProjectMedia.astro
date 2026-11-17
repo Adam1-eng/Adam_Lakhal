@@ -30,6 +30,8 @@ const host = p.liveUrl ? p.liveUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/
 <style>
   .pm { position: relative; }
   .pm__video, .pm__browser img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; display: block; background: #0e0e13; }
+  /* La vidéo n'est jamais rognée : si son format diffère du cadre, elle s'affiche en entier (bandes discrètes). */
+  .pm__video { object-fit: contain; object-position: center; }
   /* Petits écrans : la vidéo / l'aperçu s'affiche seul, en entier — rien ne le recouvre.
      (Les captures cellulaires restent visibles plus bas, dans « En images ».) */
   .pm__phone { display: none; }

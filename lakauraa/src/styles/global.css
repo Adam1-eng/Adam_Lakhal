@@ -33,7 +33,7 @@
   --radius-l: 28px;
   --max: 1200px;
   --gutter: clamp(1.1rem, 4vw, 2rem);
-  --section-y: clamp(3.25rem, 6.5vw, 5.25rem); /* rythme vertical commun : ≈ 52 px (téléphone) à 84 px (ordinateur) */
+  --section-y: clamp(2.5rem, 4.5vw, 3.75rem); /* rythme vertical commun, partout : ≈ 40 px (téléphone) à 60 px (ordinateur) de chaque côté d'une section */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --header-h: 76px;
@@ -376,7 +376,7 @@ astro-island[ssr] .btn--star::after {
 }
 
 /* ---------- En-tête de section ---------- */
-.sec-head { display: grid; gap: 1.1rem; justify-items: start; margin-bottom: clamp(2.5rem, 6vw, 4rem); }
+.sec-head { display: grid; gap: 1.1rem; justify-items: start; margin-bottom: clamp(2rem, 4.5vw, 3rem); }
 .sec-head--center { justify-items: center; text-align: center; }
 .sec-head--center .lead { margin-inline: auto; }
 .sec-head--split {
@@ -426,7 +426,7 @@ select.input option { background: var(--surface-2); }
 body:has(main .cta-s) .ftr__cta { display: none; }
 
 /* Renvoi vers la page FAQ (Services, Contact) */
-.faq-link { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; justify-content: center; text-align: center; padding-block: 0 clamp(3rem, 7vw, 5rem); color: var(--muted); }
+.faq-link { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; justify-content: center; text-align: center; padding-block: 0 var(--section-y); color: var(--muted); }
 
 /* Changement de page : réaction immédiate au toucher (barre fine + page actuelle estompée) */
 html.is-navigating main { opacity: 0.55; transition: opacity 0.15s ease; }

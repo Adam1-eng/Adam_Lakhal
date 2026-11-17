@@ -1,0 +1,62 @@
+---
+// Section « Témoignages » réutilisable (accueil, À propos).
+// Sources, toutes réelles : avis publiés laissés par les clients (lien personnel de l'admin)
+// + témoignages fournis par le propriétaire dans src/config/site.ts (SITE.testimonials).
+// AUCUN témoignage → la section n'est pas rendue du tout (jamais vide, jamais d'exemple inventé).
+import SectionHead from './SectionHead.astro';
+import Stars from './Stars.astro';
+import Icon from './Icon.astro';
+import { SITE } from '../config/site';
+import type { PublicReview } from '../lib/reviews';
+
+interface Props { reviews?: PublicReview[]; limit?: number; id?: string }
+const { reviews = [], limit = 6, id = 'temoignages' } = Astro.props;
+
+type Item = { name: string; business?: string; text: string; rating?: number; verified: boolean; project?: { slug: string; title: string } | null };
+const items: Item[] = [
+  ...reviews.map((r) => ({ name: r.author, business: r.business ?? undefined, text: r.comment, rating: r.rating, verified: true, project: r.project ? { slug: r.project.slug, title: r.project.title } : null })),
+  ...SITE.testimonials.filter((t) => t.name.trim() && t.text.trim()).map((t) => ({ ...t, verified: false, project: null })),
+].slice(0, limit);
+---
+{items.length > 0 && (
+  <section class="section tm" id={id} aria-label="Témoignages">
+    <div class="wrap">
+      <SectionHead eyebrow="Témoignages" title="Ce qu’en disent mes clients." aura="mes clients." align="center" />
+      <ul class="tm__grid">
+        {items.map((t, i) => (
+          <li class="reveal" style={`--i:${i % 3}`}>
+            <figure class="card tm__card">
+              {(t.rating || t.verified) && (
+                <div class="tm__top">
+                  {t.rating ? <Stars value={Math.max(1, Math.min(5, t.rating))} /> : <span></span>}
+                  {t.verified && <span class="tm__ok"><Icon name="check" /> Avis vérifié</span>}
+                </div>
+              )}
+              <blockquote>« {t.text} »</blockquote>
+              <figcaption>
+                <span class="tm__avatar" aria-hidden="true">{t.name.trim().slice(0, 1).toUpperCase()}</span>
+                <span class="tm__who"><strong>{t.name}</strong>{t.business && <small>{t.business}</small>}</span>
+              </figcaption>
+              {t.project && <a class="tm__project" href={`/projets/${t.project.slug}`}>Voir le projet : {t.project.title} <Icon name="arrow" class="arrow" /></a>}
+            </figure>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .tm__grid { list-style: none; padding: 0; display: grid; gap: 1.2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); max-width: 1040px; margin-inline: auto; }
+  .tm__card { display: flex; flex-direction: column; gap: 1rem; height: 100%; padding: 1.5rem; }
+  .tm__top { display: flex; justify-content: space-between; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+  .tm__ok { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.74rem; font-weight: 600; color: #86efac; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgb(74 222 128 / 0.1); }
+  .tm__ok :global(svg) { width: 12px; height: 12px; }
+  .tm__card blockquote { flex: 1; font-size: 1rem; line-height: 1.6; color: #dcdcea; overflow-wrap: anywhere; }
+  .tm__card figcaption { display: flex; align-items: center; gap: 0.75rem; }
+  .tm__avatar { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--blue); font-weight: 700; }
+  .tm__who { display: grid; min-width: 0; }
+  .tm__who small { color: var(--muted); font-size: 0.85rem; }
+  .tm__project { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.88rem; color: var(--muted); }
+  .tm__project:hover { color: var(--text); }
+</style>

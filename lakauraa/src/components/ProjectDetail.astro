@@ -208,7 +208,7 @@ const paragraphs = p.body.split(/\n{2,}/).map((x) => x.trim()).filter(Boolean);
   .cs__facts dd { font-weight: 600; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.45rem; }
   .cs__live { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); }
   .cs__links { display: flex; flex-wrap: wrap; gap: 0.7rem; }
-  .cs__hero-visual { padding-top: clamp(3rem, 6vw, 4rem); }
+  .cs__hero-visual { padding-top: var(--section-y); }
   .cs__stage { position: relative; transition: transform 0.6s var(--ease); }
   .cs__stage::before { content: ''; position: absolute; inset: 5%; z-index: -1; background: radial-gradient(closest-side, rgb(30 107 255 / 0.35), transparent); filter: blur(40px); }
   .cs__story { display: grid; gap: 3rem; }
@@ -233,7 +233,8 @@ const paragraphs = p.body.split(/\n{2,}/).map((x) => x.trim()).filter(Boolean);
   .cs__shot figcaption { padding: 0.9rem 1.1rem; font-size: 0.88rem; color: var(--muted); border-top: 1px solid var(--line); }
   .cs__phones { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem; margin-top: 2.5rem; }
   .cs__phones .phone { width: min(240px, 42vw); }
-  .cs__phones img { width: 100%; aspect-ratio: 9 / 19.5; object-fit: cover; object-position: top; }
+  /* Capture cellulaire montrée en entière (jamais rognée par le cadre) */
+  .cs__phones img { width: 100%; aspect-ratio: 9 / 19.5; object-fit: contain; object-position: top; background: #000; }
   .cs__ask-s { padding-bottom: 0; }
   .cs__ask { display: flex; flex-wrap: wrap; gap: 1.5rem 2rem; justify-content: space-between; align-items: center; padding: clamp(1.5rem, 4vw, 2.5rem); background: radial-gradient(80% 140% at 100% 0%, rgb(30 107 255 / 0.18), transparent 60%), var(--surface); }
   .cs__ask > div:first-child { display: grid; gap: 0.5rem; }

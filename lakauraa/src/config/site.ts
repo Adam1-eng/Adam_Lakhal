@@ -7,6 +7,9 @@
 //  partie du site qui en dépend est masquée proprement (jamais « [À compléter] »).
 // ════════════════════════════════════════════════════════════════════════════
 
+/** Témoignage réel fourni par le propriétaire (aucun texte inventé). */
+export type Testimonial = { name: string; business?: string; text: string; rating?: number; projectSlug?: string };
+
 export const SITE = {
   /* ---------- Entreprise ---------- */
   name: 'Lakauraa',
@@ -52,9 +55,25 @@ export const SITE = {
     entretien: null as number | null,
   },
 
+  /* ---------- Prix au Maroc (MAD) ----------
+     Prix « à partir de » en dirhams, fixés par le propriétaire (JAMAIS convertis automatiquement).
+     null = « tarif au Maroc confirmé en MAD dans le devis ». */
+  pricesMad: {
+    essentiel: null as number | null, // ← À FOURNIR : prix de départ Essentiel en MAD
+    pro: null as number | null,
+    entretien: null as number | null,
+  },
+
   /* ---------- Photo du propriétaire ----------
-     Chemin d’une vraie photo (ex. '/adam.jpg' dans /public). Vide = monogramme « AL ». */
-  ownerPhoto: '',
+     Chemin d’une vraie photo déposée dans /public (ex. '/adam-lakhal.jpg'), idéalement carrée.
+     Vide = monogramme « AL ». Ne jamais mettre de photo de banque d’images ni d’avatar généré. */
+  ownerPhoto: '', // ← À FOURNIR : vraie photo du fondateur
+
+  /* ---------- Témoignages fournis par le propriétaire ----------
+     Texte EXACT d’un vrai client, avec son accord. Vide = section « Témoignages » masquée.
+     (Les avis laissés par les clients via le lien personnel de l’admin s’y ajoutent automatiquement.)
+     Format : { name: 'Prénom Nom', business: 'Entreprise', text: '…', rating: 5 } (rating facultatif, 1 à 5). */
+  testimonials: [] as Testimonial[], // ← À FOURNIR : témoignages réels
 } as const;
 
 /* ---------- Formats réutilisables (jamais de texte de prix écrit ailleurs) ---------- */
@@ -89,4 +108,17 @@ export const harmonize = (text: string) =>
   text
     .replace(/\b\d{1,2}\s?%(\s)(au départ|à la signature)/g, `${SITE.depositPercent} %$1$2`)
     .replace(/en moins de \d+\s?(h\b|heures?)/g, `en ${SITE.responseTime}`)
-    .replace(/(\d[\d\u202f\u00a0 ]*)\s?\$(?!\s?CAD)/g, `$1 $ ${SITE.currency}`);
+    .replace(/(\d(?:[\d\u202f\u00a0 ]*\d)?)\s?\$(?!\s?CAD)/g, `$1 $ ${SITE.currency}`);
+
+/** Prix au Maroc pour un forfait : « Dès 3 000 MAD » ou null (= confirmé dans le devis). */
+export const madShort = (key: keyof typeof SITE.pricesMad) => {
+  const p = SITE.pricesMad[key];
+  return p == null ? null : `Dès ${p.toLocaleString('fr-CA')} MAD`;
+};
+/** Phrase unique sur la devise au Maroc, reprise par la FAQ, les tarifs et les conditions de vente. */
+export const madNote = () => {
+  const p = SITE.pricesMad.essentiel;
+  return p == null
+    ? 'Au Maroc : tarif confirmé en dirhams (MAD) dans votre devis.'
+    : `Au Maroc : à partir de ${p.toLocaleString('fr-CA')} MAD pour l’Essentiel ; le montant exact est confirmé dans votre devis.`;
+};

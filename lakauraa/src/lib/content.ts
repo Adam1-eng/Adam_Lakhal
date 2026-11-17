@@ -2,7 +2,7 @@
 import { and, asc, eq, inArray } from 'drizzle-orm';
 import { getDb, schema } from './db';
 import type { Project, ProjectImage, Category } from './db/schema';
-import { SITE, harmonize } from '../config/site';
+import { SITE, harmonize, madNote } from '../config/site';
 
 /* ---------- Paramètres modifiables depuis l’admin ---------- */
 export type ContactSettings = { email: string; phone: string; city: string; responseTime: string };
@@ -100,7 +100,9 @@ export const getFaqs = () =>
     const db = await getDb();
     const rows = await db.select().from(schema.faqs).where(eq(schema.faqs.published, true)).orderBy(asc(schema.faqs.sort), asc(schema.faqs.createdAt));
     // Textes saisis dans l’admin harmonisés avec la configuration (acompte, délai, devise)
-    return rows.map((f) => ({ ...f, question: harmonize(f.question), answer: harmonize(f.answer) }));
+    // + une seule phrase sur les prix au Maroc (MAD), identique à la page Services et aux conditions de vente
+    const withMad = (q: string, a: string) => (/Maroc|Combien coûte/i.test(q) && !/\bMAD\b|dirham/i.test(a) ? `${a} ${madNote()}` : a);
+    return rows.map((f) => ({ ...f, question: harmonize(f.question), answer: withMad(f.question, harmonize(f.answer)) }));
   }, [], 'FAQ');
 
 export const getServices = () =>

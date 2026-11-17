@@ -7,11 +7,12 @@ import TopicTiles from '../components/TopicTiles.astro';
 import Services from '../components/Services.astro';
 import PricingSummary from '../components/PricingSummary.astro';
 import Process from '../components/Process.astro';
+import Testimonials from '../components/Testimonials.astro';
 import { getFaqs, getPublishedProjects, getServices } from '../lib/content';
-import { getReviewSummary } from '../lib/reviews';
+import { getReviewSummary, getPublishedReviews } from '../lib/reviews';
 import { entryPrice, money } from '../config/site';
 
-const [faqs, rating, projects, services] = await Promise.all([getFaqs(), getReviewSummary(), getPublishedProjects(), getServices()]);
+const [faqs, rating, projects, services, reviews] = await Promise.all([getFaqs(), getReviewSummary(), getPublishedProjects(), getServices(), getPublishedReviews()]);
 const flagship = projects.find((p) => p.kind === 'client' && p.featured) ?? projects.find((p) => p.kind === 'client') ?? projects[0] ?? null;
 ---
 <Base title="Création de sites web à Montréal et au Maroc · Lakauraa"
@@ -21,5 +22,6 @@ const flagship = projects.find((p) => p.kind === 'client' && p.featured) ?? proj
   <Services services={services} />
   <PricingSummary />
   <Process />
+  <Testimonials reviews={reviews} />
   <TopicTiles flagship={flagship} projectCount={projects.length} rating={rating} faqCount={faqs.length} showServices={false} />
 </Base>

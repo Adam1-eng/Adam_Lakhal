@@ -1,7 +1,7 @@
 ---
 import LegalPage from '../components/LegalPage.astro';
 import { telHref } from '../lib/content';
-import { SITE } from '../config/site';
+import { SITE, madNote } from '../config/site';
 import { offers } from '../data/site';
 const { contact, legal } = Astro.locals.settings;
 const sections = [
@@ -35,7 +35,7 @@ const sections = [
   <p>Avant tout engagement, je peux préparer une maquette gratuite. Elle n’engage pas le client et ne donne lieu à aucun paiement si le projet ne se poursuit pas. Le devis précise le contenu, le prix, la devise et l’échéancier ; il est valable 30 jours.</p>
 
   <h2 id="prix">Prix et taxes</h2>
-  <p>Les prix affichés sur le site sont en dollars canadiens ({SITE.currency}), {SITE.taxesNote}. Pour les clients au Maroc, le montant et la devise sont indiqués dans le devis. Les taxes applicables, s’il y a lieu, sont indiquées sur le devis et sur la facture.</p>
+  <p>Les prix affichés sur le site sont en dollars canadiens ({SITE.currency}), {SITE.taxesNote}. {madNote()} Les taxes applicables, s’il y a lieu, sont indiquées sur le devis et sur la facture.</p>
 
   <h2 id="paiement">Paiement</h2>
   <ul>

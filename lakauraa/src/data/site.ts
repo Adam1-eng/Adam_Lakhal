@@ -1,12 +1,16 @@
 // Données fixes du site (textes de sections). Les contenus modifiables — projets, FAQ, services,
 // témoignages, coordonnées, WhatsApp, réseaux — sont gérés dans l’admin (/admin) et stockés en base.
 
-import { SITE, money } from '../config/site';
+import { SITE, money, madShort } from '../config/site';
 
 /** Prix d’un forfait depuis la configuration : montant + « CAD, avant taxes », ou « Sur devis ». */
 const offerPrice = (key: keyof typeof SITE.prices) => {
   const p = SITE.prices[key];
-  return p == null ? { price: 'Sur devis', unit: 'Devis gratuit, selon votre projet' } : { from: 'À partir de', price: money(p).replace(` ${SITE.currency}`, ''), unit: `${SITE.currency}, ${SITE.taxesNote}` };
+  // Prix au Maroc (MAD) : affiché à côté du prix CAD seulement s'il est fixé dans la config (jamais converti)
+  const mad = key in SITE.pricesMad ? madShort(key as keyof typeof SITE.pricesMad) : null;
+  return p == null
+    ? { price: 'Sur devis', unit: 'Devis gratuit, selon votre projet', mad }
+    : { from: 'À partir de', price: money(p).replace(` ${SITE.currency}`, ''), unit: `${SITE.currency}, ${SITE.taxesNote}`, mad };
 };
 
 /** Alias historique : toutes les valeurs viennent de src/config/site.ts. */
@@ -38,6 +42,8 @@ export type Offer = {
   /** Petit texte au-dessus du prix (ex. « À partir de ») */
   from?: string;
   unit?: string;
+  /** Prix au Maroc (« Dès … MAD »), seulement s'il est fixé dans la config */
+  mad?: string | null;
   pitch: string;
   features: string[];
   featured?: boolean;
