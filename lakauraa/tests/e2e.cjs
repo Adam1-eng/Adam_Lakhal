@@ -74,7 +74,12 @@ let fails = 0; const bad = (m) => { fails++; console.log('FAIL', m); };
     const st = await pm.evaluate(() => ({ open: !!document.querySelector('#mobile-menu.is-open'), hidden: document.querySelector('#mobile-menu').hidden, overflow: document.documentElement.style.overflow, y: scrollY }));
     if (st.open || !st.hidden || st.overflow) bad(`menu après navigation vers ${target} : ${JSON.stringify(st)}`);
   }
-  console.log('menu mobile : 3 navigations OK');
+  await pm.locator('[data-menu-toggle]').click(); await pm.waitForSelector('#mobile-menu.is-open');
+  await pm.locator('#mobile-menu [data-wa-open]').click(); await pm.waitForSelector('dialog[open]');
+  await pm.locator('dialog[open] [data-wa-close]').click(); await pm.waitForTimeout(500);
+  const wa = await pm.evaluate(() => ({ open: !!document.querySelector('#mobile-menu.is-open'), overflow: document.documentElement.style.overflow }));
+  if (wa.open || wa.overflow) bad('WhatsApp depuis le menu : menu resté ouvert ou page bloquée ' + JSON.stringify(wa));
+  console.log('menu mobile : 3 navigations + WhatsApp OK');
 
   // 4. Clavier : lien d'évitement + focus visible
   const p3 = await (await b.newContext()).newPage(); await p3.goto(B + '/', { waitUntil: 'networkidle' });

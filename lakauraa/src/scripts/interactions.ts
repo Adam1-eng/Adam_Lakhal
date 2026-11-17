@@ -78,6 +78,8 @@ function initHeader() {
     toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
     // Lien du menu : fermeture immédiate, la nouvelle page s'affiche sans attendre l'animation
     menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false, true)));
+    // Bouton WhatsApp du menu : le menu se ferme, la fenêtre de choix du numéro s'ouvre seule (page non bloquée ensuite)
+    menu.querySelectorAll('[data-wa-open]').forEach((btn) => btn.addEventListener('click', () => setOpen(false, true)));
     on(window, 'keydown', (e) => {
       if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { setOpen(false); toggle.focus(); }
     });
