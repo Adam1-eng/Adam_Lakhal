@@ -1,6 +1,6 @@
 # Rapport — Audit A à L (17 novembre 2026)
 
-Code : commit `e859619` sur la branche `claude/sweet-planck-lu8kew`.
+Code : commits `e859619` et `8252e78` sur la branche `claude/sweet-planck-lu8kew`.
 Source unique de vérité : `src/config/site.ts`.
 
 ## a) Tableau A à K
@@ -61,12 +61,15 @@ Source unique de vérité : `src/config/site.ts`.
 - Tests de sécurité : 119 réussis, 0 échoué.
 - Tests SEO : 351 réussis, 0 échoué (21 pages).
 - Accessibilité (axe) : 0 violation sur 25 pages.
-- Liens internes : 36, 0 en erreur. Liens externes (maquettes, AutoRefaatArt, WhatsApp) : tous 200.
-- Mise en ligne : déploiement `dpl_LjZ9kEPpgTF71mhy8doH19BZwFhe` (commit e859619) sur https://lakauraa.vercel.app.
+- Liens internes : 36, 0 en erreur. Liens externes (maquettes, AutoRefaatArt, WhatsApp) : tous 200. Instagram répond 429 (blocage des robots) : à tester à la main.
+- Mise en ligne : déploiement `dpl_GstEMikimZQVTxMYoaYUVQJeYwE7` (commit 8252e78) sur https://lakauraa.vercel.app.
   Revérifié en production : recherches (0 partout, acompte {40}, délai {24 h}), SEO 351/0, en-tête/boutons/vides
   sur 21 pages × 2 écrans, carrousel, filtres, FAQ, cookies, formulaire → WhatsApp, parcours e2e : tout OK.
-- Lenteur des liens (cellulaire simulé, processeur ralenti ×4, 4G) : nouvelle page affichée environ 0,2 à 0,27 s
-  après le toucher depuis le menu, et 0,32 à 0,37 s depuis un lien dans la page (auparavant environ 1 s).
+- Lenteur des liens (« quand je clique sur un hyperlien ça lag ») : la cause était l'animation de transition
+  entre les pages (capture de toute la page puis fondu, 0,4 à 0,5 s après chaque clic). Elle est retirée.
+  Mesuré sur le site en ligne, tap → page entièrement affichée : téléphone simulé (processeur ×4) avant 0,6 à 0,95 s,
+  après 0,12 à 0,36 s ; ordinateur avant 0,66 à 0,87 s, après 0,17 à 0,43 s (temps de téléchargement compris). Bonus : sur ordinateur, « Voir les forfaits » descend
+  maintenant bien jusqu'aux forfaits (bug déjà présent avant). Navigation testée : 15/15 (retour, ancres, FAQ, carrousel).
 
 ## Points de l'audit qui étaient déjà faux avant les corrections (vérifié)
 
