@@ -122,6 +122,17 @@ export const kindLabel: Record<Project['kind'], string> = {
   maquette: 'Maquette (concept)',
 };
 
+/** Captures en base connues pour être rognées (bouton coupé dans l'image elle-même), remplacées par une
+ *  version corrigée versionnée dans /public. Ne s'applique QU'À l'adresse exacte de l'ancienne image :
+ *  dès qu'une nouvelle image est déposée dans l'admin (« Remplacer »), c'est elle qui s'affiche. */
+const FIXED_IMAGES: Record<string, { url: string; thumbUrl: string; width: number; height: number }> = {
+  'autorefaatart-1-UBRZO3zI2ma38uwudHeEHzSgUPkKkL.webp': { url: '/projets/autorefaatart-cellulaire.webp', thumbUrl: '/projets/autorefaatart-cellulaire.webp', width: 540, height: 1170 },
+};
+const fixImage = (img: ProjectImage): ProjectImage => {
+  const fix = FIXED_IMAGES[img.url.split('/').pop() ?? ''];
+  return fix ? { ...img, ...fix } : img;
+};
+
 async function hydrate(list: Project[]): Promise<ProjectCard[]> {
   if (!list.length) return [];
   const db = await getDb();
@@ -131,7 +142,7 @@ async function hydrate(list: Project[]): Promise<ProjectCard[]> {
     db.select().from(schema.categories),
   ]);
   return list.map((p) => {
-    const mine = imgs.filter((i) => i.projectId === p.id);
+    const mine = imgs.filter((i) => i.projectId === p.id).map(fixImage);
     const cover = mine.find((i) => i.id === p.coverImageId) ?? mine.find((i) => i.variant === 'desktop') ?? mine[0] ?? null;
     const mobile = mine.find((i) => i.variant === 'mobile') ?? null;
     return { ...p, category: cats.find((c) => c.id === p.categoryId) ?? null, cover, mobile };
@@ -168,7 +179,7 @@ export async function getProjectBySlug(slug: string, { includeDrafts = false } =
     if (!p) return null;
     const [card] = await hydrate([p]);
     const images = await db.select().from(schema.projectImages).where(eq(schema.projectImages.projectId, p.id)).orderBy(asc(schema.projectImages.sort));
-    return { ...card, images };
+    return { ...card, images: images.map(fixImage) };
   }, null, 'projet');
 }
 

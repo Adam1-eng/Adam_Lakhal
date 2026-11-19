@@ -83,6 +83,7 @@ const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').repl
     <link rel="canonical" href={canonical} />
     <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
     <meta name="theme-color" content="#0b0b0f" />
+    {SITE.googleVerification.meta && <meta name="google-site-verification" content={SITE.googleVerification.meta} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

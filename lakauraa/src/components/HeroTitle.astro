@@ -2,26 +2,25 @@
 // Titre du hero : effet « BlurText » (React Bits) reproduit en CSS pur — mêmes mots, même apparition mot à mot
 // avec flou, mais sans JavaScript (≈ 145 Ko de moins à télécharger et exécuter sur cellulaire).
 import { heroTitle } from '../lib/motion-config';
-interface Props { text: string; highlight?: string; id?: string; class?: string }
-const { text, highlight = '', id, class: cls = '' } = Astro.props;
+interface Props { text: string; highlight?: string; id?: string; class?: string; kicker?: string }
+const { text, highlight = '', id, class: cls = '', kicker } = Astro.props;
 const words = text.split(' ');
 const start = highlight && text.endsWith(highlight) ? words.length - highlight.split(' ').length : words.length;
 const { delay, stepDuration, blur, distance } = heroTitle;
 ---
 <div id={id} class="blur-title-wrap">
   <h1 class:list={['blur-title', cls]} style={`--bt-dur:${stepDuration * 2}s;--bt-blur:${blur}px;--bt-dist:${distance}px`}>
-    <span class="sr-only">{text}</span>
+    {kicker && <><span class="eyebrow h-kicker">{kicker}</span>{' '}</>}
+    {/* Un seul exemplaire du texte (lu par Google et les lecteurs d'écran), vraies espaces entre les mots */}
     {words.map((w, i) => (
-      <span class:list={['bt-word', { 'aura-text': i >= start }]}>
-        <span aria-hidden="true" style={`--bt-d:${i * delay}ms`}>{i < words.length - 1 ? `${w} ` : w}</span>
-      </span>
+      <><span class:list={['bt-word', { 'aura-text': i >= start }]}><span style={`--bt-d:${i * delay}ms`}>{w}</span></span>{i < words.length - 1 ? ' ' : ''}</>
     ))}
   </h1>
 </div>
 
 <style>
-  .blur-title { display: flex; flex-wrap: wrap; }
-  .bt-word { display: inline-flex; white-space: nowrap; }
+  .blur-title { display: block; }
+  .bt-word { display: inline-block; white-space: nowrap; }
   .bt-word > span {
     display: inline-block;
     animation: bt-in var(--bt-dur) linear var(--bt-d) both;

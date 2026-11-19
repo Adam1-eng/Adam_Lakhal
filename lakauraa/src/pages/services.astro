@@ -45,8 +45,8 @@ const details: Record<string, string[]> = {
 const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique: 'shop', entretien: 'care' };
 const settings = Astro.locals.settings;
 ---
-<Base title="Services et prix d’un site web pour commerce" crumbs={[{ name: 'Services', path: '/services' }]} schema={serviceSchema} description={`Sites web à partir de ${entry != null ? money(entry) : 'un prix sur devis'}. Site complet, boutique en ligne et entretien sur devis gratuit, selon votre projet. Maquette gratuite avant de payer.`}>
-  <PageHero eyebrow="Services" title="Un site qui travaille pour vous, même quand vous êtes fermé." aura="même quand vous êtes fermé."
+<Base title="Services et prix d’un site web à Montréal" crumbs={[{ name: 'Services', path: '/services' }]} schema={serviceSchema} description={`Sites web à partir de ${entry != null ? money(entry) : 'un prix sur devis'}. Site complet, boutique en ligne et entretien sur devis gratuit, selon votre projet. Maquette gratuite avant de payer.`}>
+  <PageHero eyebrow="Services" kicker="Site vitrine et boutique en ligne à Montréal" title="Un site qui travaille pour vous, même quand vous êtes fermé." aura="même quand vous êtes fermé."
     lead="Du site d’une page à la boutique en ligne, chaque projet est conçu autour d’un seul objectif : que vos clients vous trouvent, vous fassent confiance et vous appellent."
     crumbs={[{ label: 'Services' }]}>
     <div class="reveal" style="--i:4;display:flex;flex-wrap:wrap;gap:.8rem">

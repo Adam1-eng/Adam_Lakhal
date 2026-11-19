@@ -25,6 +25,16 @@ export const SITE = {
   /** Anciennes adresses : redirigées en permanence (301) vers `url`, même chemin. */
   oldHosts: ['lakauraa.vercel.app', 'lakauraa-v3.vercel.app'] as readonly string[],
 
+  /* ---------- Google Search Console ----------
+     Codes fournis par Google (jamais inventés). Remplir UN des deux, puis redéployer :
+     - meta : le texte entre les guillemets de content="…" de la balise <meta name="google-site-verification">
+     - file : le nom du fichier proposé par Google, ex. 'google1234abcd5678.html'
+     (Méthode recommandée : propriété « Domaine » validée par un enregistrement TXT dans le DNS Vercel.) */
+  googleVerification: {
+    meta: '', // ← À FOURNIR (Search Console → Balise HTML)
+    file: '', // ← À FOURNIR (Search Console → Fichier HTML)
+  },
+
   /* ---------- Coordonnées ----------
      Courriel public : vide = tous les liens « courriel » sont masqués sur le site.
      info@lakauraa.com : redirection ImprovMX → Gmail (enregistrements MX/SPF dans le DNS Vercel).

@@ -6,8 +6,10 @@ interface Props {
   as?: 'h1' | 'h2' | 'h3' | 'p';
   class?: string;
   id?: string;
+  /** Petite ligne au style « eyebrow » placée DANS le titre (mot-clé principal de la page, lu par Google) */
+  kicker?: string;
 }
-const { text, aura = '', as: Tag = 'h2', class: cls = '', id } = Astro.props;
+const { text, aura = '', as: Tag = 'h2', class: cls = '', id, kicker } = Astro.props;
 
 type Word = { w: string; aura: boolean };
 const words: Word[] = [];
@@ -20,7 +22,8 @@ for (const w of text.split(' ')) {
   words.push({ w, aura: start >= 0 && wStart >= start && wStart < end });
 }
 ---
-<Tag class={cls} id={id} data-split aria-label={text}>
+<Tag class={cls} id={id} data-split aria-label={kicker ? `${kicker} : ${text}` : text}>
+  {kicker && <><span class="eyebrow h-kicker" aria-hidden="true">{kicker}</span>{' '}</>}
   {words.map((word, i) => (
     <>
       <span class="split-word" aria-hidden="true"><span style={`--w:${i}`} class={word.aura ? 'aura-text' : undefined}>{word.w}</span></span>{i < words.length - 1 ? ' ' : ''}

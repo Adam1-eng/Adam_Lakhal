@@ -32,13 +32,8 @@ const slides = [
 
   <div class="wrap hero__grid">
     <div class="hero__copy">
-      <a href="/projets" class="hero__badge reveal">
-        <span class="hero__badge-dot"></span>
-        Sites web pour commerces locaux · {site.city}
-        <Icon name="arrow" />
-      </a>
 
-      <HeroTitle id="hero-title" class="hero__title" text="Votre commerce mérite un site qui fait venir des clients." highlight="fait venir des clients." />
+      <HeroTitle id="hero-title" class="hero__title" kicker="Création de site web à Montréal" text="Votre commerce mérite un site qui fait venir des clients." highlight="fait venir des clients." />
 
       <p class="hero__lead reveal" style="--i:4">
         Des sites rapides et élégants, pensés pour le cellulaire.{' '}
@@ -164,18 +159,6 @@ const slides = [
   @media (min-width: 1000px) { .hero__grid { grid-template-columns: 1.02fr 1fr; } }
 
   .hero__copy { display: grid; gap: 1.6rem; justify-items: start; }
-  .hero__badge {
-    display: inline-flex; align-items: center; gap: 0.6rem;
-    padding: 0.4rem 0.9rem 0.4rem 0.55rem;
-    border-radius: 999px; border: 1px solid var(--line-2);
-    background: rgb(255 255 255 / 0.04);
-    font-size: 0.85rem; color: var(--muted);
-    transition: border-color 0.3s, color 0.3s;
-  }
-  .hero__badge :global(svg) { width: 14px; height: 14px; transition: transform 0.3s var(--ease); }
-  .hero__badge:hover { border-color: rgb(30 107 255 / 0.5); color: var(--text); }
-  .hero__badge:hover :global(svg) { transform: translateX(3px); }
-  .hero__badge-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgb(74 222 128 / 0.15); animation: blink 2.4s ease-in-out infinite; }
   @keyframes blink { 50% { box-shadow: 0 0 0 8px rgb(74 222 128 / 0); } }
   :global(.hero__title) { font-size: clamp(2.6rem, 6.6vw, 4.5rem); max-width: 13ch; }
   .hero__lead { font-size: clamp(1.05rem, 1.5vw, 1.2rem); color: var(--muted); max-width: 54ch; }

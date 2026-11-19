@@ -1,7 +1,8 @@
 ---
 import SplitText from './SplitText.astro';
-interface Props { eyebrow: string; title: string; aura?: string; lead?: string; crumbs?: { label: string; href?: string }[] }
-const { eyebrow, title, aura, lead, crumbs = [] } = Astro.props;
+interface Props { eyebrow: string; title: string; aura?: string; lead?: string; crumbs?: { label: string; href?: string }[]; kicker?: string }
+// kicker : mot-clé principal de la page, affiché comme l'eyebrow mais à l'intérieur du H1 (SEO), sans bourrage.
+const { eyebrow, title, aura, lead, crumbs = [], kicker } = Astro.props;
 ---
 <section class="ph" data-aura-zone>
   <div class="ph__bg" aria-hidden="true"><div class="grid-bg"></div><div class="ph__blob"></div></div>
@@ -14,8 +15,8 @@ const { eyebrow, title, aura, lead, crumbs = [] } = Astro.props;
         </ol>
       </nav>
     )}
-    <span class="eyebrow reveal">{eyebrow}</span>
-    <SplitText as="h1" class="h-xl" text={title} aura={aura} />
+    {!kicker && <span class="eyebrow reveal">{eyebrow}</span>}
+    <SplitText as="h1" class="h-xl" text={title} aura={aura} kicker={kicker} />
     {lead && <p class="lead reveal" style="--i:3">{lead}</p>}
     <slot />
   </div>

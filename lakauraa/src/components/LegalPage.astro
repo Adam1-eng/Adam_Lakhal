@@ -43,7 +43,8 @@ const legal = Astro.locals.settings.legal;
   .lg__toc a { color: var(--muted); transition: color 0.2s; }
   .lg__toc a:hover { color: var(--text); }
   @media (max-width: 959px) { .lg__toc { padding: 1.2rem; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); } .lg__other { display: none; } }
-  .lg__body { max-width: 74ch; color: #cfd0de; font-size: 1.02rem; }
+  /* min-width: 0 : un élément de grille ne doit jamais s'élargir au-delà de l'écran à cause d'un contenu large (tableau) */
+  .lg__body { max-width: 74ch; min-width: 0; color: #cfd0de; font-size: 1.02rem; }
   .lg__body :global(h2) { font-size: clamp(1.35rem, 2.4vw, 1.7rem); color: var(--text); margin: 2.8rem 0 1rem; scroll-margin-top: calc(var(--header-h) + 1.5rem); letter-spacing: -0.025em; }
   .lg__body :global(h2:first-child) { margin-top: 0; }
   .lg__body :global(h3) { font-size: 1.1rem; color: var(--text); margin: 1.6rem 0 0.6rem; letter-spacing: -0.015em; }
@@ -60,4 +61,13 @@ const legal = Astro.locals.settings.legal;
   .lg__body :global(.todo) { background: rgb(251 191 36 / 0.14); color: #fcd34d; border: 1px dashed rgb(251 191 36 / 0.5); border-radius: 6px; padding: 0.05rem 0.4rem; font-size: 0.92em; }
   .lg__body :global(.lg__note) { padding: 1rem 1.2rem; border-left: 3px solid var(--accent); background: rgb(30 107 255 / 0.07); border-radius: 0 12px 12px 0; color: var(--muted); font-size: 0.95rem; }
   @media (max-width: 600px) { .lg__body :global(dl) { grid-template-columns: 1fr; gap: 0.2rem; } .lg__body :global(dd) { margin-bottom: 0.6rem; } }
+  .lg__body :global(td code) { overflow-wrap: anywhere; }
+  /* Cellulaire : chaque ligne de tableau devient une petite fiche (libellé de colonne + valeur) */
+  @media (max-width: 600px) {
+    .lg__body :global(table), .lg__body :global(tbody), .lg__body :global(tr), .lg__body :global(td) { display: block; width: 100%; }
+    .lg__body :global(thead) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    .lg__body :global(tr) { padding: 0.9rem 1rem; margin-bottom: 0.8rem; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+    .lg__body :global(td) { display: grid; grid-template-columns: 6.5rem 1fr; gap: 0.6rem; padding: 0.35rem 0; border: 0; }
+    .lg__body :global(td[data-label])::before { content: attr(data-label); color: var(--dim); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; padding-top: 0.15rem; }
+  }
 </style>
