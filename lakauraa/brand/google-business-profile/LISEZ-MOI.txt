@@ -1,0 +1,10 @@
+IMAGES POUR TA FICHE GOOGLE BUSINESS PROFILE
+
+1-logo.jpg                  -> Logo (carré, 1080x1080)
+2-photo-de-couverture.jpg   -> Photo de couverture (16:9, 1920x1080)
+3-photo-adam-lakhal.jpg     -> Photo de l'équipe / du propriétaire
+4-realisation-XX-....jpg    -> Photos > « Travail / Réalisations »
+                               (01 à 03 : AutoRefaatArt, un vrai site client ;
+                                04 à 11 : maquettes de démonstration)
+
+Les maquettes sont des exemples préparés gratuitement : ne les présente pas comme des clients réels.
