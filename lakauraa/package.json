@@ -15,6 +15,7 @@
     "test:security:http": "node tests/security.http.mjs",
     "test:security": "npm run test:security:unit && npm run test:security:http",
     "test:seo": "node tests/seo.mjs",
+    "test:perf": "node tests/lighthouse.mjs",
     "test:e2e": "node tests/e2e.cjs"
   },
   "dependencies": {

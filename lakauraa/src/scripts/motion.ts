@@ -78,9 +78,11 @@ function init() {
   if (reduced()) { showEverything(); return; }
   revealOnScroll();
   if (touchOnly()) { lightProcess(); return; }
-  loadDesktop()
+  // Ordinateur : GSAP/Lenis démarrent quand le navigateur est libre (après l'affichage), pas pendant le chargement
+  const start = () => loadDesktop()
     .then((d) => { if (mine === seq) d.enter(); })
     .catch((e) => { console.error('[animations]', e); showEverything(); });
+  if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 800 }); else window.setTimeout(start, 200);
 }
 
 // Changement de page : on nettoie les animations, Lenis repart en haut

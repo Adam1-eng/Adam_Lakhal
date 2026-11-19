@@ -142,7 +142,6 @@ const slides = [
         radial-gradient(60% 45% at 50% 0%, rgb(30 107 255 / 0.32), transparent 70%),
         repeating-conic-gradient(from 160deg at 50% -8%, transparent 0deg 7deg, rgb(91 147 255 / 0.16) 9deg 11deg, transparent 13deg 19deg);
       mask-image: radial-gradient(75% 85% at 50% 0%, #000 25%, transparent 75%);
-      filter: blur(6px);
       animation: raysPulse 7s ease-in-out infinite alternate;
     }
     @keyframes raysPulse { from { opacity: 0.65; } to { opacity: 1; } }
@@ -151,7 +150,8 @@ const slides = [
   .hero__blob--1 { width: 620px; height: 620px; right: -120px; top: -160px; background: radial-gradient(circle, #1e6bff, transparent 65%); opacity: 0.32; animation: float1 18s ease-in-out infinite alternate; }
   .hero__blob--2 { width: 520px; height: 520px; left: -200px; bottom: -220px; background: radial-gradient(circle, #e0122f, transparent 65%); opacity: 0.35; animation: float2 22s ease-in-out infinite alternate; }
   .hero__follow { position: absolute; inset: 0; background: radial-gradient(500px circle at var(--ax) var(--ay), rgb(224 18 47 / 0.1), transparent 60%); transition: background 0.2s; }
-  @media (max-width: 760px) { .hero__blob { animation: none; filter: blur(60px); } }
+  /* Cellulaire : le dégradé radial est déjà très doux ; on évite le filtre de flou (coûteux à dessiner sur un téléphone moyen) */
+  @media (max-width: 760px) { .hero__blob { animation: none; filter: none; } }
   @keyframes float1 { to { transform: translate(-80px, 90px) scale(1.1); } }
   @keyframes float2 { to { transform: translate(120px, -60px) scale(0.92); } }
 
