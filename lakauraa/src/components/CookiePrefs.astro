@@ -8,13 +8,22 @@ const OPTIONAL_TOOLS = true;
 ---
 <div data-consent data-optional={String(OPTIONAL_TOOLS)}>
   {OPTIONAL_TOOLS && (
-    <div class="ck-banner" data-ck-banner hidden role="region" aria-label="Cookies">
+    <div class="ck-banner" data-ck-banner role="region" aria-label="Cookies">
       <p><strong>Confidentialité.</strong> Puis-je compter de façon anonyme les clics sur les boutons de contact (WhatsApp, appel, texto) pour améliorer le site ? Aucun cookie publicitaire, aucun identifiant. <a href="/politique-cookies">En savoir plus</a></p>
       <div class="ck-banner__actions">
         <button type="button" class="btn btn--ghost btn--sm ck-banner__btn" data-ck-choice="refuse">Refuser</button>
         <button type="button" class="btn btn--ghost btn--sm ck-banner__btn" data-ck-choice="accept">Accepter</button>
       </div>
     </div>
+  )}
+
+  {OPTIONAL_TOOLS && (
+    <>
+      {/* Bannière présente dans le HTML dès le premier rendu (rapide, comptée comme contenu principal de la page).
+          Ce petit script, exécuté AVANT l'affichage, la masque si un choix est déjà enregistré : aucun clignotement. */}
+      <script is:inline>try{if(localStorage.getItem('lk_consent'))document.querySelector('[data-ck-banner]').hidden=true}catch(e){}</script>
+      <noscript><style>.ck-banner{display:none}</style></noscript>
+    </>
   )}
 
   <dialog class="ck" id="cookie-prefs" aria-labelledby="ck-title">
@@ -89,6 +98,10 @@ const OPTIONAL_TOOLS = true;
       if (banner) banner.hidden = true;
     });
   }
+  // Changement de page (navigation instantanée) : la bannière du nouveau HTML est masquée avant l'affichage si un choix existe
+  document.addEventListener('astro:after-swap', () => {
+    if (read()) { const b = document.querySelector<HTMLElement>('[data-ck-banner]'); if (b) b.hidden = true; }
+  });
   document.addEventListener('astro:page-load', init);
 </script>
 
@@ -116,6 +129,7 @@ const OPTIONAL_TOOLS = true;
   .ck__more { font-size: 0.82rem; color: var(--dim); }
   .ck__more a { text-decoration: underline; color: var(--muted); }
   .ck__actions { display: flex; justify-content: flex-end; }
+  .ck-banner[hidden] { display: none; }
   .ck-banner { position: fixed; z-index: 85; left: 1rem; right: 1rem; bottom: 1rem; max-width: 560px; display: grid; gap: 0.9rem; padding: 1.1rem 1.2rem; border-radius: 18px; background: var(--surface); border: 1px solid var(--line-2); box-shadow: 0 30px 60px -30px #000; font-size: 0.9rem; }
   .ck-banner a { text-decoration: underline; }
   .ck-banner__actions { display: flex; gap: 0.5rem; justify-content: flex-end; }

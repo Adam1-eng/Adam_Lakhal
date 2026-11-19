@@ -3,6 +3,10 @@ import { ClientRouter } from 'astro:transitions';
 import '@fontsource-variable/inter';
 import '@fontsource/space-grotesk/500.css';
 import '@fontsource/space-grotesk/700.css';
+// Polices critiques préchargées (titres + texte) : le texte ne change plus de forme après l'affichage (plus de décalage de mise en page)
+import fontTitre700 from '@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2?url';
+import fontTitre500 from '@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2?url';
+import fontTexte from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -84,6 +88,9 @@ const safeJson = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c').repl
     <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
     <meta name="theme-color" content="#0b0b0f" />
     {SITE.googleVerification.meta && <meta name="google-site-verification" content={SITE.googleVerification.meta} />}
+    <link rel="preload" href={fontTitre700} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontTitre500} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={fontTexte} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

@@ -1,59 +1,24 @@
-// Moteur d’animation du site : GSAP + ScrollTrigger + Lenis, synchronisés sur le même « ticker ».
-// - Lenis est créé une seule fois et survit aux changements de page (View Transitions).
-// - Les animations de chaque page vivent dans un gsap.context(), annulé avant chaque changement de page.
+// Moteur d’animation du site, partie LÉGÈRE (chargée partout) :
+// - apparitions au défilement (IntersectionObserver), processus animé sur écran tactile, animations réduites ;
+// - sur ordinateur seulement, le module « motion-desktop » (GSAP + ScrollTrigger + Lenis) est chargé à la demande.
 // - prefers-reduced-motion : pas de Lenis (défilement natif), contenus affichés immédiatement.
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
-import 'lenis/dist/lenis.css';
-import { lenisOptions, ease, reveal } from '../lib/motion-config';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 const reduced = () => reducedQuery.matches;
-
-declare global {
-  interface Window { __lenis?: Lenis | null }
-}
-
-/* ---------- Défilement fluide (Lenis) synchronisé avec GSAP ---------- */
-let lenis: Lenis | null = null;
-const tick = (time: number) => lenis?.raf(time * 1000);
 
 // Écrans tactiles : défilement natif du téléphone (Lenis n'y apporte rien et recalculait toute la page
 // à chaque changement de page — ≈ 140 ms de blocage mesurés sur un téléphone moyen).
 const touchOnly = () => window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 
-function startLenis() {
-  if (lenis || reduced() || touchOnly()) return;
-  lenis = new Lenis({
-    lerp: lenisOptions.lerp,
-    wheelMultiplier: lenisOptions.wheelMultiplier,
-    smoothWheel: lenisOptions.smoothWheel,
-    syncTouch: lenisOptions.syncTouch,
-    anchors: { offset: lenisOptions.anchorOffset },
-    autoRaf: false,
-    // Fenêtres modales, menu mobile et zones marquées : défilement natif
-    prevent: (node: HTMLElement) => Boolean(node.closest?.('dialog, .mmenu, [data-lenis-prevent]')),
-  });
-  lenis.on('scroll', ScrollTrigger.update);
-  gsap.ticker.add(tick);
-  gsap.ticker.lagSmoothing(0);
-  window.__lenis = lenis;
-}
-
-function stopLenis() {
-  if (!lenis) return;
-  gsap.ticker.remove(tick);
-  lenis.destroy();
-  lenis = null;
-  window.__lenis = null;
-}
+type Desktop = typeof import('./motion-desktop');
+let desk: Desktop | null = null;
+let seq = 0;
+const loadDesktop = () => (desk ? Promise.resolve(desk) : import('./motion-desktop').then((m) => (desk = m)));
 
 // L’utilisateur peut activer « réduire les animations » pendant sa visite
 reducedQuery.addEventListener('change', () => {
-  if (reduced()) { stopLenis(); showEverything(); } else startLenis();
+  if (reduced()) { desk?.leave(); desk?.stopLenis(); showEverything(); }
+  else if (!touchOnly()) loadDesktop().then((d) => d.startLenis()).catch(() => {});
 });
 
 /* ---------- Affichage immédiat (animations réduites ou erreur) ---------- */
@@ -91,54 +56,6 @@ function revealOnScroll() {
   revealCleanup = () => { window.removeEventListener('scroll', onScroll); io?.disconnect(); io = null; pending.forEach((el) => el.classList.remove('pre')); pending.clear(); revealCleanup = null; };
 }
 
-/* ---------- Animations de la page ---------- */
-let ctx: gsap.Context | null = null;
-
-function pageAnimations() {
-  // 4. Processus : la ligne se remplit au rythme du défilement, les étapes s’allument
-  gsap.utils.toArray<HTMLElement>('[data-progress]').forEach((list) => {
-    const steps = list.querySelectorAll<HTMLElement>('[data-step]');
-    ScrollTrigger.create({
-      trigger: list,
-      start: 'top 75%',
-      end: 'bottom 55%',
-      scrub: 0.6,
-      onUpdate: (self) => {
-        list.style.setProperty('--p', self.progress.toFixed(3));
-        steps.forEach((s, k) => s.classList.toggle('is-on', self.progress >= k / steps.length));
-      },
-    });
-  });
-
-  // 5. Hero : la vitrine s’éloigne doucement au défilement (transition vers la suite)
-  const hero = document.querySelector<HTMLElement>('.hero');
-  if (hero) {
-    // fromTo : départ explicite (l'apparition CSS du hero est peut-être encore en cours à cet instant)
-    gsap.fromTo('.hero__show', { yPercent: 0, opacity: 1 }, {
-      yPercent: -8,
-      opacity: 0.55,
-      ease: 'none',
-      scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true },
-    });
-    gsap.to('.hero__bg', {
-      yPercent: 18,
-      ease: 'none',
-      scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: true },
-    });
-  }
-
-  // 6. Images des cartes de projets : léger zoom arrière à l’apparition
-  gsap.utils.toArray<HTMLElement>('.pcard__media > img, .cs__shot img').forEach((img) => {
-    gsap.fromTo(img, { scale: 1.08 }, {
-      scale: 1,
-      duration: 1.4,
-      ease: ease.outSoft,
-      clearProps: 'transform',
-      scrollTrigger: { trigger: img, start: reveal.start, once: true },
-    });
-  });
-}
-
 /* ---------- Écrans tactiles : processus animé sans GSAP (pas de mesure de toute la page) ---------- */
 let pio: IntersectionObserver | null = null;
 function lightProcess() {
@@ -156,41 +73,27 @@ function lightProcess() {
 }
 
 function init() {
-  ctx?.revert();
-  ctx = null;
+  desk?.leave();
+  const mine = ++seq;
   if (reduced()) { showEverything(); return; }
   revealOnScroll();
   if (touchOnly()) { lightProcess(); return; }
-  startLenis();
-  lenis?.resize();
-  try {
-    ctx = gsap.context(pageAnimations);
-  } catch (e) {
-    console.error('[animations]', e);
-    showEverything();
-  }
-  // Recalcule les positions une fois les polices et images chargées (évite les déclenchements décalés)
-  document.fonts?.ready.then(() => ScrollTrigger.refresh());
+  loadDesktop()
+    .then((d) => { if (mine === seq) d.enter(); })
+    .catch((e) => { console.error('[animations]', e); showEverything(); });
 }
 
 // Changement de page : on nettoie les animations, Lenis repart en haut
-document.addEventListener('astro:before-swap', () => { ctx?.revert(); ctx = null; revealCleanup?.(); pio?.disconnect(); pio = null; });
-document.addEventListener('astro:after-swap', () => {
-  if (!lenis) return;
-  // Lien vers une section (ex. /services#forfaits) : on y va directement ; sinon, haut de page.
-  const id = decodeURIComponent(location.hash.slice(1));
-  const target = id ? document.getElementById(id) : null;
-  lenis.resize();
-  lenis.scrollTo(target ?? 0, { immediate: true, force: true, offset: target ? lenisOptions.anchorOffset : 0 });
-});
+document.addEventListener('astro:before-swap', () => { desk?.leave(); revealCleanup?.(); pio?.disconnect(); pio = null; });
+document.addEventListener('astro:after-swap', () => desk?.afterSwap());
 document.addEventListener('astro:page-load', init);
-window.addEventListener('load', () => ScrollTrigger.refresh());
+window.addEventListener('load', () => desk?.refresh());
 
 // La hauteur de la page change (FAQ, filtres, images) : on recalcule
 let refreshTimer = 0;
 export function refreshScroll() {
   window.clearTimeout(refreshTimer);
-  refreshTimer = window.setTimeout(() => { lenis?.resize(); ScrollTrigger.refresh(); }, 120);
+  refreshTimer = window.setTimeout(() => desk?.refresh(), 120);
 }
 document.addEventListener('toggle', refreshScroll, true);
 document.addEventListener('lk:layout', refreshScroll);
