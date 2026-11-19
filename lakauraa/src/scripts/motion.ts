@@ -82,7 +82,8 @@ function init() {
   const start = () => loadDesktop()
     .then((d) => { if (mine === seq) d.enter(); })
     .catch((e) => { console.error('[animations]', e); showEverything(); });
-  if ('requestIdleCallback' in window) window.requestIdleCallback(start, { timeout: 800 }); else window.setTimeout(start, 200);
+  const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+  if (idle) idle.call(window, start, { timeout: 800 }); else setTimeout(start, 200);
 }
 
 // Changement de page : on nettoie les animations, Lenis repart en haut
