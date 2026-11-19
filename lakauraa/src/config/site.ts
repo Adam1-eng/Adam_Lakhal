@@ -44,7 +44,7 @@ export const SITE = {
   /** WhatsApp, format international, chiffres seulement. Modifiables aussi dans l’admin. */
   whatsapp: { ma: '212621971718', ca: '14385280259' },
   /** Réseaux sociaux par défaut (modifiables dans l’admin). */
-  socials: { instagram: '', tiktok: '', linkedin: '', github: '', facebook: '', youtube: '' },
+  socials: { instagram: 'https://www.instagram.com/lakauraaeng', tiktok: 'https://www.tiktok.com/@lakauraa', linkedin: '', github: '', facebook: '', youtube: '' },
 
   /* ---------- Engagements commerciaux ---------- */
   /** Délai de réponse promis (une seule promesse sur tout le site). */
@@ -69,7 +69,7 @@ export const SITE = {
      Prix « à partir de » en dirhams, fixés par le propriétaire (JAMAIS convertis automatiquement).
      null = « tarif au Maroc confirmé en MAD dans le devis ». */
   pricesMad: {
-    essentiel: null as number | null, // ← À FOURNIR : prix de départ Essentiel en MAD
+    essentiel: 3000 as number | null, // 3 000 MAD (confirmé par le propriétaire le 19/11/2026)
     pro: null as number | null,
     entretien: null as number | null,
   },

@@ -80,6 +80,11 @@ function applyConfig(s: SiteSettings): SiteSettings {
   s.contact.email = SITE.publicEmail;
   s.contact.responseTime = SITE.responseTime;
   s.legal.privacyEmail = SITE.publicEmail;
+  // Réseaux : liens propres (sans paramètres de suivi « ?utm_source… »), adresses de la config si rien n'est saisi
+  for (const k of Object.keys(s.socials) as (keyof SocialSettings)[]) {
+    const v = (s.socials[k] || SITE.socials[k] || '').trim();
+    s.socials[k] = /^https?:\/\/(www\.)?(instagram|tiktok)\.com\//i.test(v) ? v.split(/[?#]/)[0].replace(/\/$/, '') : v;
+  }
   return s;
 }
 
