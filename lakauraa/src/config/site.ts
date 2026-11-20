@@ -49,8 +49,8 @@ export const SITE = {
   /* ---------- Engagements commerciaux ---------- */
   /** Délai de réponse promis (une seule promesse sur tout le site). */
   responseTime: 'moins de 24 h',
-  /** Délai de mise en ligne d’un site vitrine. */
-  delay: '1 à 2 semaines',
+  /** Délai de mise en ligne d’un site vitrine (une seule promesse, reprise partout : accueil, À propos, FAQ, conditions de vente). */
+  delay: '5 jours maximum',
   /** Acompte demandé à la signature (en %). Le solde est payé à la mise en ligne. */
   depositPercent: 40,
 
@@ -118,6 +118,7 @@ export const harmonize = (text: string) =>
   text
     .replace(/\b\d{1,2}\s?%(\s)(au départ|à la signature)/g, `${SITE.depositPercent} %$1$2`)
     .replace(/en moins de \d+\s?(h\b|heures?)/g, `en ${SITE.responseTime}`)
+    .replace(/(?:une à deux|1 à 2|1-2) semaines/gi, SITE.delay)
     .replace(/(\d(?:[\d\u202f\u00a0 ]*\d)?)\s?\$(?!\s?CAD)/g, `$1 $ ${SITE.currency}`);
 
 /** Prix au Maroc pour un forfait : « Dès 3 000 MAD » ou null (= confirmé dans le devis). */

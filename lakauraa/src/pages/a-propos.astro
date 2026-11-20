@@ -18,7 +18,7 @@ const { contact } = Astro.locals.settings;
 
 const values = [
   { icon: 'heart', title: 'Honnêteté', text: 'Des prix affichés, une entente écrite et une maquette avant tout paiement. Si un site ne vous apporte rien, je vous le dis.' },
-  { icon: 'zap', title: 'Rapidité', text: 'Des sites légers qui s’ouvrent vite, même sur un vieux cellulaire, et une mise en ligne en 1 à 2 semaines.' },
+  { icon: 'zap', title: 'Rapidité', text: 'Des sites légers qui s’ouvrent vite, même sur un vieux cellulaire, et une mise en ligne en ' + SITE.delay + '.' },
   { icon: 'layers', title: 'Simplicité', text: 'Pas de jargon. Vous m’envoyez un texto, je m’occupe du technique. Le site doit vous simplifier la vie.' },
 ];
 const skills = ['HTML et CSS', 'JavaScript / TypeScript', 'Next.js', 'Astro', 'Three.js (3D)', 'Docker', 'Référencement local', 'Design adapté au cellulaire'];

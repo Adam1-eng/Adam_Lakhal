@@ -146,7 +146,7 @@ export const engagements = [
   },
   {
     icon: 'clock',
-    title: 'En ligne en 1 à 2 semaines',
+    title: `En ligne en ${SITE.delay}`,
     text: 'Un échéancier simple, des étapes claires et des nouvelles régulières jusqu’à la mise en ligne.',
   },
   {
@@ -173,17 +173,17 @@ export const process = [
   {
     title: 'Maquette gratuite',
     text: 'Je vous montre une ébauche de votre site, sans engagement. Vous décidez ensuite.',
-    meta: '2 à 4 jours',
+    meta: 'Jours 1 à 2',
   },
   {
     title: 'Ajustements',
     text: 'On peaufine ensemble les textes, les photos et les couleurs jusqu’à ce que ce soit parfait.',
-    meta: 'Semaine 1–2',
+    meta: 'Jours 3 à 4',
   },
   {
     title: 'Mise en ligne',
     text: 'Votre site est en ligne, sur votre nom de domaine. Je vous montre comment le partager.',
-    meta: 'Lancement',
+    meta: 'Jour 5 au plus tard',
   },
 ];
 
