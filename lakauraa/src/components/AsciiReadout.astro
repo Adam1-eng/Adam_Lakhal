@@ -1,0 +1,62 @@
+---
+// Le « relevé » : les chiffres clés de l'offre, écrits comme un instrument de mesure en caractères ASCII.
+// Toutes les valeurs viennent de src/config/site.ts (aucun chiffre écrit ici). Le texte est du vrai texte (lisible, indexable) ;
+// le mot-symbole en blocs est décoratif (aria-hidden).
+import { SITE, entryPrice, money, madShort } from '../config/site';
+import { audiences } from '../data/site';
+
+// Police 5 lignes en blocs pour « LAKAURAA »
+const F: Record<string, string[]> = {
+  L: ['█    ', '█    ', '█    ', '█    ', '█████'],
+  A: [' ███ ', '█   █', '█████', '█   █', '█   █'],
+  K: ['█   █', '█  █ ', '███  ', '█  █ ', '█   █'],
+  U: ['█   █', '█   █', '█   █', '█   █', ' ███ '],
+  R: ['████ ', '█   █', '████ ', '█  █ ', '█   █'],
+};
+const art = Array.from({ length: 5 }, (_, row) => [...'LAKAURAA'].map((c) => F[c][row]).join('  ')).join('\n');
+
+const bar = (v: number) => '▓'.repeat(Math.round(v * 12)) + '░'.repeat(12 - Math.round(v * 12));
+const prix = entryPrice();
+const rows = [
+  { k: 'Mise en ligne', v: 0.42, val: SITE.delay },
+  { k: 'Réponse', v: 0.8, val: SITE.responseTime },
+  { k: 'Maquette', v: 1, val: '0 $ · gratuite' },
+  ...(prix != null ? [{ k: 'Sites dès', v: 0.3, val: `${money(prix)}${madShort('essentiel') ? ' · ' + madShort('essentiel')!.replace('Dès ', '') : ''}` }] : []),
+];
+---
+<section class="asc" aria-label="Relevé Lakauraa">
+  <div class="wrap asc__wrap">
+    <pre class="asc__art reveal" aria-hidden="true">{art}</pre>
+    <dl class="asc__rows reveal" style="--i:1">
+      {rows.map((r) => (
+        <div class="asc__row">
+          <dt>{r.k}</dt>
+          <dd><span class="asc__bar" aria-hidden="true" style={`--v:${r.v}`}><span class="asc__off">{bar(1)}</span><span class="asc__on">{bar(r.v)}</span></span><b>{r.val}</b></dd>
+        </div>
+      ))}
+    </dl>
+    <p class="asc__sect reveal" style="--i:2"><span>Pour</span> {audiences.slice(0, 9).join(' · ').toLowerCase()}.</p>
+  </div>
+</section>
+
+<style>
+  .asc { position: relative; padding-block: clamp(1.5rem, 4vw, 2.6rem); border-block: 1px solid var(--line); background: linear-gradient(180deg, rgb(255 255 255 / 0.015), transparent); }
+  .asc__wrap { display: grid; gap: 1.6rem 3rem; align-items: center; font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; }
+  @media (min-width: 1000px) { .asc__wrap { grid-template-columns: auto 1fr; } .asc__sect { grid-column: 1 / -1; } }
+  .asc__art { margin: 0; font-size: clamp(0.34rem, 1.35vw, 0.8rem); line-height: 1.05; letter-spacing: 0; background: linear-gradient(90deg, #1e6bff, #7b3fd6 55%, #e0122f); -webkit-background-clip: text; background-clip: text; color: transparent; white-space: pre; overflow: hidden; }
+  .asc__rows { display: grid; gap: 0.7rem; }
+  .asc__row { display: grid; grid-template-columns: 9.5rem 1fr; align-items: baseline; gap: 0.8rem; font-size: clamp(0.78rem, 1.5vw, 0.92rem); }
+  .asc__row dt { color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.72em; }
+  .asc__row dd { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; align-items: baseline; margin: 0; }
+  .asc__row b { color: var(--text); font-weight: 600; letter-spacing: 0.02em; }
+  .asc__bar { position: relative; display: inline-block; letter-spacing: 0.05em; color: var(--accent); }
+  .asc__off { color: rgb(255 255 255 / 0.12); }
+  /* la barre se remplit à l'apparition (aucun JavaScript : l'animation démarre quand « .pre » est retiré) */
+  .asc__on { position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; }
+  .asc__rows:not(.pre) .asc__on { animation: ascFill 1.4s var(--ease) both; }
+  @keyframes ascFill { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  .asc__sect { color: var(--dim); font-size: 0.78rem; letter-spacing: 0.04em; }
+  .asc__sect span { color: var(--accent); text-transform: uppercase; letter-spacing: 0.14em; margin-right: 0.4rem; }
+  @media (max-width: 999px) { .asc__art { font-size: clamp(0.3rem, 1.9vw, 0.62rem); } .asc__row { grid-template-columns: 7.2rem 1fr; } }
+  @media (prefers-reduced-motion: reduce) { .asc__rows .asc__on { animation: none !important; } }
+</style>

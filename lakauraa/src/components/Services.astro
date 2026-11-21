@@ -1,56 +1,67 @@
 ---
+// Services (accueil) · liste éditoriale asymétrique, sans cartes : un numéro en monospace, un titre fort, un prix,
+// et au survol les lignes topographiques apparaissent derrière la ligne (le « relief » de chaque service).
 import Icon from './Icon.astro';
-import SectionHead from './SectionHead.astro';
+import Topo from './Topo.astro';
 import { servicePrice } from '../config/site';
 import type { Service } from '../lib/db/schema';
 interface Props { services: Service[]; showAllLink?: boolean }
 const { services, showAllLink = true } = Astro.props;
-const icons: Record<string, string> = { vitrine: 'page', pro: 'pages', boutique: 'shop', entretien: 'care' };
 ---
-<section class="section section--alt" id="solutions" aria-label="Services">
+<section class="sva" id="solutions" aria-labelledby="sva-title">
   <div class="wrap">
-    <SectionHead eyebrow="La solution" title="Ce que je construis pour votre commerce." aura="pour votre commerce." align="split"
-      lead="De la simple page à la boutique en ligne. Un seul développeur, du premier appel à la mise en ligne." />
+    <header class="sva__head">
+      <p class="idx reveal"><span>[03]</span> La solution</p>
+      <h2 id="sva-title" class="sva__title reveal" style="--i:1">Ce que je construis pour votre commerce.</h2>
+      <p class="sva__lead reveal" style="--i:2">De la simple page à la boutique en ligne. Un seul développeur, du premier appel à la mise en ligne.</p>
+    </header>
 
-    <div class="sv__grid">
+    <ol class="sva__list">
       {services.map((s, i) => (
-        <a href={`/services#${s.id}`} class="card spot sv reveal" style={`--i:${i}`}>
-          <div class="sv__head">
-            <span class="icon-badge"><Icon name={icons[s.id] ?? 'spark'} /></span>
-            <span class="sv__num">0{i + 1}</span>
-          </div>
-          <h3>{s.title}</h3>
-          <p>{s.text}</p>
-          <div class="sv__foot">
-            <span class="chip chip--accent">{servicePrice(s.id)}</span>
-            <span class="sv__go">Découvrir <span class="sv__arrow"><Icon name="arrow-up-right" /></span></span>
-          </div>
-        </a>
+        <li class="sva__item reveal" style={`--i:${i}`}>
+          <a href={`/services#${s.id}`} class="sva__row">
+            <span class="sva__topo" aria-hidden="true"><Topo name="terrain" drift={false} opacity={0.55} /></span>
+            <span class="sva__num">0{i + 1}</span>
+            <span class="sva__main"><h3>{s.title}</h3><p>{s.text}</p></span>
+            <span class="sva__side"><span class="sva__price">{servicePrice(s.id)}</span><span class="sva__go" aria-hidden="true"><Icon name="arrow-up-right" /></span></span>
+          </a>
+        </li>
       ))}
-    </div>
+    </ol>
 
     {showAllLink && (
-      <div class="sv__more reveal">
-        <a href="/services" class="btn btn--ghost">Voir les services et les prix <Icon name="arrow" class="arrow" /></a>
-      </div>
+      <p class="sva__more reveal"><a href="/services" class="btn btn--ghost">Voir les services et les prix <Icon name="arrow" class="arrow" /></a></p>
     )}
   </div>
 </section>
 
 <style>
-  .sv__grid { display: grid; gap: 1.2rem; }
-  @media (min-width: 760px) { .sv__grid { grid-template-columns: repeat(2, 1fr); } }
-  .sv { padding: clamp(1.3rem, 3vw, 1.8rem); display: grid; gap: 0.6rem; align-content: start; }
-  .sv__head { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.3rem; }
-  .sv__num { font-size: 0.78rem; color: var(--dim); }
-  .sv h3 { font-size: clamp(1.35rem, 2.2vw, 1.6rem); }
-  .sv > p { color: var(--muted); max-width: 48ch; }
-  .sv__foot { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; padding-top: 0.9rem; border-top: 1px solid var(--line); }
-  .sv__go { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.9rem; font-weight: 600; color: var(--muted); transition: color 0.3s; }
-  .sv__arrow { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2); transition: background 0.35s, border-color 0.35s, transform 0.5s var(--ease); }
-  .sv__arrow :global(svg) { width: 15px; height: 15px; }
-  .sv:hover .sv__go { color: var(--text); }
-  .sv:hover .sv__arrow { background: var(--aura-btn); border-color: transparent; transform: rotate(45deg); }
-
-  .sv__more { display: flex; justify-content: center; margin-top: 2rem; }
+  .sva { padding-block: var(--section-y); }
+  .sva__head { display: grid; gap: 1rem; margin-bottom: clamp(1.6rem, 4vw, 2.6rem); }
+  @media (min-width: 900px) { .sva__head { grid-template-columns: 1fr 0.7fr; align-items: end; } .sva__head .idx { grid-column: 1 / -1; } }
+  .sva__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4.4vw, 3.4rem); line-height: 1.02; letter-spacing: -0.035em; max-width: 16ch; }
+  .sva__lead { color: var(--muted); max-width: 44ch; }
+  .sva__list { list-style: none; padding: 0; border-top: 1px solid var(--line-2); }
+  .sva__row { position: relative; isolation: isolate; display: grid; grid-template-columns: auto 1fr auto; gap: 0.6rem clamp(1rem, 3vw, 2.4rem); align-items: center; padding: clamp(1.3rem, 3vw, 2rem) 0; border-bottom: 1px solid var(--line-2); overflow: hidden; }
+  /* asymétrie : chaque ligne est décalée différemment */
+  .sva__item:nth-child(2) .sva__row { padding-left: clamp(0rem, 6vw, 4.5rem); }
+  .sva__item:nth-child(3) .sva__row { padding-left: clamp(0rem, 3vw, 2rem); }
+  .sva__item:nth-child(4) .sva__row { padding-left: clamp(0rem, 9vw, 7rem); }
+  .sva__topo { position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity 0.6s var(--ease); -webkit-mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+  .sva__row:hover .sva__topo, .sva__row:focus-visible .sva__topo { opacity: 1; }
+  .sva__num { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 0.8rem; letter-spacing: 0.16em; color: var(--accent); align-self: start; padding-top: 0.5rem; }
+  .sva__main h3 { font-family: var(--font-display); font-size: clamp(1.5rem, 3.4vw, 2.5rem); line-height: 1.05; letter-spacing: -0.03em; transition: transform 0.5s var(--ease); }
+  .sva__main p { color: var(--muted); max-width: 52ch; margin-top: 0.5rem; }
+  .sva__row:hover .sva__main h3 { transform: translateX(8px); }
+  .sva__side { display: flex; align-items: center; gap: 1.1rem; }
+  .sva__price { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 0.82rem; letter-spacing: 0.04em; color: var(--text); padding: 0.35rem 0.8rem; border: 1px solid var(--line-2); border-radius: 999px; white-space: nowrap; }
+  .sva__go { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line-2); transition: background 0.35s, border-color 0.35s, transform 0.5s var(--ease); }
+  .sva__go :global(svg) { width: 18px; height: 18px; }
+  .sva__row:hover .sva__go { background: var(--aura-btn); border-color: transparent; transform: rotate(45deg); }
+  @media (max-width: 700px) {
+    .sva__row { grid-template-columns: auto 1fr; padding-left: 0 !important; }
+    .sva__side { grid-column: 2; justify-content: space-between; }
+  }
+  .sva__more { display: flex; justify-content: center; margin-top: 2rem; }
+  @media (prefers-reduced-motion: reduce) { .sva__row:hover .sva__main h3 { transform: none; } .sva__row:hover .sva__go { transform: none; } }
 </style>

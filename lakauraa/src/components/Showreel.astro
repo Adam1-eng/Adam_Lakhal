@@ -1,0 +1,136 @@
+---
+// « Le caractère des autres » : le carrousel des réalisations (mêmes données, même comportement qu'avant),
+// présenté en grand, avec un halo dont l'angle change à chaque site (l'aura propre à chaque commerce).
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import { caseStudies, maquettes } from '../data/projets';
+import Topo from './Topo.astro';
+
+const refaat = caseStudies[0];
+const pick = ['garage-city-line', 'bosscut', 'plaisirs-gourmets', 'lily-photo'];
+const slides = [
+  { name: refaat.name, label: 'Projet client · en ligne', url: 'autorefaatart.com', desktop: refaat.cover, mobile: refaat.mobile },
+  ...pick.map((s) => {
+    const m = maquettes.find((x) => x.slug === s)!;
+    return { name: m.name, label: `Maquette (concept) · ${m.sector}`, url: `maquette-${m.slug}.vercel.app`, desktop: m.desktop, mobile: m.mobile };
+  }),
+];
+---
+<section class="sr" id="realisations-apercu" aria-labelledby="sr-title">
+  <div class="sr__topo" aria-hidden="true"><Topo name="terrain" opacity={0.28} /></div>
+  <div class="wrap sr__wrap">
+    <header class="sr__head">
+      <p class="idx reveal"><span>[02]</span> Le caractère des autres</p>
+      <h2 id="sr-title" class="sr__title reveal" style="--i:1">Chaque commerce a sa propre aura.</h2>
+      <p class="sr__lead reveal" style="--i:2">Voici ce que j’ai construit : un vrai site client en ligne, et des maquettes préparées gratuitement pour des commerces d’ici. Touchez un point pour changer d’aperçu.</p>
+      <a href="/projets" class="sr__more reveal" style="--i:3">Toutes les réalisations <Icon name="arrow" class="arrow" /></a>
+    </header>
+    <div class="sr__show reveal" style="--i:3" data-rotator>
+      <div class="sr__stage" data-tilt="5">
+        <div class="sr__browser browser">
+          <div class="browser__bar" aria-hidden="true">
+            <i></i><i></i><i></i>
+            <span class="browser__url sr__urls">
+              {slides.map((s, k) => <span data-slide-label={k} class:list={{ 'is-active': k === 0 }}>{s.url}</span>)}
+            </span>
+          </div>
+          <div class="sr__screens">
+            {slides.map((s, k) => (
+              <div data-slide={k} class:list={['sr__screen', { 'is-active': k === 0 }]}>
+                <Image src={s.desktop} alt={`Aperçu du site ${s.name}`} widths={[560, 900, 1200]} sizes="(min-width: 1000px) 600px, 92vw" loading={k === 0 ? 'eager' : 'lazy'} fetchpriority={k === 0 ? 'high' : 'auto'} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="sr__phone phone" aria-hidden="true">
+          <div class="phone__screen">
+            {slides.map((s, k) => (
+              <div data-slide={k} class:list={['sr__screen', { 'is-active': k === 0 }]}>
+                <Image src={s.mobile} alt={`Version cellulaire du site ${s.name}`} widths={[200, 360]} sizes="170px" loading={k === 0 ? 'eager' : 'lazy'} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="sr__float sr__float--a">
+          <span class="icon-badge"><Icon name="eye" /></span>
+          <span><strong>Maquette gratuite</strong><small>avant tout paiement</small></span>
+        </div>
+        <div class="sr__float sr__float--b">
+          <span class="sr__pulse"></span>
+          <span><strong>Adapté au cellulaire</strong><small>rapide et lisible</small></span>
+        </div>
+      </div>
+
+      <div class="sr__caption">
+        <div class="sr__labels" aria-live="polite">
+          {slides.map((s, k) => (
+            <p data-slide-label={k} class:list={{ 'is-active': k === 0 }}><strong>{s.name}</strong> <span>{s.label}</span></p>
+          ))}
+        </div>
+        <div class="sr__dots" role="group" aria-label="Choisir un aperçu">
+          {slides.map((s, k) => (
+            <button type="button" data-dot aria-current={k === 0 ? 'true' : 'false'} aria-label={`Afficher ${s.name}`}></button>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .sr { position: relative; isolation: isolate; padding-block: var(--section-y); overflow: hidden; }
+  .sr__topo { position: absolute; inset: 0; z-index: -1; -webkit-mask-image: radial-gradient(ellipse at 30% 50%, #000 15%, transparent 72%); mask-image: radial-gradient(ellipse at 30% 50%, #000 15%, transparent 72%); }
+  .sr__wrap { display: grid; gap: clamp(2rem, 5vw, 3.5rem); align-items: center; }
+  @media (min-width: 1000px) { .sr__wrap { grid-template-columns: 0.62fr 1.38fr; } }
+  .sr__head { display: grid; gap: 1.1rem; justify-items: start; align-content: center; }
+  .sr__title { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4.2vw, 3.2rem); line-height: 1.02; letter-spacing: -0.035em; max-width: 12ch; }
+  .sr__lead { color: var(--muted); max-width: 40ch; }
+  .sr__more { display: inline-flex; align-items: center; gap: 0.55rem; font-weight: 600; border-bottom: 1px solid var(--line-2); padding-bottom: 0.2rem; transition: border-color 0.3s; }
+  .sr__more:hover { border-color: var(--accent); }
+  .sr__more :global(svg) { width: 16px; height: 16px; transition: transform 0.3s var(--ease); }
+  .sr__more:hover :global(svg) { transform: translateX(4px); }
+
+  /* Halo : un champ de couleur bleu → violet → rouge dont l'angle change avec chaque site */
+  .sr__show { --h: 0deg; position: relative; }
+  .sr:has([data-slide='1'].is-active) .sr__show { --h: 72deg; }
+  .sr:has([data-slide='2'].is-active) .sr__show { --h: 144deg; }
+  .sr:has([data-slide='3'].is-active) .sr__show { --h: 216deg; }
+  .sr:has([data-slide='4'].is-active) .sr__show { --h: 288deg; }
+  .sr__stage { position: relative; padding: 0 0 2.5rem 0; transition: transform 0.6s var(--ease); transform-style: preserve-3d; }
+  .sr__browser { position: relative; }
+  .sr__browser::before { content: ''; position: absolute; inset: -9% -7% -9% -7%; z-index: -1; border-radius: 40%; background: conic-gradient(from var(--h) at 50% 50%, #1e6bff, #7b3fd6, #e0122f, #7b3fd6, #1e6bff); opacity: 0.45; filter: blur(52px); transition: background 1s; }
+  @media (max-width: 760px) { .sr__browser::before { filter: none; opacity: 0.3; inset: -4%; } }
+  .sr__urls { position: relative; display: grid; }
+  .sr__urls > span { grid-area: 1 / 1; opacity: 0; transform: translateY(6px); transition: opacity 0.5s, transform 0.5s var(--ease); }
+  .sr__urls > span.is-active { opacity: 1; transform: none; }
+  .sr__screens, .sr__phone .phone__screen { display: grid; }
+  .sr__screen { grid-area: 1 / 1; opacity: 0; transform: scale(1.04); transition: opacity 0.9s var(--ease), transform 1.4s var(--ease); }
+  .sr__screen.is-active { opacity: 1; transform: none; }
+  .sr__screen img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+  .sr__phone { position: absolute; width: clamp(110px, 21%, 170px); right: -3%; bottom: 0; transform: translateZ(40px); }
+  .sr__phone .sr__screen img { aspect-ratio: 9 / 19.5; }
+  .sr__float { position: absolute; display: flex; align-items: center; gap: 0.7rem; padding: 0.65rem 0.9rem 0.65rem 0.65rem; border-radius: 16px; border: 1px solid var(--line-2); background: rgb(18 18 24 / 0.82); box-shadow: 0 20px 40px -20px rgb(0 0 0 / 0.9); font-size: 0.85rem; line-height: 1.25; animation: srBob 6s ease-in-out infinite; }
+  .sr__float strong { display: block; font-weight: 600; }
+  .sr__float small { color: var(--muted); font-size: 0.76rem; }
+  .sr__float .icon-badge { width: 36px; height: 36px; border-radius: 11px; }
+  .sr__float .icon-badge :global(svg) { width: 18px; height: 18px; }
+  .sr__float--a { left: -4%; top: 14%; }
+  .sr__float--b { left: 6%; bottom: 0.5rem; animation-delay: -3s; }
+  .sr__pulse { width: 10px; height: 10px; margin: 0 0.3rem; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgb(74 222 128 / 0.6); animation: srPulse 2s infinite; }
+  @keyframes srBob { 50% { transform: translateY(-10px); } }
+  @keyframes srPulse { to { box-shadow: 0 0 0 12px rgb(74 222 128 / 0); } }
+  @media (prefers-reduced-motion: reduce) { .sr__float, .sr__pulse { animation: none; } }
+  @media (max-width: 999px) { .sr__float--a { left: 0.6rem; } }
+  @media (max-width: 640px) { .sr__float--a { left: -2%; top: auto; bottom: 40%; } .sr__float--b { display: none; } .sr__phone { right: -2%; } }
+  .sr__caption { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
+  .sr__labels { display: grid; min-height: 1.6em; }
+  .sr__labels p { grid-area: 1 / 1; font-size: 0.9rem; opacity: 0; transform: translateY(6px); transition: opacity 0.5s, transform 0.5s var(--ease); }
+  .sr__labels p.is-active { opacity: 1; transform: none; }
+  .sr__labels span { color: var(--muted); }
+  .sr__dots { display: flex; gap: 0.35rem; }
+  .sr__dots button { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; }
+  .sr__dots button::before { content: ''; width: 7px; height: 7px; border-radius: 999px; background: rgb(255 255 255 / 0.22); transition: width 0.4s var(--ease), background 0.3s; }
+  .sr__dots button[aria-current='true']::before { width: 20px; background: var(--aura); }
+</style>

@@ -1,39 +1,26 @@
 ---
-import { Image } from 'astro:assets';
+// Accueil · « AURA » : la présence de celui qui est derrière chaque site, rendue visible.
+//  - Dégradé thermique : un halo bleu → violet → rouge (les couleurs du logo) autour du portrait.
+//  - Verre cannelé : le portrait est vu à travers un verre à cannelures verticales.
+//  - Lignes topographiques : le relief de l'énergie, en fond, très lent.
+//  - Objet 3D iridescent : l'anneau de la marque (ordinateur seulement ; anneau SVG fixe ailleurs).
 import Icon from './Icon.astro';
 import HeroTitle from './HeroTitle.astro';
-import HeroRays from './islands/HeroRays';
 import StarButton from './islands/StarButton';
-import { site } from '../data/site';
-import { entryPrice, money } from '../config/site';
+import AuraRing from './islands/AuraRing';
+import Topo from './Topo.astro';
 import Stars from './Stars.astro';
+import { site } from '../data/site';
+import { SITE, entryPrice, money } from '../config/site';
 interface Props { rating?: { count: number; average: number; label: string } }
 const { rating } = Astro.props;
-import { caseStudies, maquettes } from '../data/projets';
-
-const refaat = caseStudies[0];
-const pick = ['garage-city-line', 'bosscut', 'plaisirs-gourmets', 'lily-photo'];
-const slides = [
-  { name: refaat.name, label: 'Projet client · en ligne', url: 'autorefaatart.com', desktop: refaat.cover, mobile: refaat.mobile },
-  ...pick.map((s) => {
-    const m = maquettes.find((x) => x.slug === s)!;
-    return { name: m.name, label: `Maquette (concept) · ${m.sector}`, url: `maquette-${m.slug}.vercel.app`, desktop: m.desktop, mobile: m.mobile };
-  }),
-];
 ---
 <section class="hero" data-aura-zone aria-labelledby="hero-title">
-  <div class="hero__bg" aria-hidden="true">
-    <div class="grid-bg"></div>
-    <div class="hero__rays"><HeroRays client:media="(min-width: 761px)" /></div>
-    <div class="hero__blob hero__blob--1"></div>
-    <div class="hero__blob hero__blob--2"></div>
-    <div class="hero__follow"></div>
-  </div>
+  <div class="hero__topo" aria-hidden="true"><Topo name="aura" opacity={0.5} /></div>
 
   <div class="wrap hero__grid">
     <div class="hero__copy">
-
-      <HeroTitle id="hero-title" class="hero__title" kicker="Création de site web à Montréal" text="Votre commerce mérite un site qui fait venir des clients." highlight="fait venir des clients." />
+      <HeroTitle id="hero-title" class="hero__title" kicker="Création de site web à Montréal" text="Votre commerce a du caractère. Je le rends visible." />
 
       <p class="hero__lead reveal" style="--i:4">
         Des sites rapides et élégants, pensés pour le cellulaire.{' '}
@@ -62,167 +49,79 @@ const slides = [
       </ul>
     </div>
 
-    <div class="hero__show reveal reveal--scale" style="--i:3" data-rotator>
-      <div class="hero__stage" data-tilt="5">
-        <div class="hero__browser browser">
-          <div class="browser__bar" aria-hidden="true">
-            <i></i><i></i><i></i>
-            <span class="browser__url hero__urls">
-              {slides.map((s, k) => <span data-slide-label={k} class:list={{ 'is-active': k === 0 }}>{s.url}</span>)}
-            </span>
-          </div>
-          <div class="hero__screens">
-            {slides.map((s, k) => (
-              <div data-slide={k} class:list={['hero__screen', { 'is-active': k === 0 }]}>
-                <Image src={s.desktop} alt={`Aperçu du site ${s.name}`} widths={[560, 900, 1200]} sizes="(min-width: 1000px) 600px, 92vw" loading={k === 0 ? 'eager' : 'lazy'} fetchpriority={k === 0 ? 'high' : 'auto'} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div class="hero__phone phone" aria-hidden="true">
-          <div class="phone__screen">
-            {slides.map((s, k) => (
-              <div data-slide={k} class:list={['hero__screen', { 'is-active': k === 0 }]}>
-                <Image src={s.mobile} alt={`Version cellulaire du site ${s.name}`} widths={[200, 360]} sizes="170px" loading={k === 0 ? 'eager' : 'lazy'} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div class="hero__float hero__float--a">
-          <span class="icon-badge"><Icon name="eye" /></span>
-          <span><strong>Maquette gratuite</strong><small>avant tout paiement</small></span>
-        </div>
-        <div class="hero__float hero__float--b">
-          <span class="hero__pulse"></span>
-          <span><strong>Adapté au cellulaire</strong><small>rapide et lisible</small></span>
-        </div>
+    <figure class="aura reveal" style="--i:3">
+      <div class="aura__halo" aria-hidden="true"></div>
+      <div class="aura__glass">
+        <img class="aura__img" src="/adam-portrait.webp" alt={`${SITE.owner}, fondateur de ${SITE.name}`} width="800" height="880" fetchpriority="high" decoding="async" />
+        <img class="aura__img aura__img--refract" src="/adam-portrait.webp" alt="" width="800" height="880" decoding="async" aria-hidden="true" />
+        <span class="aura__flutes" aria-hidden="true"></span>
       </div>
-
-      <div class="hero__caption">
-        <div class="hero__labels" aria-live="polite">
-          {slides.map((s, k) => (
-            <p data-slide-label={k} class:list={{ 'is-active': k === 0 }}><strong>{s.name}</strong> <span>{s.label}</span></p>
-          ))}
-        </div>
-        <div class="hero__dots" role="group" aria-label="Choisir un aperçu">
-          {slides.map((s, k) => (
-            <button type="button" data-dot aria-current={k === 0 ? 'true' : 'false'} aria-label={`Afficher ${s.name}`}></button>
-          ))}
-        </div>
+      <div class="aura__ring" aria-hidden="true">
+        <svg class="aura__ringsvg" viewBox="0 0 64 64"><defs><linearGradient id="ar" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e6bff" /><stop offset=".55" stop-color="#7b3fd6" /><stop offset="1" stop-color="#e0122f" /></linearGradient></defs><circle cx="30" cy="34" r="20" fill="none" stroke="url(#ar)" stroke-width="6" stroke-dasharray="104 22" stroke-linecap="round" transform="rotate(-50 32 32)" /><circle cx="49" cy="16" r="5" fill="#e0122f" /></svg>
+        <AuraRing client:media="(min-width: 761px)" />
       </div>
-    </div>
+      <figcaption class="aura__cap"><span>{SITE.owner.toUpperCase()}</span><span>FONDATEUR · {SITE.city.toUpperCase()}</span></figcaption>
+    </figure>
   </div>
 
-  <a href="#explorer" class="hero__scroll" aria-label="Défiler vers la suite">
-    <span></span>
-  </a>
+  <a href="#realisations-apercu" class="hero__scroll" aria-label="Défiler vers la suite"><span></span></a>
 </section>
 
 <style>
   .hero {
     --ax: 70%; --ay: 30%;
-    position: relative;
-    isolation: isolate;
-    padding: calc(var(--header-h) + clamp(3rem, 8vw, 6rem)) 0 clamp(3rem, 6vw, 4.5rem);
-    min-height: min(100svh, 980px);
-    display: flex; align-items: center;
-    overflow: hidden;
+    position: relative; isolation: isolate;
+    padding: calc(var(--header-h) + clamp(2.5rem, 7vw, 5rem)) 0 clamp(3rem, 6vw, 4.5rem);
+    min-height: min(100svh, 940px);
+    display: flex; align-items: center; overflow: hidden;
   }
-  .hero__bg { position: absolute; inset: 0; z-index: -1; will-change: transform; }
-  .hero__rays { position: absolute; inset: 0 0 18% 0; opacity: 0; animation: raysIn 2.4s var(--ease) 0.4s forwards; mask-image: linear-gradient(180deg, #000 55%, transparent); }
-  .hero__rays :global(.light-rays) { position: absolute; inset: 0; }
-  @keyframes raysIn { to { opacity: 1; } }
-  /* Cellulaire : rayons en CSS pur (le rendu WebGL est réservé aux écrans larges, beaucoup moins coûteux pour la batterie). */
-  @media (max-width: 760px) {
-    .hero__rays::before {
-      content: ''; position: absolute; inset: -10% -30% 0;
-      background:
-        radial-gradient(60% 45% at 50% 0%, rgb(30 107 255 / 0.32), transparent 70%),
-        repeating-conic-gradient(from 160deg at 50% -8%, transparent 0deg 7deg, rgb(91 147 255 / 0.16) 9deg 11deg, transparent 13deg 19deg);
-      mask-image: radial-gradient(75% 85% at 50% 0%, #000 25%, transparent 75%);
-      animation: raysPulse 7s ease-in-out infinite alternate;
-    }
-    @keyframes raysPulse { from { opacity: 0.65; } to { opacity: 1; } }
-  }
-  .hero__blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.55; }
-  .hero__blob--1 { width: 620px; height: 620px; right: -120px; top: -160px; background: radial-gradient(circle, #1e6bff, transparent 65%); opacity: 0.32; animation: float1 18s ease-in-out infinite alternate; }
-  .hero__blob--2 { width: 520px; height: 520px; left: -200px; bottom: -220px; background: radial-gradient(circle, #e0122f, transparent 65%); opacity: 0.35; animation: float2 22s ease-in-out infinite alternate; }
-  .hero__follow { position: absolute; inset: 0; background: radial-gradient(500px circle at var(--ax) var(--ay), rgb(224 18 47 / 0.1), transparent 60%); transition: background 0.2s; }
-  /* Cellulaire : le dégradé radial est déjà très doux ; on évite le filtre de flou (coûteux à dessiner sur un téléphone moyen) */
-  @media (max-width: 760px) { .hero__blob { animation: none; filter: none; } }
-  @keyframes float1 { to { transform: translate(-80px, 90px) scale(1.1); } }
-  @keyframes float2 { to { transform: translate(120px, -60px) scale(0.92); } }
+  /* relief topographique : visible surtout à droite, fondu vers le fond nuit */
+  .hero__topo { position: absolute; inset: 0; z-index: -1; -webkit-mask-image: radial-gradient(ellipse 70% 80% at 72% 45%, #000 8%, transparent 70%); mask-image: radial-gradient(ellipse 70% 80% at 72% 45%, #000 8%, transparent 70%); }
 
-  .hero__grid { display: grid; gap: clamp(3rem, 6vw, 4rem); align-items: center; }
-  @media (min-width: 1000px) { .hero__grid { grid-template-columns: 1.02fr 1fr; } }
-
-  .hero__copy { display: grid; gap: 1.6rem; justify-items: start; }
-  @keyframes blink { 50% { box-shadow: 0 0 0 8px rgb(74 222 128 / 0); } }
-  :global(.hero__title) { font-size: clamp(2.6rem, 6.6vw, 4.5rem); max-width: 13ch; }
-  .hero__lead { font-size: clamp(1.05rem, 1.5vw, 1.2rem); color: var(--muted); max-width: 54ch; }
+  .hero__grid { display: grid; gap: clamp(2.5rem, 6vw, 4rem); align-items: center; }
+  @media (min-width: 1000px) { .hero__grid { grid-template-columns: 1.08fr 0.92fr; } }
+  .hero__copy { display: grid; gap: 1.5rem; justify-items: start; }
+  :global(.hero__title) { font-size: clamp(2.6rem, 6.4vw, 4.9rem); max-width: 11.5ch; line-height: 0.98; }
+  .hero__lead { font-size: clamp(1.05rem, 1.5vw, 1.2rem); color: var(--muted); max-width: 52ch; }
   .hero__lead strong { color: var(--text); font-weight: 600; }
   .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.8rem; }
-  .hero__rating { display: inline-flex; align-items: center; gap: 0.6rem; width: fit-content; padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid var(--line-2); background: rgb(255 255 255 / 0.04); font-size: 0.88rem; color: var(--muted); transition: border-color 0.3s; }
-  .hero__rating:hover { border-color: rgb(251 191 36 / 0.5); }
+  .hero__rating { display: inline-flex; align-items: center; gap: 0.6rem; width: fit-content; padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid var(--line-2); font-size: 0.88rem; color: var(--muted); }
   .hero__rating strong { color: var(--text); }
   .hero__checks { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem; font-size: 0.9rem; color: var(--muted); }
   .hero__checks li { display: inline-flex; align-items: center; gap: 0.45rem; }
   .hero__checks :global(svg) { width: 16px; height: 16px; color: var(--accent); }
 
-  /* Vitrine */
-  .hero__show { position: relative; }
-  .hero__stage { position: relative; padding: 0 0 2.5rem 0; transition: transform 0.6s var(--ease); transform-style: preserve-3d; }
-  .hero__browser { position: relative; }
-  .hero__browser::before { content: ''; position: absolute; inset: -40px; z-index: -1; background: radial-gradient(closest-side, rgb(30 107 255 / 0.4), transparent); filter: blur(30px); }
-  .hero__urls { position: relative; display: grid; }
-  .hero__urls > span { grid-area: 1 / 1; opacity: 0; transform: translateY(6px); transition: opacity 0.5s, transform 0.5s var(--ease); }
-  .hero__urls > span.is-active { opacity: 1; transform: none; }
-  .hero__screens, .hero__phone .phone__screen { display: grid; }
-  .hero__screen { grid-area: 1 / 1; opacity: 0; transform: scale(1.04); transition: opacity 0.9s var(--ease), transform 1.4s var(--ease); }
-  .hero__screen.is-active { opacity: 1; transform: none; }
-  .hero__screen img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
-  .hero__phone { position: absolute; width: clamp(110px, 24%, 170px); right: -4%; bottom: 0; transform: translateZ(40px); }
-  .hero__phone .hero__screen img { aspect-ratio: 9 / 19.5; }
+  /* ---------- Portrait « aura » ---------- */
+  .aura { position: relative; width: min(100%, 470px); justify-self: center; margin: 0; --glass: 15px; }
+  @media (min-width: 1000px) { .aura { justify-self: end; } }
+  /* halo : champ de couleur thermique (bleu → violet → rouge) qui dépasse du cadre */
+  .aura__halo { position: absolute; inset: -12% -16% -8% -16%; z-index: -1; border-radius: 50%; background: conic-gradient(from 200deg at 50% 52%, #1e6bff, #7b3fd6, #e0122f, #7b3fd6, #1e6bff); opacity: 0.55; filter: blur(56px); animation: auraBreath 9s ease-in-out infinite alternate; }
+  @keyframes auraBreath { from { transform: scale(0.96) rotate(0deg); opacity: 0.45; } to { transform: scale(1.06) rotate(14deg); opacity: 0.62; } }
+  @media (max-width: 760px) { .aura__halo { filter: none; animation: none; inset: -6%; opacity: 0.4; background: radial-gradient(closest-side, #5b3ff0, #1e6bff 55%, transparent 72%); } }
 
-  .hero__float {
-    position: absolute; display: flex; align-items: center; gap: 0.7rem;
-    padding: 0.65rem 0.9rem 0.65rem 0.65rem;
-    border-radius: 16px; border: 1px solid var(--line-2);
-    background: rgb(18 18 24 / 0.8); backdrop-filter: blur(14px);
-    box-shadow: 0 20px 40px -20px rgb(0 0 0 / 0.9);
-    font-size: 0.85rem; line-height: 1.25;
-    animation: bob 6s ease-in-out infinite;
-  }
-  .hero__float strong { display: block; font-weight: 600; }
-  .hero__float small { color: var(--muted); font-size: 0.76rem; }
-  .hero__float .icon-badge { width: 36px; height: 36px; border-radius: 11px; }
-  .hero__float .icon-badge :global(svg) { width: 18px; height: 18px; }
-  .hero__float--a { left: -5%; top: 18%; }
-  .hero__float--b { left: 6%; bottom: 0.5rem; animation-delay: -3s; }
-  .hero__pulse { width: 10px; height: 10px; margin: 0 0.3rem; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgb(74 222 128 / 0.6); animation: pulse 2s infinite; }
-  @keyframes bob { 50% { transform: translateY(-10px); } }
-  @keyframes pulse { to { box-shadow: 0 0 0 12px rgb(74 222 128 / 0); } }
-  @media (max-width: 999px) { .hero__float--a { left: 0.6rem; } }
-  @media (max-width: 640px) {
-    .hero__float--a { left: -2%; top: auto; bottom: 40%; }
-    .hero__float--b { display: none; }
-    .hero__phone { right: -2%; }
-  }
+  /* cadre en arche + verre cannelé. L'image est fusionnée en « multiply » : le fond blanc de la photo laisse
+     apparaître le halo, la peau prend sa teinte (portrait en duotone thermique), le noir reste noir. */
+  .aura__glass { position: relative; isolation: isolate; aspect-ratio: 10 / 11; border-radius: 999px 999px 26px 26px; overflow: hidden; background: conic-gradient(from 215deg at 50% 60%, #1e6bff, #7b3fd6, #e0122f 62%, #7b3fd6, #1e6bff); box-shadow: 0 40px 90px -40px rgb(30 107 255 / 0.65), inset 0 0 0 1px rgb(255 255 255 / 0.1); }
+  .aura__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 12%; mix-blend-mode: multiply; filter: brightness(1.22) contrast(1.04); }
+  /* cannelures : une seconde copie, décalée et agrandie, visible une bande sur deux = effet de réfraction */
+  .aura__img--refract { transform: translateX(-1.6%) scale(1.045); transition: transform 0.9s var(--ease); -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 calc(var(--glass) * 0.5), transparent calc(var(--glass) * 0.5) var(--glass)); mask-image: repeating-linear-gradient(90deg, #000 0 calc(var(--glass) * 0.5), transparent calc(var(--glass) * 0.5) var(--glass)); }
+  .aura:hover .aura__img--refract { transform: translateX(1.6%) scale(1.045); }
+  /* reflets de verre : fine lumière sur le bord de chaque cannelure */
+  .aura__flutes { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.11) 0 2px, rgb(255 255 255 / 0) 2px calc(var(--glass) * 0.5), rgb(0 0 0 / 0.07) calc(var(--glass) * 0.5) var(--glass)); pointer-events: none; }
+  .aura__glass::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(255 255 255 / 0.14), transparent 28%, transparent 70%, rgb(11 11 15 / 0.5)); pointer-events: none; }
 
-  .hero__caption { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
-  .hero__labels { display: grid; min-height: 1.6em; }
-  .hero__labels p { grid-area: 1 / 1; font-size: 0.9rem; opacity: 0; transform: translateY(6px); transition: opacity 0.5s, transform 0.5s var(--ease); }
-  .hero__labels p.is-active { opacity: 1; transform: none; }
-  .hero__labels span { color: var(--muted); }
-  .hero__dots { display: flex; gap: 0.35rem; }
-  .hero__dots button { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; }
-  .hero__dots button::before { content: ''; width: 7px; height: 7px; border-radius: 999px; background: rgb(255 255 255 / 0.22); transition: width 0.4s var(--ease), background 0.3s; }
-  .hero__dots button[aria-current='true']::before { width: 20px; background: var(--aura); }
+  /* anneau iridescent : posé sur l'épaule du cadre */
+  .aura__ring { position: absolute; left: -19%; bottom: 7%; width: 50%; aspect-ratio: 1; pointer-events: none; }
+  .aura__ringsvg { position: absolute; inset: 14%; width: 72%; height: 72%; transition: opacity 0.6s; filter: drop-shadow(0 12px 30px rgb(30 107 255 / 0.5)); }
+  .aura__ring :global(.aura-ring__cv) { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .aura__ring:has(canvas[data-ready]) .aura__ringsvg { opacity: 0; }
+  @media (max-width: 760px) { .aura__ring { left: -4%; bottom: -6%; width: 38%; } }
+
+  .aura__cap { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.9rem; font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 0.7rem; letter-spacing: 0.14em; color: var(--dim); }
 
   .hero__scroll { position: absolute; left: 50%; bottom: 1.4rem; translate: -50% 0; width: 26px; height: 42px; border-radius: 999px; border: 1.5px solid var(--line-2); display: none; justify-content: center; padding-top: 8px; }
   .hero__scroll span { width: 3px; height: 8px; border-radius: 3px; background: var(--muted); animation: wheel 1.8s var(--ease) infinite; }
   @keyframes wheel { 0% { transform: translateY(0); opacity: 1; } 80% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } }
   @media (min-width: 1000px) and (min-height: 820px) { .hero__scroll { display: flex; } }
+  @media (prefers-reduced-motion: reduce) { .aura__halo { animation: none; } .aura__img--refract { transition: none; } .hero__scroll span { animation: none; } }
 </style>

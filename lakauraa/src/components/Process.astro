@@ -1,11 +1,15 @@
 ---
 import SectionHead from './SectionHead.astro';
 import { process } from '../data/site';
+interface Props { variant?: 'default' | 'aura' }
+const { variant = 'default' } = Astro.props;
+const aura = variant === 'aura';
 ---
-<section class="section pr" aria-label="Processus">
+<section class:list={['section pr', { 'pr--aura': aura }]} aria-label="Processus">
   <div class="pr__glow" aria-hidden="true"></div>
+  {aura && <div class="pr__grass" aria-hidden="true"><div class="pr__blades"></div></div>}
   <div class="wrap">
-    <SectionHead eyebrow="Ma méthode" title="De l’idée au site en ligne, en 4 étapes." aura="en 4 étapes." lead="Un seul interlocuteur, un échéancier clair. Vous savez toujours où en est votre projet." />
+    <SectionHead idx={aura ? '05' : undefined} eyebrow="Ma méthode" title="De l’idée au site en ligne, en 4 étapes." aura="en 4 étapes." lead="Un seul interlocuteur, un échéancier clair. Vous savez toujours où en est votre projet." />
 
     <ol class="pr__list" data-progress>
       <span class="pr__line" aria-hidden="true"><span></span></span>
@@ -50,4 +54,15 @@ import { process } from '../data/site';
   .pr__meta { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); font-weight: 600; }
   .pr__step h3 { font-size: 1.35rem; letter-spacing: -0.025em; }
   .pr__step p { color: var(--muted); font-size: 0.95rem; }
+  /* Variante « Aura » : le processus est une pousse. L'herbe (texture fine, dégradé bleu → violet) monte au bas de la section ;
+     chaque étape est plus haute que la précédente. */
+  .pr--aura { padding-bottom: clamp(7rem, 14vw, 11rem); }
+  .pr__grass { position: absolute; left: 0; right: 0; bottom: 0; height: clamp(110px, 18vw, 200px); pointer-events: none; overflow: hidden; -webkit-mask-image: linear-gradient(180deg, transparent, #000 40%); mask-image: linear-gradient(180deg, transparent, #000 40%); }
+  .pr__blades { position: absolute; left: -2%; right: -2%; bottom: 0; height: 100%; background: url('/texture/herbe.svg') center bottom / 100% 100% no-repeat; transform-origin: 50% 100%; animation: sway 9s ease-in-out infinite alternate; }
+  @keyframes sway { from { transform: skewX(-1.1deg); } to { transform: skewX(1.1deg); } }
+  @media (prefers-reduced-motion: reduce) { .pr__blades { animation: none; } }
+  .pr--aura .pr__step:nth-child(1) { margin-top: 3.2rem; }
+  .pr--aura .pr__step:nth-child(2) { margin-top: 2.1rem; }
+  .pr--aura .pr__step:nth-child(3) { margin-top: 1rem; }
+  @media (max-width: 899px) { .pr--aura .pr__step { margin-top: 0 !important; } }
 </style>

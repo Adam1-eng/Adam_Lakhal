@@ -2,7 +2,8 @@
 // Accueil : accroche, résumé des services, des tarifs et du processus, puis une tuile par sujet.
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
-import Marquee from '../components/Marquee.astro';
+import Showreel from '../components/Showreel.astro';
+import AsciiReadout from '../components/AsciiReadout.astro';
 import TopicTiles from '../components/TopicTiles.astro';
 import Services from '../components/Services.astro';
 import PricingSummary from '../components/PricingSummary.astro';
@@ -18,10 +19,11 @@ const flagship = projects.find((p) => p.kind === 'client' && p.featured) ?? proj
 <Base title="Création de sites web à Montréal et au Maroc · Lakauraa"
   description={`Sites web rapides et élégants pour les commerces de Montréal et du Maroc : salons, restos, garages, spas. ${entryPrice() != null ? `À partir de ${money(entryPrice()!)}, ` : ''}maquette gratuite avant de payer.`}>
   <Hero rating={rating} />
-  <Marquee />
+  <Showreel />
+  <AsciiReadout />
   <Services services={services} />
   <PricingSummary />
-  <Process />
+  <Process variant="aura" />
   <Testimonials reviews={reviews} />
   <TopicTiles flagship={flagship} projectCount={projects.length} rating={rating} faqCount={faqs.length} showServices={false} />
 </Base>

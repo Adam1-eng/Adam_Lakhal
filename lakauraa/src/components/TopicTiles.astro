@@ -22,7 +22,7 @@ const cover = flagship?.cover;
 ---
 <section class="section tp" id="explorer" aria-labelledby="tp-title">
   <div class="wrap">
-    <SectionHead eyebrow="Explorer" title={showServices ? 'Que voulez-vous découvrir ?' : 'Pour aller plus loin.'} aura={showServices ? 'découvrir ?' : 'plus loin.'} align="center" />
+    <SectionHead idx={showServices ? undefined : '06'} eyebrow="Explorer" title={showServices ? 'Que voulez-vous découvrir ?' : 'Pour aller plus loin.'} aura={showServices ? 'découvrir ?' : 'plus loin.'} align={showServices ? 'center' : 'left'} />
     <h2 id="tp-title" class="sr-only">Les pages du site</h2>
 
     <ul class:list={['tp__grid', { 'tp__grid--no-reviews': rating.count === 0, 'tp__grid--no-services': !showServices }]}>
