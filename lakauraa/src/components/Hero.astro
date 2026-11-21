@@ -97,6 +97,7 @@ const { rating } = Astro.props;
   /* halo : champ de couleur thermique (bleu → violet → rouge) qui dépasse du cadre */
   .aura__halo { position: absolute; inset: -12% -16% -8% -16%; z-index: -1; border-radius: 50%; background: conic-gradient(from 200deg at 50% 52%, #1e6bff, #7b3fd6, #e0122f, #7b3fd6, #1e6bff); opacity: 0.55; filter: blur(56px); animation: auraBreath 9s ease-in-out infinite alternate; }
   @keyframes auraBreath { from { transform: scale(0.96) rotate(0deg); opacity: 0.45; } to { transform: scale(1.06) rotate(14deg); opacity: 0.62; } }
+  @media (max-width: 999px) { .aura { order: -1; width: min(58vw, 250px); } .hero__grid { gap: 1.8rem; } }
   @media (max-width: 760px) { .aura__halo { filter: none; animation: none; inset: -6%; opacity: 0.4; background: radial-gradient(closest-side, #5b3ff0, #1e6bff 55%, transparent 72%); } }
 
   /* cadre en arche + verre cannelé. L'image est fusionnée en « multiply » : le fond blanc de la photo laisse
@@ -107,7 +108,7 @@ const { rating } = Astro.props;
   .aura__img--refract { transform: translateX(-1.6%) scale(1.045); transition: transform 0.9s var(--ease); -webkit-mask-image: repeating-linear-gradient(90deg, #000 0 calc(var(--glass) * 0.5), transparent calc(var(--glass) * 0.5) var(--glass)); mask-image: repeating-linear-gradient(90deg, #000 0 calc(var(--glass) * 0.5), transparent calc(var(--glass) * 0.5) var(--glass)); }
   .aura:hover .aura__img--refract { transform: translateX(1.6%) scale(1.045); }
   /* reflets de verre : fine lumière sur le bord de chaque cannelure */
-  .aura__flutes { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.11) 0 2px, rgb(255 255 255 / 0) 2px calc(var(--glass) * 0.5), rgb(0 0 0 / 0.07) calc(var(--glass) * 0.5) var(--glass)); pointer-events: none; }
+  .aura__flutes { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.11) 0 2px, rgb(255 255 255 / 0) 2px calc(var(--glass) * 0.5), rgb(0 0 0 / 0.07) calc(var(--glass) * 0.5) var(--glass)); pointer-events: none; -webkit-mask-image: radial-gradient(ellipse 36% 32% at 50% 38%, rgb(0 0 0 / 0.3), #000 100%); mask-image: radial-gradient(ellipse 36% 32% at 50% 38%, rgb(0 0 0 / 0.3), #000 100%); }
   .aura__glass::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(255 255 255 / 0.14), transparent 28%, transparent 70%, rgb(11 11 15 / 0.5)); pointer-events: none; }
 
   /* anneau iridescent : posé sur l'épaule du cadre */

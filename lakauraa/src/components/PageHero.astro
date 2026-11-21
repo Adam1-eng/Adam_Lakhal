@@ -1,11 +1,12 @@
 ---
 import SplitText from './SplitText.astro';
+import Topo from './Topo.astro';
 interface Props { eyebrow: string; title: string; aura?: string; lead?: string; crumbs?: { label: string; href?: string }[]; kicker?: string }
 // kicker : mot-clé principal de la page, affiché comme l'eyebrow mais à l'intérieur du H1 (SEO), sans bourrage.
 const { eyebrow, title, aura, lead, crumbs = [], kicker } = Astro.props;
 ---
 <section class="ph" data-aura-zone>
-  <div class="ph__bg" aria-hidden="true"><div class="grid-bg"></div><div class="ph__blob"></div></div>
+  <div class="ph__bg" aria-hidden="true"><Topo name="terrain" opacity={0.42} /><div class="ph__halo"></div></div>
   <div class="wrap ph__inner">
     {crumbs.length > 0 && (
       <nav aria-label="Fil d’Ariane" class="ph__crumbs reveal">
@@ -24,8 +25,10 @@ const { eyebrow, title, aura, lead, crumbs = [], kicker } = Astro.props;
 
 <style>
   .ph { --ax: 70%; --ay: 20%; position: relative; isolation: isolate; overflow: hidden; padding: calc(var(--header-h) + clamp(3.5rem, 9vw, 7rem)) 0 var(--section-y); border-bottom: 1px solid var(--line); }
-  .ph__bg { position: absolute; inset: 0; z-index: -1; background: radial-gradient(600px circle at var(--ax) var(--ay), rgb(224 18 47 / 0.1), transparent 60%); }
-  .ph__blob { position: absolute; width: 600px; height: 600px; right: -150px; top: -260px; border-radius: 50%; background: radial-gradient(circle, rgb(30 107 255 / 0.5), transparent 65%); filter: blur(70px); }
+  .ph__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+  .ph__bg :global(.topo) { position: absolute; inset: 0; mask-image: linear-gradient(180deg, #000 30%, transparent 100%); -webkit-mask-image: linear-gradient(180deg, #000 30%, transparent 100%); }
+  /* halo thermique : anneau bleu → violet → rouge, mêmes teintes que le logo */
+  .ph__halo { position: absolute; width: min(720px, 90vw); aspect-ratio: 1; right: -12%; top: -38%; border-radius: 50%; background: conic-gradient(from 210deg, #1e6bff, #7b3fd6 35%, #e0122f 65%, #1e6bff); filter: blur(90px); opacity: 0.34; }
   .ph__inner { display: grid; gap: 1.4rem; justify-items: start; }
   .ph__inner :global(h1) { max-width: 16ch; }
   .ph__crumbs ol { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--dim); }

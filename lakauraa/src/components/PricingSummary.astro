@@ -12,7 +12,7 @@ import { SITE, madNote } from '../config/site';
       lead={`Maquette toujours gratuite. Paiement en deux temps : ${SITE.depositPercent} % au départ, le reste à la mise en ligne.`} />
     <ul class="ps__list">
       {offers.map((o, i) => (
-        <li class="card ps__row reveal" style={`--i:${i}`}>
+        <li class="ps__row reveal" style={`--i:${i}`}>
           <span class="ps__name">{o.name}</span>
           <span class="ps__pitch">{o.pitch}</span>
           <span class="ps__price">{o.from ? <><small>{o.from}</small> {o.price} <small>{o.unit}</small></> : <>{o.price} <small>{o.unit}</small></>}{o.mad && <small class="ps__mad">Au Maroc : {o.mad}</small>}</span>
@@ -25,14 +25,16 @@ import { SITE, madNote } from '../config/site';
 </section>
 
 <style>
-  .ps__list { list-style: none; padding: 0; display: grid; gap: 0.7rem; max-width: 900px; margin-inline: auto; }
-  .ps__row { display: grid; gap: 0.3rem 1.2rem; align-items: center; padding: 1.1rem 1.3rem; }
+  .ps__list { list-style: none; padding: 0; display: grid; gap: 0.7rem; max-width: 980px; margin-top: 2rem; }
+  .ps__row { display: grid; gap: 0.3rem 1.2rem; align-items: center; padding: 1.3rem 0.2rem; border-top: 1px solid var(--line-2); transition: background 0.4s; }
+  .ps__row:last-child { border-bottom: 1px solid var(--line-2); }
+  .ps__row:hover { background: linear-gradient(90deg, rgb(30 107 255 / 0.08), rgb(224 18 47 / 0.06), transparent); }
   @media (min-width: 760px) { .ps__row { grid-template-columns: 9rem 1fr auto; } }
   .ps__name { font-family: var(--font-display); font-weight: 700; font-size: 1.2rem; }
   .ps__pitch { color: var(--muted); font-size: 0.92rem; }
   .ps__price { font-weight: 700; font-size: 1.05rem; white-space: nowrap; }
   .ps__price small { font-weight: 500; color: var(--muted); font-size: 0.8rem; }
   .ps__mad { display: block; margin-top: 0.15rem; }
-  .ps__note { text-align: center; margin-top: 1.2rem; color: var(--dim); font-size: 0.88rem; }
-  .ps__more { display: flex; justify-content: center; margin-top: 1.2rem; }
+  .ps__note { margin-top: 1.2rem; color: var(--dim); font-size: 0.88rem; }
+  .ps__more { display: flex; margin-top: 1.2rem; }
 </style>
