@@ -10,7 +10,7 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { join, extname } from 'node:path';
 import { createRequire } from 'node:module';
-import { identity, policy, services, status, shop, styleGroups, trainings } from '../src/config/miya.ts';
+import { identity, policy, services, status, shop, styleGroups, trainings, faq, lookLadder, refillGuide } from '../src/config/miya.ts';
 import { duration, price } from '../src/lib/format.ts';
 
 const require = createRequire('/opt/node-tools/node_modules/');
@@ -107,6 +107,23 @@ ok(fText.includes(norm(price(trainings.lashBoss.price))) && fText.includes('3 jo
 const stText = textOf(html['/styles']);
 for (const g of styleGroups) for (const s of g.styles) ok(stText.includes(s.name), `style absent : ${s.name}`);
 ok(stText.includes('9–13 mm') && stText.includes('8–14 mm') && stText.includes('7–11 mm'), 'longueurs des styles absentes');
+
+section('Guide, FAQ');
+{
+  const flatS = services.flatMap((c) => c.services);
+  const ladder = textOf(html['/services'].split('class="ladder"')[1]?.split('</ol>')[0] ?? '');
+  for (const l of lookLadder) {
+    const sv = flatS.find((x) => x.name === l.service);
+    ok(sv && ladder.includes(norm(sv.name)), `guide : service inconnu ou absent « ${l.service} »`);
+  }
+  const svcT = squash(textOf(html['/services']));
+  for (const f of faq) for (const p of f.a) ok(svcT.includes(squash(p)), `FAQ absente : ${f.q}`);
+  const pol = policy.sections.flatMap((x) => x.items);
+  for (const f of faq.filter((x) => /payer|annuler/.test(x.q))) for (const p of f.a) ok(pol.includes(p), `FAQ « ${f.q} » ne cite pas la politique mot pour mot`);
+  const ld = [...html['/services'].matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  ok(ld.some((d) => d['@type'] === 'FAQPage' && d.mainEntity.length === faq.length), 'FAQPage JSON-LD absent');
+  for (const byW of Object.values(refillGuide.rules)) for (const r of Object.values(byW)) if (r.service) ok(flatS.some((x) => x.name === r.service), `calculateur : service inconnu « ${r.service} »`);
+}
 
 section('SEO');
 const titles = new Set();
@@ -259,6 +276,44 @@ for (const r of Object.keys(html)) {
   const src = await page.getAttribute('.map__frame iframe', 'src');
   ok(/openstreetmap\.org\/export\/embed\.html.*marker=45\.56/.test(src || ''), 'carte : iframe OpenStreetMap absente après clic');
   ok(await page.isVisible('.map__note') === !identity.location.geo, 'carte : mention « repère, pas l’adresse exacte » manquante');
+  await ctx.close();
+}
+// Calculateur de remplissage
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  await page.goto(BASE + '/services#calculateur');
+  const flatS = services.flatMap((c) => c.services);
+  for (const [type, byW] of Object.entries(refillGuide.rules)) {
+    for (const [w, r] of Object.entries(byW)) {
+      await page.check(`.calc input[name=type][value=${type}]`, { force: true });
+      await page.check(`.calc input[name=weeks][value="${w}"]`, { force: true });
+      const title = (await page.textContent('[data-out-title]')).trim();
+      const meta = norm(await page.textContent('[data-out-meta]'));
+      const bookVisible = await page.isVisible('[data-out-book]');
+      if (r.service) {
+        const sv = flatS.find((x) => x.name === r.service);
+        ok(title === sv.name && meta === norm(`${duration(sv.minutes)} · ${price(sv.price)}`) && bookVisible, `calculateur ${type}/${w} : « ${title} ${meta} »`);
+      } else ok(title === r.message && !bookVisible, `calculateur ${type}/${w} : message attendu`);
+    }
+  }
+  await page.evaluate(() => window.scrollTo(0, 2000));
+  await page.waitForTimeout(600);
+  ok(await page.isVisible('.mbar'), 'barre de réservation mobile invisible à 390 px après défilement');
+  ok((await page.getAttribute('.mbar__book', 'href')) === '/contact#reserver', 'barre mobile : mauvais lien');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  ok(!(await page.isVisible('.mbar')), 'barre mobile visible sur bureau');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(BASE + '/');
+  await page.waitForTimeout(600);
+  ok(!(await page.isVisible('.mbar')), 'barre mobile visible en haut de l’accueil (cache le bouton Réserver)');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(BASE + '/styles');
+  await page.click('.filters button[data-filter=couleurs]');
+  const vis = await page.evaluate(() => [...document.querySelectorAll('[data-group]')].filter((g) => !g.hidden).map((g) => g.dataset.group));
+  ok(vis.length === 1 && vis[0] === 'couleurs', 'filtres styles : ' + vis.join(','));
+  await page.click('.filters button[data-filter=all]');
+  ok((await page.evaluate(() => [...document.querySelectorAll('[data-group]')].filter((g) => !g.hidden).length)) === styleGroups.length, 'filtre « Tous » ne réaffiche pas tout');
   await ctx.close();
 }
 // prefers-reduced-motion

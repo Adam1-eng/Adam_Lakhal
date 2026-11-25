@@ -1,0 +1,57 @@
+---
+/** Barre fixe en bas d'écran sur mobile : rendez-vous (via la politique) + DM. */
+import { identity } from '../config/miya';
+import Icon from './Icon.astro';
+---
+<aside class="mbar" aria-label="Prendre rendez-vous">
+  <a class="mbar__dm" href={identity.instagram.dmUrl}><Icon name="dm" /><span>DM</span></a>
+  <a class="btn mbar__book" href="/contact#reserver"><Icon name="calendar" />Rendez-vous</a>
+</aside>
+<script>
+  const bar = document.querySelector<HTMLElement>('.mbar');
+  if (bar) {
+    const onScroll = () => bar.classList.toggle('is-shown', window.scrollY > window.innerHeight * 0.6);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+</script>
+<style>
+  .mbar { display: none; }
+  @media (max-width: 899px) {
+    .mbar {
+      position: fixed;
+      left: 0.75rem;
+      right: 0.75rem;
+      bottom: max(0.75rem, env(safe-area-inset-bottom));
+      z-index: 40;
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.45rem;
+      background: rgba(251, 247, 242, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 14px 30px -14px rgba(29, 26, 26, 0.4);
+      transition: transform 0.5s var(--ease), opacity 0.5s var(--ease), visibility 0.5s;
+    }
+    :global(.js) .mbar:not(.is-shown) { transform: translateY(140%); opacity: 0; visibility: hidden; }
+    .mbar__book { flex: 1; min-height: 2.9rem; padding-block: 0.6rem; }
+    .mbar__dm {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0 1.1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(29, 26, 26, 0.3);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    :global(body) { padding-bottom: 5.2rem; }
+    :global(.site-header.is-open) ~ :global(.mbar) { display: none; }
+  }
+</style>

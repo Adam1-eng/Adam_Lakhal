@@ -2,16 +2,24 @@
 import Base from '../layouts/Base.astro';
 import PolicySummary from '../components/PolicySummary.astro';
 import Icon from '../components/Icon.astro';
-import { identity, services } from '../config/miya';
+import LookLadder from '../components/LookLadder.astro';
+import RefillCalculator from '../components/RefillCalculator.astro';
+import Faq from '../components/Faq.astro';
+import { identity, services, faq } from '../config/miya';
 import { duration, price } from '../lib/format';
 import { beautySalon } from '../lib/schema';
+const faqLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a.join(' ') } })),
+};
 ---
 
 <Base
   title="Prix des extensions de cils à Laval"
   description="Prix et durées à Laval : Soft Touch, poses complètes (classic, hybride, volume, wet look, mega volume), remplissages, lash lift, brow lift et tooth gems."
   crumb="Services"
-  jsonLd={[beautySalon()]}
+  jsonLd={[beautySalon(), faqLd]}
 >
   <section class="page-hero">
     <div class="container">
@@ -19,7 +27,10 @@ import { beautySalon } from '../lib/schema';
       <h1>Le menu, <em>en toute transparence.</em></h1>
       <p class="lead">Prix en dollars canadiens et durées tels qu’affichés sur la réservation en ligne.</p>
       <nav class="chips" aria-label="Catégories de services">
+        <a href="#quel-look">Quel look choisir ?</a>
         {services.map((c) => <a href={`#${c.id}`}>{c.title}</a>)}
+        <a href="#calculateur">Calculer mon remplissage</a>
+        <a href="#faq">FAQ</a>
       </nav>
     </div>
   </section>
@@ -27,6 +38,15 @@ import { beautySalon } from '../lib/schema';
   <div class="container svc-top">
     <PolicySummary id="resume-politique" />
   </div>
+
+  <section class="section look-sec" id="quel-look" aria-labelledby="quel-look-t">
+    <div class="container">
+      <p class="eyebrow">Guide</p>
+      <h2 id="quel-look-t">Quel look choisir ?</h2>
+      <p class="lead">Du plus naturel au plus intense. Pas sûre ? Miya t’aide à choisir le jour de ta pose.</p>
+      <LookLadder />
+    </div>
+  </section>
 
   {
     services.map((cat, idx) => (
@@ -92,7 +112,26 @@ import { beautySalon } from '../lib/schema';
     ))
   }
 
-  <section class="section center-block">
+  <section class="section section--blush" id="calculateur" aria-labelledby="calc-t">
+    <div class="container">
+      <p class="eyebrow">Remplissage</p>
+      <h2 id="calc-t">Quel remplissage réserver ?</h2>
+      <RefillCalculator />
+    </div>
+  </section>
+
+  <section class="section" id="faq" aria-labelledby="faq-t">
+    <div class="container faq-grid">
+      <div>
+        <p class="eyebrow">FAQ</p>
+        <h2 id="faq-t">Tes questions, nos réponses</h2>
+        <p>Une autre question ? <a href={identity.instagram.dmUrl}>Écris à Miya en DM</a>.</p>
+      </div>
+      <Faq />
+    </div>
+  </section>
+
+  <section class="section center-block section--cream">
     <div class="narrow">
       <h2>Une question avant de réserver ?</h2>
       <p class="lead">Écris à Miya sur Instagram ou par courriel.</p>
@@ -151,6 +190,9 @@ import { beautySalon } from '../lib/schema';
     border-radius: var(--radius-sm);
   }
   .is-featured .svc__notes li { color: var(--rose-deep); font-weight: 450; }
+  .look-sec { padding-top: clamp(2.5rem, 2rem + 2vw, 4rem); }
+  .faq-grid { display: grid; gap: 2rem; }
+  @media (min-width: 900px) { .faq-grid { grid-template-columns: 0.8fr 1.2fr; gap: 4rem; } .faq-grid > div:first-child { position: sticky; top: 6rem; align-self: start; } }
   .center-block { text-align: center; }
   .center-block .lead { margin-inline: auto; }
 </style>

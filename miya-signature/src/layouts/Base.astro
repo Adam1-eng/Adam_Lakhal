@@ -11,6 +11,7 @@ import { breadcrumb } from '../lib/schema';
 import DemoBanner from '../components/DemoBanner.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import MobileBookBar from '../components/MobileBookBar.astro';
 
 interface Props {
   title: string;
@@ -66,6 +67,7 @@ if (crumb) ld.push(breadcrumb([{ name: 'Accueil', path: '/' }, { name: crumb, pa
       <slot />
     </main>
     <Footer />
+    <MobileBookBar />
     <script>
       const els = document.querySelectorAll('.reveal');
       if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {

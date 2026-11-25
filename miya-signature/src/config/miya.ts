@@ -520,3 +520,110 @@ export const legal = {
   privacyOfficer: null as string | null,
   lastUpdated: '2026-11-25',
 };
+
+// ------------------------------------------------------------
+// 11. Guide « Quel look choisir ? » (du plus naturel au plus intense)
+//     `service` doit correspondre EXACTEMENT à un nom de la section 4.
+// ------------------------------------------------------------
+export const lookLadder: { service: string; level: 1 | 2 | 3 | 4 | 5; text: string }[] = [
+  { service: 'Soft Touch – Demi pose', level: 1, text: '50 % des cils couverts : l’effet le plus naturel, et le plus rapide.' },
+  { service: 'Cil à cil – Classic', level: 2, text: 'Une extension par cil. Effet mascara ou naturel.' },
+  { service: 'Lash Addict – Hybride', level: 3, text: 'Le mélange cil à cil et volume. Effet mascara ou naturel.' },
+  { service: 'Drama Queen – Volume', level: 4, text: 'De petits bouquets pour plus de densité.' },
+  { service: 'Wispy volume', level: 4, text: 'Du volume avec des pointes plus longues, effet aérien.' },
+  { service: 'Wet look – Wispy wet look', level: 4, text: 'Le look iconique de Miya : des pointes fines et définies.' },
+  { service: 'Mega volume', level: 5, text: 'Le plus dense de tous. Effet mascara ou naturel.' },
+];
+
+// ------------------------------------------------------------
+// 12. Calculateur de remplissage (règles relevées sur Acuity)
+//     `service` doit correspondre EXACTEMENT à un nom de la section 4.
+// ------------------------------------------------------------
+export const refillGuide = {
+  setTypes: [
+    { id: 'full', label: 'Une pose complète faite par Miya' },
+    { id: 'soft', label: 'Un Soft Touch (demi-pose) fait par Miya' },
+    { id: 'foreign', label: 'Une pose faite ailleurs' },
+  ],
+  weeks: [
+    { id: '1', label: '1 semaine' },
+    { id: '2', label: '2 semaines' },
+    { id: '3', label: '3 semaines' },
+    { id: '4', label: '4 semaines' },
+    { id: '5', label: 'Plus de 4 semaines' },
+  ],
+  /** Résultat par type de pose et par nombre de semaines. `service` = nom exact, `message` = texte sans service. */
+  rules: {
+    full: {
+      '1': { service: 'Remplissage 1 semaine' },
+      '2': { service: 'Remplissage 2 semaines' },
+      '3': { service: 'Remplissage 3 semaines' },
+      '4': { service: 'Almost New Set (4 semaines)' },
+      '5': { message: 'Au-delà de 4 semaines, aucun remplissage n’est proposé en ligne. Écris à Miya en DM pour savoir quoi réserver.' },
+    },
+    soft: {
+      '1': { service: 'Soft Touch – Remplissage 1 semaine' },
+      '2': { service: 'Soft Touch – Remplissage 2 semaines' },
+      '3': { message: 'Après 2 semaines : pose complète obligatoire.' },
+      '4': { message: 'Après 2 semaines : pose complète obligatoire.' },
+      '5': { message: 'Après 2 semaines : pose complète obligatoire.' },
+    },
+    foreign: {
+      '1': { service: 'Remplissage d’ailleurs (foreign fill)' },
+      '2': { service: 'Remplissage d’ailleurs (foreign fill)' },
+      '3': { service: 'Remplissage d’ailleurs (foreign fill)' },
+      '4': { service: 'Remplissage d’ailleurs (foreign fill)' },
+      '5': { service: 'Remplissage d’ailleurs (foreign fill)' },
+    },
+  } as Record<string, Record<string, { service?: string; message?: string }>>,
+};
+
+// ------------------------------------------------------------
+// 13. FAQ : réponses construites UNIQUEMENT à partir des infos ci-dessus.
+// ------------------------------------------------------------
+const svc = (name: string) => services.flatMap((c) => c.services).find((x) => x.name === name)!;
+const fmtDur = (m: number) => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ' ' + String(m % 60).padStart(2, '0') : ''}`);
+const setsOnly = services.filter((c) => c.id === 'soft-touch' || c.id === 'signature-lash-sets').flatMap((c) => c.services).filter((x) => !/Remplissage/.test(x.name));
+const minSet = setsOnly.reduce((a, b) => (b.minutes < a.minutes ? b : a));
+const maxSet = setsOnly.reduce((a, b) => (b.minutes > a.minutes ? b : a));
+const policyItem = (title: string, i = 0) => policy.sections.find((s) => s.title === title)!.items[i];
+export const faq: { q: string; a: string[] }[] = [
+  {
+    q: 'Quel set choisir ?',
+    a: [
+      'Regarde le guide « Quel look choisir ? » sur la page Services : les poses y sont classées du plus naturel au plus intense. Classic, Hybride et Mega volume peuvent avoir un effet mascara ou naturel.',
+    ],
+  },
+  {
+    q: 'Combien de temps dure une pose ?',
+    a: [
+      `De ${fmtDur(minSet.minutes)} (${minSet.name}) à ${fmtDur(maxSet.minutes)} (${maxSet.name}). La durée de chaque service est indiquée dans le menu.`,
+    ],
+  },
+  {
+    q: 'Quand faire mon remplissage ?',
+    a: [
+      'Entre 1 et 4 semaines après ta pose (Soft Touch : 1 à 2 semaines max). Il faut minimum 50 % des extensions restantes, sinon c’est une pose complète.',
+    ],
+  },
+  { q: 'Comment me préparer pour un remplissage ?', a: ['Pas de caféine 2 h avant, et viens démaquillée.'] },
+  {
+    q: 'Ma pose a été faite ailleurs : peux-tu la remplir ?',
+    a: [
+      `Oui, c’est le Remplissage d’ailleurs (foreign fill) : ${fmtDur(svc('Remplissage d’ailleurs (foreign fill)').minutes)}, ${svc('Remplissage d’ailleurs (foreign fill)').price} $.`,
+    ],
+  },
+  {
+    q: 'Est-ce que la pose est confortable ?',
+    a: [
+      'C’est la priorité de Miya : des poses sans irritation, pour des yeux confortables. Elle vérifie que tes yeux restent fermés et que les patchs ne bougent pas.',
+    ],
+  },
+  { q: 'Combien de temps tiennent le lash lift et le brow lift ?', a: ['Jusqu’à 6 semaines.'] },
+  { q: 'Retires-tu les tooth gems ?', a: ['Non : ils doivent être retirés par un professionnel dentaire.'] },
+  { q: 'Faut-il payer pour réserver ?', a: [policyItem('Réservations')] },
+  {
+    q: 'Puis-je annuler ou déplacer mon rendez-vous ?',
+    a: [policyItem('Annulations', 0), policyItem('Déplacements (changement de date)', 0)],
+  },
+];

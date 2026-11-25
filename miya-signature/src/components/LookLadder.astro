@@ -1,0 +1,87 @@
+---
+/** Guide « Quel look choisir ? » : du plus naturel au plus intense. */
+import { lookLadder, services, styleGroups } from '../config/miya';
+import { duration, price } from '../lib/format';
+import LashArt from './LashArt.astro';
+const all = services.flatMap((c) => c.services);
+const arts: Record<number, any> = {
+  1: { kind: 'lashes', shape: 'natural', density: 1, short: true },
+  2: { kind: 'lashes', shape: 'natural', density: 1 },
+  3: { kind: 'lashes', shape: 'natural', density: 2 },
+  4: { kind: 'lashes', shape: 'natural', density: 3 },
+  5: { kind: 'lashes', shape: 'natural', density: 4 },
+};
+const allStyles = styleGroups.flatMap((g) => g.styles);
+const byName = (n: string) => allStyles.find((x) => x.name === n)?.art;
+const styleArt = (name: string) =>
+  name.startsWith('Wet') ? byName('Wet look / Wet set') : name.startsWith('Wispy') ? byName('Wispy volume') : arts;
+const items = lookLadder.map((l) => {
+  const s = all.find((x) => x.name === l.service);
+  if (!s) throw new Error(`Service introuvable : ${l.service}`);
+  const sa = styleArt(l.service);
+  return { ...l, s, art: sa === arts ? arts[l.level] : sa };
+});
+---
+<ol class="ladder" tabindex="0" aria-label="Les poses, du plus naturel au plus intense (fais défiler)">
+  {items.map((it) => (
+    <li class="ladder__item">
+      <div class="ladder__art" aria-hidden="true"><LashArt art={it.art} seed={`ladder-${it.service}`} /></div>
+      <div class="ladder__body">
+        <p class="ladder__level">
+          <span class="sr-only">Intensité {it.level} sur 5</span>
+          <span aria-hidden="true">{[1, 2, 3, 4, 5].map((n) => <i class={n <= it.level ? 'on' : ''} />)}</span>
+        </p>
+        <h3>{it.s.name}</h3>
+        <p>{it.text}</p>
+        <p class="ladder__meta">{duration(it.s.minutes)} · <strong>{price(it.s.price)}</strong></p>
+      </div>
+    </li>
+  ))}
+</ol>
+<div class="ladder__scale" aria-hidden="true"><span>Naturel</span><span>Intense</span></div>
+
+<style>
+  .ladder {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0.5rem;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(210px, 1fr);
+    gap: 1rem;
+    contain: paint;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+  }
+  .ladder__item {
+    scroll-snap-align: start;
+    background: #fffdfa;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .ladder__art { background: radial-gradient(circle at 50% 60%, #fffdfa, var(--blush) 75%); padding: 0.8rem 1.4rem; }
+  .ladder__body { padding: 1rem 1.2rem 1.3rem; display: flex; flex-direction: column; flex: 1; }
+  .ladder__body h3 { font-size: 1.3rem; margin: 0.3rem 0 0.4rem; }
+  .ladder__body p { margin: 0; font-size: 0.92rem; }
+  .ladder__level i { display: inline-block; width: 0.55rem; height: 0.55rem; border-radius: 50%; border: 1px solid var(--rose-deep); margin-right: 0.25rem; }
+  .ladder__level i.on { background: var(--rose-deep); }
+  .ladder__meta { margin-top: auto !important; padding-top: 0.8rem; color: var(--muted); }
+  .ladder__meta strong { color: var(--ink); font-weight: 500; }
+  .ladder__scale {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.8rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    background: linear-gradient(90deg, var(--blush), var(--rose-deep)) 0 50% / 100% 1px no-repeat;
+  }
+  .ladder__scale span { background: var(--ivory); padding: 0 0.6rem; }
+  .ladder__scale span:first-child { padding-left: 0; }
+  .ladder__scale span:last-child { padding-right: 0; }
+</style>

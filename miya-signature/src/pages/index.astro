@@ -46,6 +46,8 @@ const highlights = [
 const wet = styleGroups.flatMap((g) => g.styles).find((s) => s.name.startsWith('Wet look'))!;
 const wetService = services.flatMap((c) => c.services).find((s) => s.featured)!;
 const lb = trainings.lashBoss;
+const tickerItems = styleGroups.flatMap((g) => g.styles.map((s) => s.name));
+const roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 ---
 
 <Base
@@ -105,6 +107,20 @@ const lb = trainings.lashBoss;
     </div>
   </section>
 
+  <!-- BANDEAU DÉFILANT -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker__track">
+      {[0, 1].map(() => (
+        <ul>
+          {tickerItems.map((t) => (
+            <li>{t}</li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+  <p class="sr-only">Styles : {tickerItems.join(', ')}.</p>
+
   <!-- PHILOSOPHIE -->
   <section class="section intro">
     <div class="narrow reveal">
@@ -129,8 +145,9 @@ const lb = trainings.lashBoss;
       </div>
       <div class="grid grid--2 hl-grid">
         {
-          highlights.map((h) => (
+          highlights.map((h, i) => (
             <a class="hl card reveal" href={h.href}>
+              <span class="hl__n" aria-hidden="true">{roman[i]}</span>
               <div class="hl__art">
                 <LashArt art={h.art} seed={h.title} />
               </div>
@@ -149,6 +166,8 @@ const lb = trainings.lashBoss;
       </div>
       <p class="center">
         <a class="btn btn--ghost" href="/services">Voir tous les services et prix <Icon name="arrow" /></a>
+        <a class="btn btn--ghost" href="/services#quel-look">Quel look choisir ?</a>
+        <a class="btn btn--ghost" href="/services#calculateur">Calculer mon remplissage</a>
       </p>
     </div>
   </section>
@@ -376,7 +395,30 @@ const lb = trainings.lashBoss;
 
   .section-head { margin-bottom: 2.5rem; }
   .hl-grid { margin-bottom: 2.5rem; }
+  .hl__n {
+    position: absolute;
+    top: 1rem;
+    right: 1.3rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--gold-text);
+  }
+  .ticker {
+    overflow: hidden;
+    background: var(--ink);
+    color: #fbf7f2;
+    padding-block: 0.9rem;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .ticker__track { display: flex; width: max-content; animation: ticker 60s linear infinite; }
+  .ticker ul { display: flex; list-style: none; margin: 0; padding: 0; }
+  .ticker li { font-family: var(--font-display); font-style: italic; font-size: 1.3rem; white-space: nowrap; padding-inline: 1.4rem; }
+  .ticker li::after { content: '✦'; font-style: normal; font-size: 0.7rem; color: var(--gold); margin-left: 2.8rem; vertical-align: middle; }
+  @keyframes ticker { to { transform: translateX(-50%); } }
   .hl {
+    position: relative;
     display: grid;
     grid-template-columns: 110px 1fr;
     gap: 1.2rem;
@@ -393,6 +435,7 @@ const lb = trainings.lashBoss;
   .hl__price strong { color: var(--ink); font-weight: 500; font-size: 1.05rem; }
   @media (max-width: 420px) { .hl { grid-template-columns: 1fr; } .hl__art { width: 96px; } }
   .center { text-align: center; }
+  p.center { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; }
   .center .btn-row { justify-content: center; }
 
   .signature__grid { display: grid; gap: 2.5rem; align-items: center; }

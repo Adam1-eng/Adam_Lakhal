@@ -1,0 +1,125 @@
+---
+/** Calculateur de remplissage : règles et prix lus dans la config. */
+import { identity, refillGuide, services } from '../config/miya';
+import { duration, price } from '../lib/format';
+import PolicySummary from './PolicySummary.astro';
+import Icon from './Icon.astro';
+
+const all = services.flatMap((c) => c.services);
+const results: Record<string, { title: string; meta?: string; note?: string }> = {};
+for (const [type, byWeek] of Object.entries(refillGuide.rules)) {
+  for (const [w, r] of Object.entries(byWeek)) {
+    if (r.service) {
+      const s = all.find((x) => x.name === r.service);
+      if (!s) throw new Error(`Service introuvable dans la config : ${r.service}`);
+      results[`${type}-${w}`] = { title: s.name, meta: `${duration(s.minutes)} · ${price(s.price)}` };
+    } else {
+      results[`${type}-${w}`] = { title: r.message! };
+    }
+  }
+}
+const conditions = services.find((c) => c.id === 'remplissages')?.conditions ?? [];
+---
+<div class="calc" data-results={JSON.stringify(results)}>
+  <form class="calc__form" aria-describedby="calc-help">
+    <p id="calc-help" class="calc__help">Réponds à deux questions : le site te dit quel service réserver.</p>
+    <fieldset>
+      <legend><span aria-hidden="true">1.</span> Ta pose actuelle</legend>
+      <div class="calc__opts">
+        {refillGuide.setTypes.map((t, i) => (
+          <label class="opt">
+            <input type="radio" name="type" value={t.id} checked={i === 0} />
+            <span>{t.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend><span aria-hidden="true">2.</span> Depuis ta dernière visite</legend>
+      <div class="calc__opts calc__opts--row">
+        {refillGuide.weeks.map((w, i) => (
+          <label class="opt opt--pill">
+            <input type="radio" name="weeks" value={w.id} checked={i === 1} />
+            <span>{w.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  </form>
+
+  <div class="calc__result">
+    <p class="calc__label">Ce qu’il te faut</p>
+    <div aria-live="polite" class="calc__out">
+      <p class="calc__title" data-out-title>{results['full-2'].title}</p>
+      <p class="calc__meta" data-out-meta>{results['full-2'].meta}</p>
+    </div>
+    {conditions.length > 0 && (
+      <ul class="calc__cond">
+        {conditions.map((c) => <li>{c}</li>)}
+      </ul>
+    )}
+    <PolicySummary compact tone="dark" />
+    <div class="btn-row">
+      <a class="btn btn--light btn--sm" href={identity.bookingUrl} data-booking data-out-book><Icon name="calendar" />Réserver</a>
+      <a class="btn btn--sm calc__dm" href={identity.instagram.dmUrl}><Icon name="dm" />Une question ? DM</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.calc').forEach((calc) => {
+    const results = JSON.parse(calc.dataset.results!);
+    const form = calc.querySelector('form')!;
+    const title = calc.querySelector('[data-out-title]')!;
+    const meta = calc.querySelector<HTMLElement>('[data-out-meta]')!;
+    const book = calc.querySelector<HTMLElement>('[data-out-book]')!;
+    const update = () => {
+      const fd = new FormData(form);
+      const r = results[`${fd.get('type')}-${fd.get('weeks')}`];
+      title.textContent = r.title;
+      meta.textContent = r.meta ?? '';
+      meta.hidden = !r.meta;
+      book.hidden = !r.meta;
+    };
+    form.addEventListener('change', update);
+    update();
+  });
+</script>
+
+<style>
+  .calc {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--line);
+  }
+  @media (min-width: 880px) { .calc { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+  .calc__form { background: #fffdfa; padding: clamp(1.4rem, 1rem + 1.5vw, 2.2rem); display: grid; gap: 1.4rem; }
+  .calc__help { margin: 0; color: var(--muted); }
+  fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+  legend { font-family: var(--font-display); font-size: 1.35rem; color: var(--ink); margin-bottom: 0.7rem; padding: 0; }
+  legend span { color: var(--gold-text); }
+  .calc__opts { display: grid; gap: 0.5rem; }
+  .calc__opts--row { display: flex; flex-wrap: wrap; }
+  .opt { position: relative; display: flex; cursor: pointer; }
+  .opt input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .opt span {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+  }
+  .opt--pill span { border-radius: 999px; padding: 0.5rem 1rem; font-size: 0.92rem; }
+  .opt input:checked + span { background: var(--blush); border-color: var(--rose-deep); color: var(--ink); font-weight: 450; }
+  .opt input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .calc__result { background: var(--ink); color: #e9e2dc; padding: clamp(1.4rem, 1rem + 1.5vw, 2.2rem); display: grid; align-content: center; gap: 0.6rem; }
+  .calc__label { margin: 0; font-size: 0.74rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-soft); }
+  .calc__title { margin: 0; font-family: var(--font-display); font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem); line-height: 1.15; color: #fbf7f2; }
+  .calc__meta { margin: 0.3rem 0 0; font-family: var(--font-display); font-size: 1.4rem; color: var(--rose); }
+  .calc__cond { margin: 0.4rem 0 0.8rem; padding-left: 1.1rem; font-size: 0.88rem; color: #d9d0c9; }
+  .calc__dm { --bg: transparent; --fg: #fbf7f2; border-color: rgba(255, 255, 255, 0.35); }
+  [hidden] { display: none !important; }
+</style>
