@@ -1,0 +1,19 @@
+---
+/** Bouton « Réserver » toujours précédé du résumé de la politique. */
+import { identity } from '../config/miya';
+import PolicySummary from './PolicySummary.astro';
+import Icon from './Icon.astro';
+interface Props { compact?: boolean; label?: string; variant?: '' | 'light' | 'ghost'; tone?: 'light' | 'dark'; service?: string }
+const { compact = true, label = 'Réserver', variant = '', tone = 'light', service } = Astro.props;
+---
+<div class="booking-cta">
+  <PolicySummary compact={compact} tone={tone} />
+  <a
+    class={`btn ${variant ? 'btn--' + variant : ''}`}
+    href={identity.bookingUrl}
+    data-booking
+    aria-label={service ? `${label} : ${service} (réservation en ligne sur Acuity)` : `${label} en ligne (Acuity)`}
+  >
+    <Icon name="calendar" />{label}
+  </a>
+</div>

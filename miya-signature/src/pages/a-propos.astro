@@ -1,0 +1,116 @@
+---
+import Base from '../layouts/Base.astro';
+import LashArt from '../components/LashArt.astro';
+import BookingCTA from '../components/BookingCTA.astro';
+import Icon from '../components/Icon.astro';
+import { identity, media } from '../config/miya';
+---
+
+<Base
+  title="À propos de Miya, Lash Master et formatrice à Laval"
+  description={`Miya, Lash Master et formatrice à Laval : ${identity.yearsExperience} ans dans les cils, obsédée par le détail. Des poses confortables, sans irritation, dans un cadre soigné.`}
+  crumb="À propos"
+>
+  <section class="page-hero">
+    <div class="container about">
+      <div>
+        <p class="eyebrow">À propos</p>
+        <h1>Hi, I’m <span class="script">Miya</span></h1>
+        <p class="lead">
+          {identity.role}. {identity.yearsExperience} ans dans les cils, et toujours la même obsession : le détail.
+        </p>
+      </div>
+      <div class="about__visual">
+        {
+          media.portrait ? (
+            <img src={media.portrait} alt="Portrait de Miya" width="800" height="1000" />
+          ) : (
+            <div class="about__art" aria-hidden="true">
+              <LashArt art={{ kind: 'lashes', shape: 'cat', density: 3, wispy: true }} seed="about" />
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    media.introVideo && (
+      <section class="section section--cream" aria-labelledby="video-t">
+        <div class="narrow">
+          <h2 id="video-t">I’m Miya</h2>
+          <video controls preload="none" playsinline poster={media.introVideoPoster ?? undefined} src={media.introVideo}>
+            <a href={media.introVideo}>Télécharger la vidéo de présentation</a>
+          </video>
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section">
+    <div class="narrow story">
+      <h2>Pas juste une technicienne : <em>une artiste du regard.</em></h2>
+      <p>
+        Depuis {identity.yearsExperience} ans, Miya travaille les cils comme une matière : elle observe ton œil, choisit
+        la forme, les longueurs et la courbe qui te ressemblent, puis pose chaque extension avec précision. Clean girl,
+        soft girl, low-key glam ou drama : le résultat doit être beau, mais surtout être <em>toi</em>.
+      </p>
+      <p>
+        Elle est aussi formatrice : avec la formation Lash Boss, elle transmet sa technique et sa vision du métier aux
+        futures lash artists.
+      </p>
+      <a href="/formations" class="link-arrow">Découvrir la formation <Icon name="arrow" /></a>
+    </div>
+  </section>
+
+  <section class="section section--cream" aria-labelledby="care-t">
+    <div class="container care">
+      <div>
+        <p class="eyebrow">Confort et hygiène</p>
+        <h2 id="care-t">Ton confort passe en premier.</h2>
+      </div>
+      <ul class="checklist care__list">
+        <li>Des poses sans irritation, pour des yeux confortables.</li>
+        <li>Miya vérifie que tes yeux restent bien fermés pendant toute la pose.</li>
+        <li>Elle s’assure que les patchs ne bougent pas.</li>
+        <li>Pour un remplissage : pas de caféine 2 h avant, et viens démaquillée.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="narrow center">
+      <h2>On se voit bientôt ?</h2>
+      <p class="lead">Laval, {identity.location.landmark}.</p>
+      <div class="center__cta"><BookingCTA compact={false} /></div>
+      <p class="xoxo" aria-hidden="true">xoxo</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .about { display: grid; gap: 2rem; align-items: center; }
+  @media (min-width: 860px) { .about { grid-template-columns: 1.2fr 0.8fr; } }
+  .about h1 .script { font-size: 1.25em; color: var(--rose-deep); }
+  .about__visual { max-width: 360px; width: 100%; margin-inline: auto; }
+  .about__visual img { border-radius: 999px 999px var(--radius) var(--radius); aspect-ratio: 4/5; object-fit: cover; }
+  .about__art {
+    aspect-ratio: 4 / 5;
+    border-radius: 999px 999px var(--radius) var(--radius);
+    background: radial-gradient(circle at 50% 40%, #fffdfa, var(--blush) 65%, var(--rose));
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+  }
+  .story h2 em { color: var(--rose-deep); }
+  .story p { font-size: 1.1rem; }
+  .link-arrow { display: inline-flex; gap: 0.5rem; align-items: center; font-weight: 450; }
+  video { width: 100%; border-radius: var(--radius); }
+  .care { display: grid; gap: 2rem; }
+  @media (min-width: 860px) { .care { grid-template-columns: 1fr 1fr; align-items: center; } }
+  .care__list { font-size: 1.08rem; color: var(--ink); }
+  .center { text-align: center; }
+  .center .lead { margin-inline: auto; }
+  .center__cta { display: flex; justify-content: center; text-align: left; }
+</style>

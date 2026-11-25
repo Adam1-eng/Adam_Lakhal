@@ -1,0 +1,156 @@
+---
+import Base from '../layouts/Base.astro';
+import PolicySummary from '../components/PolicySummary.astro';
+import Icon from '../components/Icon.astro';
+import { identity, services } from '../config/miya';
+import { duration, price } from '../lib/format';
+import { beautySalon } from '../lib/schema';
+---
+
+<Base
+  title="Prix des extensions de cils à Laval"
+  description="Prix et durées à Laval : Soft Touch, poses complètes (classic, hybride, volume, wet look, mega volume), remplissages, lash lift, brow lift et tooth gems."
+  crumb="Services"
+  jsonLd={[beautySalon()]}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Services et prix</p>
+      <h1>Le menu, <em>en toute transparence.</em></h1>
+      <p class="lead">Prix en dollars canadiens et durées tels qu’affichés sur la réservation en ligne.</p>
+      <nav class="chips" aria-label="Catégories de services">
+        {services.map((c) => <a href={`#${c.id}`}>{c.title}</a>)}
+      </nav>
+    </div>
+  </section>
+
+  <div class="container svc-top">
+    <PolicySummary id="resume-politique" />
+  </div>
+
+  {
+    services.map((cat, idx) => (
+      <section class={`section svc ${idx % 2 ? 'section--cream' : ''}`} id={cat.id} aria-labelledby={`${cat.id}-t`}>
+        <div class="container svc__grid">
+          <header class="svc__head">
+            {cat.subtitle && <p class="eyebrow">{cat.subtitle}</p>}
+            <h2 id={`${cat.id}-t`}>
+              {cat.title} {cat.isNew && <span class="tag">Nouveau</span>}
+            </h2>
+            {cat.intro && <p>{cat.intro}</p>}
+            {cat.conditions && (
+              <>
+                <p class="svc__cond-title">À savoir</p>
+                <ul class="checklist">
+                  {cat.conditions.map((c) => (
+                    <li>{c}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </header>
+          <div>
+            <PolicySummary compact />
+            <ul class="svc__list">
+              {cat.services.map((s) => (
+                <li class={`svc__item ${s.featured ? 'is-featured' : ''}`}>
+                  <div class="svc__info">
+                    <h3>{s.name}</h3>
+                    {s.notes && (
+                      <ul class="svc__notes">
+                        {s.notes.map((n) => (
+                          <li>{n}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <p class="svc__meta">
+                    <span class="svc__dur">
+                      <span class="sr-only">Durée : </span>
+                      {duration(s.minutes)}
+                    </span>
+                    <span class="svc__price">
+                      <span class="sr-only">Prix : </span>
+                      {price(s.price)}
+                    </span>
+                  </p>
+                  <a
+                    class="btn btn--sm btn--ghost svc__btn"
+                    href={identity.bookingUrl}
+                    data-booking
+                    aria-describedby="resume-politique"
+                    aria-label={`Réserver : ${s.name}`}
+                  >
+                    Réserver
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section center-block">
+    <div class="narrow">
+      <h2>Une question avant de réserver ?</h2>
+      <p class="lead">Écris à Miya sur Instagram ou par courriel.</p>
+      <div class="btn-row" style="justify-content:center">
+        <a class="btn btn--ghost" href={identity.instagram.dmUrl}><Icon name="dm" />Écrire en DM</a>
+        <a class="btn btn--ghost" href={`mailto:${identity.email}`}><Icon name="mail" />Courriel</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero h1 em { color: var(--rose-deep); }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2rem; }
+  .chips a {
+    border: 1px solid var(--line);
+    background: #fffdfa;
+    border-radius: 999px;
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    color: var(--ink);
+    text-decoration: none;
+    transition: background 0.3s;
+  }
+  .chips a:hover { background: var(--blush); }
+  .svc-top { padding-top: 2.5rem; }
+  .svc { padding-block: clamp(3rem, 2.4rem + 3vw, 5.5rem); }
+  .svc__grid { display: grid; gap: 1.5rem 4rem; }
+  @media (min-width: 920px) { .svc__grid { grid-template-columns: 0.75fr 1.25fr; } .svc__head { position: sticky; top: 6rem; align-self: start; } }
+  .svc__head h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem; }
+  .svc__cond-title { font-weight: 500; color: var(--ink); margin: 1.4rem 0 0.6rem; }
+  .svc__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .svc__item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'info meta' 'btn btn';
+    gap: 0.8rem 1.2rem;
+    align-items: center;
+    padding: 1.3rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 600px) {
+    .svc__item { grid-template-columns: 1fr auto auto; grid-template-areas: 'info meta btn'; }
+  }
+  .svc__info { grid-area: info; }
+  .svc__meta { grid-area: meta; margin: 0; text-align: right; display: grid; line-height: 1.3; }
+  .svc__btn { grid-area: btn; justify-self: start; }
+  @media (min-width: 600px) { .svc__btn { justify-self: end; } }
+  .svc__item h3 { font-size: 1.35rem; margin: 0; }
+  .svc__notes { list-style: none; padding: 0; margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--muted); }
+  .svc__dur { font-size: 0.85rem; color: var(--muted); }
+  .svc__price { font-family: var(--font-display); font-size: 1.6rem; color: var(--ink); font-weight: 500; }
+  .is-featured {
+    background: linear-gradient(90deg, var(--blush), transparent);
+    padding-inline: 1rem;
+    border-radius: var(--radius-sm);
+  }
+  .is-featured .svc__notes li { color: var(--rose-deep); font-weight: 450; }
+  .center-block { text-align: center; }
+  .center-block .lead { margin-inline: auto; }
+</style>

@@ -1,0 +1,20 @@
+---
+import { status } from '../config/miya';
+---
+{status.demo && (
+  <aside class="demo-banner" aria-label="Avertissement">
+    <p>{status.demoBanner}</p>
+  </aside>
+)}
+<style>
+  .demo-banner {
+    background: var(--ink);
+    color: #f5ede4;
+    text-align: center;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    padding: 0.55rem var(--gutter);
+    letter-spacing: 0.02em;
+  }
+  .demo-banner p { margin: 0; }
+</style>

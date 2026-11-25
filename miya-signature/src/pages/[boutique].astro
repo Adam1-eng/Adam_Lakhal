@@ -1,0 +1,40 @@
+---
+/**
+ * Boutique : la page n'est générée QUE si shop.enabled = true (config).
+ * Tant que Miya n'a pas confirmé, elle n'existe pas (ni lien, ni sitemap).
+ */
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { identity, shop } from '../config/miya';
+import { price } from '../lib/format';
+
+export function getStaticPaths() {
+  return shop.enabled ? [{ params: { boutique: 'boutique' } }] : [];
+}
+---
+<Base title="Boutique" description="Les essentiels Miya signature : palettes et outils de pose." crumb="Boutique">
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Boutique</p>
+      <h1>{shop.tagline}</h1>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <ul class="grid grid--3 shop">
+        {shop.products.map((p) => (
+          <li class="card">
+            <h2>{p.name}</h2>
+            <p class="shop__price">{price(p.price)}</p>
+          </li>
+        ))}
+      </ul>
+      <p><a class="btn btn--ghost" href={identity.instagram.dmUrl}><Icon name="dm" />Commander en DM</a></p>
+    </div>
+  </section>
+</Base>
+<style>
+  .shop { list-style: none; padding: 0; margin: 0 0 2rem; }
+  .shop h2 { font-size: 1.5rem; }
+  .shop__price { font-family: var(--font-display); font-size: 1.6rem; color: var(--ink); margin: 0; }
+</style>

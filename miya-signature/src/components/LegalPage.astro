@@ -1,0 +1,25 @@
+---
+import Base from '../layouts/Base.astro';
+import { legal } from '../config/miya';
+interface Props { title: string; description: string }
+const { title, description } = Astro.props;
+const d = new Date(legal.lastUpdated + 'T12:00:00').toLocaleDateString('fr-CA', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<Base title={title} description={description} crumb={title}>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Informations légales</p>
+      <h1>{title}</h1>
+      <p class="updated">Dernière mise à jour : {d}</p>
+    </div>
+  </section>
+  <section class="section legal">
+    <div class="narrow"><slot /></div>
+  </section>
+</Base>
+<style>
+  .updated { color: var(--muted); margin: 0; }
+  .legal :global(h2) { font-size: clamp(1.6rem, 1.3rem + 1vw, 2.1rem); margin-top: 2.5rem; }
+  .legal :global(h2:first-child) { margin-top: 0; }
+  .legal :global(a) { word-break: break-word; }
+</style>

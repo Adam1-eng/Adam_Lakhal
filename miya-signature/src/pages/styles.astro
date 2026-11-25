@@ -1,0 +1,130 @@
+---
+import Base from '../layouts/Base.astro';
+import LashArt from '../components/LashArt.astro';
+import BookingCTA from '../components/BookingCTA.astro';
+import Icon from '../components/Icon.astro';
+import { identity, styleGroups } from '../config/miya';
+import { slugify } from '../lib/format';
+---
+
+<Base
+  title="Styles de cils : wet look, volume, cat eye, doll eye"
+  description="Les looks de Miya à Laval : classique, hybride, volume, mega volume, wispy, wet look, doll eye, cat eye et couleurs, avec longueurs et courbes."
+  crumb="Styles"
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Galerie des styles</p>
+      <h1>Trouve <em>ton look.</em></h1>
+      <p class="lead">
+        Des techniques, des effets et des couleurs. Pour chaque style signature, la forme, les longueurs et la courbe
+        utilisées par Miya.
+      </p>
+      <a class="link-ig" href={identity.instagram.url}><Icon name="instagram" />Voir ses poses sur Instagram</a>
+    </div>
+  </section>
+
+  {
+    styleGroups.map((g, gi) => (
+      <section class={`section styles ${gi % 2 ? 'section--cream' : ''}`} aria-labelledby={`${g.id}-t`}>
+        <div class="container">
+          <h2 id={`${g.id}-t`}>{g.title}</h2>
+          <ul class="grid grid--3 styles__grid">
+            {g.styles.map((s) => (
+              <li class="style-card reveal" id={slugify(s.name)}>
+                <div class="style-card__media">
+                  {s.photo ? (
+                    <img src={s.photo} alt={`Pose ${s.name} réalisée par Miya`} loading="lazy" width="600" height="600" />
+                  ) : (
+                    <LashArt art={s.art} seed={s.name} />
+                  )}
+                </div>
+                <div class="style-card__body">
+                  <h3>{s.name}</h3>
+                  <p>{s.description}</p>
+                  {(s.eye || s.lengths || s.curls || s.durations) && (
+                    <dl class="style-card__specs">
+                      {s.eye && (
+                        <div>
+                          <dt>Forme</dt>
+                          <dd>{s.eye}</dd>
+                        </div>
+                      )}
+                      {s.lengths && (
+                        <div>
+                          <dt>Longueurs</dt>
+                          <dd>{s.lengths}</dd>
+                        </div>
+                      )}
+                      {s.curls && (
+                        <div>
+                          <dt>{s.curls.length > 1 ? 'Courbes' : 'Courbe'}</dt>
+                          <dd>{s.curls.join(' et ')}</dd>
+                        </div>
+                      )}
+                      {s.durations && (
+                        <div>
+                          <dt>Durée</dt>
+                          <dd>{s.durations.join(' · ')}</dd>
+                        </div>
+                      )}
+                    </dl>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section section--blush">
+    <div class="narrow cta">
+      <h2>Ton look est choisi ?</h2>
+      <p class="lead">Les prix et durées de chaque pose sont sur la page Services.</p>
+      <div class="cta__row">
+        <BookingCTA compact={false} />
+        <a class="btn btn--ghost" href="/services">Services et prix <Icon name="arrow" /></a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero h1 em { color: var(--rose-deep); }
+  .link-ig { display: inline-flex; gap: 0.5rem; align-items: center; font-weight: 450; margin-top: 0.5rem; }
+  .styles__grid { list-style: none; padding: 0; margin: 2rem 0 0; }
+  .style-card {
+    background: #fffdfa;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .style-card__media {
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+    background: radial-gradient(circle at 50% 60%, #fffdfa 0%, var(--blush) 75%);
+    padding: 1rem 2rem;
+  }
+  .style-card__media img { width: 100%; height: 100%; object-fit: cover; }
+  .style-card__body { padding: 1.3rem 1.5rem 1.6rem; }
+  .style-card h3 { margin-bottom: 0.4rem; }
+  .style-card p { margin: 0; }
+  .style-card__specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+    margin: 1rem 0 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+  }
+  .style-card__specs dt { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-text); }
+  .style-card__specs dd { margin: 0; color: var(--ink); font-weight: 450; }
+  .cta { text-align: center; }
+  .cta .lead { margin-inline: auto; }
+  .cta__row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; align-items: flex-end; text-align: left; }
+</style>

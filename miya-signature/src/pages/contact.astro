@@ -1,0 +1,111 @@
+---
+import Base from '../layouts/Base.astro';
+import PolicySummary from '../components/PolicySummary.astro';
+import PolicyFull from '../components/PolicyFull.astro';
+import Icon from '../components/Icon.astro';
+import { identity } from '../config/miya';
+import { number } from '../lib/format';
+import { beautySalon } from '../lib/schema';
+const loc = identity.location;
+---
+
+<Base
+  title="Réserver et contact : extensions de cils à Laval"
+  description="Réserve ton rendez-vous cils à Laval, près du Centropolis : réservation en ligne, politique de rendez-vous, Instagram et courriel de Miya signature."
+  crumb="Contact"
+  jsonLd={[beautySalon()]}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Contact et réservation</p>
+      <h1>Réserve <em>ton moment.</em></h1>
+      <p class="lead">La réservation se fait en ligne. Pour une question, écris à Miya sur Instagram ou par courriel.</p>
+    </div>
+  </section>
+
+  <section class="section contact" id="reserver" aria-labelledby="book-t">
+    <div class="container contact__grid">
+      <div class="card contact__book">
+        <h2 id="book-t">Réserver en ligne</h2>
+        <p>Choisis ton service et ton créneau sur l’agenda en ligne de Miya.</p>
+        <PolicySummary />
+        <a class="btn" href={identity.bookingUrl} data-booking><Icon name="calendar" />Réserver</a>
+      </div>
+
+      <div class="contact__info">
+        <h2>Écrire à Miya</h2>
+        <ul class="contact__list">
+          <li>
+            <Icon name="instagram" />
+            <div>
+              <p class="contact__label">Instagram</p>
+              <a href={identity.instagram.url}>@{identity.instagram.handle}</a>
+              <span class="contact__muted"> · {number(identity.instagram.followers)} abonnés</span>
+              <br /><a href={identity.instagram.dmUrl}>Envoyer un DM</a>
+            </div>
+          </li>
+          <li>
+            <Icon name="mail" />
+            <div>
+              <p class="contact__label">Courriel</p>
+              <a href={`mailto:${identity.email}`}>{identity.email}</a>
+            </div>
+          </li>
+          {identity.phone && (
+            <li>
+              <div>
+                <p class="contact__label">Téléphone</p>
+                <a href={`tel:${identity.phone.replace(/\D/g, '')}`}>{identity.phone}</a>
+              </div>
+            </li>
+          )}
+          <li>
+            <Icon name="pin" />
+            <div>
+              <p class="contact__label">Studio</p>
+              {loc.streetAddress ? (
+                <address>{loc.streetAddress}, {loc.city} ({loc.regionName}) {loc.postalCode}</address>
+              ) : (
+                <p class="m0">{loc.city}, {loc.landmark}</p>
+              )}
+            </div>
+          </li>
+        </ul>
+        {identity.hours.length > 0 && (
+          <>
+            <h3>Horaires</h3>
+            <dl class="hours">
+              {identity.hours.map((h) => (
+                <div><dt>{h.day}</dt><dd>{h.hours}</dd></div>
+              ))}
+            </dl>
+          </>
+        )}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--cream" aria-labelledby="pol-t">
+    <div class="container">
+      <p class="eyebrow">À lire avant de réserver</p>
+      <h2 id="pol-t">Politique de rendez-vous</h2>
+      <PolicyFull headingLevel={3} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero h1 em { color: var(--rose-deep); }
+  .contact__grid { display: grid; gap: 3rem; }
+  @media (min-width: 900px) { .contact__grid { grid-template-columns: 1.1fr 0.9fr; gap: 4rem; } }
+  .contact__list { list-style: none; padding: 0; margin: 1.5rem 0; display: grid; gap: 1.4rem; }
+  .contact__list li { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start; }
+  .contact__list li > :global(svg) { margin-top: 0.3rem; color: var(--gold-text); }
+  .contact__list a { word-break: break-word; }
+  .contact__label { margin: 0; font-size: 0.74rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-text); }
+  .contact__muted { color: var(--muted); font-size: 0.9rem; }
+  .m0 { margin: 0; }
+  address { font-style: normal; }
+  .hours div { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding: 0.4rem 0; }
+  .hours dd { margin: 0; }
+</style>

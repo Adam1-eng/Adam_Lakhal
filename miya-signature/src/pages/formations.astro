@@ -1,0 +1,125 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { identity, trainings } from '../config/miya';
+import { price } from '../lib/format';
+import { course } from '../lib/schema';
+const lb = trainings.lashBoss;
+---
+
+<Base
+  title="Formation extensions de cils à Laval : Lash Boss"
+  description={`Formation Lash Boss en extensions de cils à Laval : ${lb.days} jours, ${price(lb.price).replace(/ /g, ' ')}. Classique, hybride, volume, mega volume et business. Certification et kit professionnel inclus.`}
+  crumb="Formations"
+  jsonLd={[course()]}
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Formations</p>
+      <h1>Formation en extensions de cils <em>à Laval.</em></h1>
+      <p class="lead quote">“{trainings.pitch}”</p>
+      <div class="btn-row">
+        <a class="btn" href={identity.instagram.dmUrl}><Icon name="dm" />Écrire en DM</a>
+        <a class="btn btn--ghost" href="#programme">Voir le programme</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="lb-t">
+    <div class="container lb">
+      <div class="lb__intro">
+        <p class="eyebrow">La formation complète</p>
+        <h2 id="lb-t">{lb.name}</h2>
+        <dl class="lb__facts">
+          <div><dt>Durée</dt><dd>{lb.days} jours</dd></div>
+          <div><dt>Prix</dt><dd>{price(lb.price)}</dd></div>
+          <div><dt>Lieu</dt><dd>{trainings.location}</dd></div>
+        </dl>
+        <p class="lb__seats">{lb.seats}</p>
+        {
+          lb.nextDates.length > 0 && (
+            <>
+              <h3>Prochaines dates</h3>
+              <ul class="checklist">
+                {lb.nextDates.map((d) => (
+                  <li>{d}</li>
+                ))}
+              </ul>
+            </>
+          )
+        }
+        <a class="btn" href={identity.instagram.dmUrl}><Icon name="dm" />Demander les dates en DM</a>
+      </div>
+
+      <div id="programme" class="lb__program">
+        <h3 class="sr-only">Programme jour par jour</h3>
+        <ol>
+          {
+            lb.program.map((d, i) => (
+              <li class="day reveal">
+                <span class="day__n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <div>
+                  <p class="day__label">{d.day}</p>
+                  <h4>{d.title}</h4>
+                  <ul class="day__topics">
+                    {d.topics.map((t) => (
+                      <li>{t}</li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--cream" aria-labelledby="inc-t">
+    <div class="container inc">
+      <div>
+        <p class="eyebrow">Tout est compris</p>
+        <h2 id="inc-t">Inclus dans la formation</h2>
+      </div>
+      <ul class="checklist inc__list">
+        {lb.included.map((i) => <li>{i}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="ref-t">
+    <div class="narrow ref card">
+      <p class="eyebrow">{trainings.refresher.subtitle}</p>
+      <h2 id="ref-t">{trainings.refresher.name}</h2>
+      <p class="lead">{trainings.refresher.text}</p>
+      <a class="btn btn--ghost" href={identity.instagram.dmUrl}><Icon name="dm" />Écrire en DM</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-hero h1 { max-width: 18ch; }
+  .page-hero h1 em { color: var(--rose-deep); }
+  .quote { font-family: var(--font-display); font-style: italic; font-size: 1.4rem; margin-bottom: 2rem; }
+  .lb { display: grid; gap: 3rem; }
+  @media (min-width: 920px) { .lb { grid-template-columns: 0.8fr 1.2fr; gap: 5rem; } .lb__intro { position: sticky; top: 6rem; align-self: start; } }
+  .lb__facts { display: grid; gap: 0.9rem; margin: 1.5rem 0; padding: 1.2rem 0; border-block: 1px solid var(--line); }
+  .lb__facts div { display: flex; justify-content: space-between; gap: 1rem; }
+  .lb__facts dt { font-size: 0.74rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-text); padding-top: 0.3rem; }
+  .lb__facts dd { margin: 0; font-family: var(--font-display); font-size: 1.4rem; color: var(--ink); text-align: right; }
+  .lb__seats { color: var(--ink); }
+  .lb__program ol { list-style: none; margin: 0; padding: 0; }
+  .day { display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; padding: 2rem 0; border-bottom: 1px solid var(--line); }
+  .day:first-child { padding-top: 0; }
+  .day__n { font-family: var(--font-display); font-size: clamp(2.6rem, 2rem + 2vw, 3.6rem); color: var(--rose-deep); line-height: 0.9; }
+  .day__label { margin: 0; font-size: 0.74rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-text); }
+  .day h4 { font-size: clamp(1.5rem, 1.3rem + 0.8vw, 2rem); margin: 0.3rem 0 0.8rem; }
+  .day__topics { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .day__topics li { background: var(--blush); color: var(--ink); border-radius: 999px; padding: 0.3rem 0.85rem; font-size: 0.88rem; }
+  .inc { display: grid; gap: 2rem; }
+  @media (min-width: 860px) { .inc { grid-template-columns: 1fr 1fr; align-items: center; } }
+  .inc__list { font-size: 1.1rem; color: var(--ink); }
+  .ref { text-align: center; }
+  .ref .eyebrow { justify-content: center; }
+  .ref .lead { margin-inline: auto; }
+</style>

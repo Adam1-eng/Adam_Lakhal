@@ -1,0 +1,18 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { identity } from '../config/miya';
+---
+<LegalPage title="Cookies" description="Le site de Miya signature ne dépose aucun cookie ni traceur : pas de mesure d’audience, pas de publicité.">
+  <h2>Aucun cookie sur ce site</h2>
+  <p>
+    Ce site ne dépose aucun cookie et n’utilise aucun traceur : pas de mesure d’audience, pas de publicité, pas de
+    pixel de réseau social. C’est pour ça qu’aucune bannière de consentement ne s’affiche.
+  </p>
+  <h2>Services externes</h2>
+  <p>
+    Quand tu suis un lien vers la réservation en ligne (Acuity Scheduling) ou vers Instagram, tu quittes ce site. Ces
+    services peuvent alors utiliser leurs propres cookies, selon leurs politiques.
+  </p>
+  <h2>Une question ?</h2>
+  <p>Écris à <a href={`mailto:${identity.email}`}>{identity.email}</a>.</p>
+</LegalPage>

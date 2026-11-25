@@ -1,0 +1,450 @@
+---
+import Base from '../layouts/Base.astro';
+import BookingCTA from '../components/BookingCTA.astro';
+import PolicySummary from '../components/PolicySummary.astro';
+import LashArt from '../components/LashArt.astro';
+import Icon from '../components/Icon.astro';
+import { identity, media, services, styleGroups, trainings, reviews } from '../config/miya';
+import { duration, price, number } from '../lib/format';
+import { beautySalon } from '../lib/schema';
+
+const minPrice = (ids: string[]) =>
+  Math.min(...services.filter((c) => ids.includes(c.id)).flatMap((c) => c.services.map((s) => s.price)));
+
+const highlights = [
+  {
+    title: 'Soft Touch',
+    tag: 'Nouveau',
+    text: 'La demi-pose : 50 % des cils couverts, effet naturel, pour celles qui sont pressées.',
+    from: minPrice(['soft-touch']),
+    href: '/services#soft-touch',
+    art: { kind: 'lashes', shape: 'natural', density: 1, short: true } as const,
+  },
+  {
+    title: 'Signature Lash Sets',
+    text: 'Classic, hybride, volume, wispy, wet look, mega volume : la pose complète, sur mesure.',
+    from: minPrice(['signature-lash-sets']),
+    href: '/services#signature-lash-sets',
+    art: { kind: 'lashes', shape: 'doll', density: 3, wispy: true } as const,
+  },
+  {
+    title: 'Lash lift et Brow lift',
+    text: 'Tes cils et sourcils naturels, rehaussés. Tient jusqu’à 6 semaines.',
+    from: minPrice(['lift']),
+    href: '/services#lift',
+    art: { kind: 'lift' } as const,
+  },
+  {
+    title: 'Tooth Gems',
+    text: 'Cristal Swarovski ou design papillon, pour un sourire qui brille.',
+    from: minPrice(['sourire']),
+    href: '/services#sourire',
+    art: { kind: 'gem' } as const,
+  },
+];
+
+const wet = styleGroups.flatMap((g) => g.styles).find((s) => s.name.startsWith('Wet look'))!;
+const wetService = services.flatMap((c) => c.services).find((s) => s.featured)!;
+const lb = trainings.lashBoss;
+---
+
+<Base
+  title="Extensions de cils à Laval | Miya signature, Lash Master"
+  description={`Extensions de cils, lash lift, brow lift et tooth gems à Laval, à 2 min du Centropolis. ${identity.yearsExperience} ans d'expérience, poses confortables et sans irritation. Réserve en ligne.`}
+  jsonLd={[beautySalon()]}
+>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero__grid">
+      <div class="hero__text">
+        <p class="eyebrow">{identity.role} · {identity.location.city}</p>
+        <h1>
+          <span class="hero__tagline">Ton regard, <em>sublimé.</em></span>
+          <span class="hero__kw">Extensions de cils à Laval</span>
+        </h1>
+        <p class="lead">
+          Clean girl, soft girl ou low-key glam : des poses sur mesure, confortables et sans irritation, par une artiste
+          du regard obsédée par le détail.
+        </p>
+        <div class="hero__actions">
+          <BookingCTA />
+          <a class="btn btn--ghost" href="/services">Services et prix <Icon name="arrow" /></a>
+        </div>
+      </div>
+
+      <div class="hero__visual" aria-hidden="true">
+        {
+          media.heroPhoto ? (
+            <img src={media.heroPhoto} alt="" width="900" height="1100" fetchpriority="high" />
+          ) : (
+            <div class="hero__art">
+              <span class="hero__ring" />
+              <LashArt art={wet.art} seed="hero-wet" />
+              <p class="hero__sig">Miya signature</p>
+            </div>
+          )
+        }
+      </div>
+    </div>
+
+    <div class="container">
+      <ul class="proof" aria-label="En bref">
+        <li>
+          <strong>{number(identity.instagram.followers)}</strong>
+          <span>abonnés sur Instagram</span>
+        </li>
+        <li>
+          <strong>{identity.yearsExperience} ans</strong>
+          <span>d'expérience dans les cils</span>
+        </li>
+        <li>
+          <strong>2 min</strong>
+          <span>du Centropolis, à Laval</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- PHILOSOPHIE -->
+  <section class="section intro">
+    <div class="narrow reveal">
+      <p class="eyebrow">L’artiste</p>
+      <h2>Pas juste une technicienne : une <em>artiste du regard.</em></h2>
+      <p class="lead">
+        Depuis {identity.yearsExperience} ans, Miya pose des cils avec une obsession : le détail. Chaque mapping est pensé
+        pour ton œil, chaque extension posée avec précision. Et parce qu’elle aime transmettre, elle forme aussi les
+        futures lash artists.
+      </p>
+      <a href="/a-propos" class="link-arrow">Découvrir Miya <Icon name="arrow" /></a>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section section--cream" aria-labelledby="services-title">
+    <div class="container">
+      <div class="section-head reveal">
+        <p class="eyebrow">Services</p>
+        <h2 id="services-title">Le menu</h2>
+        <p class="lead">Des prix clairs, en dollars canadiens, et une durée annoncée pour chaque service.</p>
+      </div>
+      <div class="grid grid--2 hl-grid">
+        {
+          highlights.map((h) => (
+            <a class="hl card reveal" href={h.href}>
+              <div class="hl__art">
+                <LashArt art={h.art} seed={h.title} />
+              </div>
+              <div>
+                <h3>
+                  {h.title} {h.tag && <span class="tag">{h.tag}</span>}
+                </h3>
+                <p>{h.text}</p>
+                <p class="hl__price">
+                  À partir de <strong>{price(h.from)}</strong>
+                </p>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+      <p class="center">
+        <a class="btn btn--ghost" href="/services">Voir tous les services et prix <Icon name="arrow" /></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- LOOK SIGNATURE -->
+  <section class="section section--ink signature" aria-labelledby="sig-title">
+    <div class="container signature__grid">
+      <div class="signature__art reveal">
+        <LashArt art={wet.art} seed="sig-wet" label="Illustration d’un wet look : pointes fines et définies" />
+      </div>
+      <div class="reveal">
+        <p class="eyebrow">Le look iconique</p>
+        <h2 id="sig-title">Wet look</h2>
+        <p>{wet.description}</p>
+        <dl class="specs">
+          <div><dt>Forme</dt><dd>{wet.eye}</dd></div>
+          <div><dt>Longueurs</dt><dd>{wet.lengths}</dd></div>
+          <div><dt>Courbe</dt><dd>{wet.curls?.join(', ')}</dd></div>
+          <div><dt>Durée</dt><dd>{duration(wetService.minutes)}</dd></div>
+          <div><dt>Prix</dt><dd>{price(wetService.price)}</dd></div>
+        </dl>
+        <BookingCTA variant="light" tone="dark" service={wetService.name} />
+      </div>
+    </div>
+  </section>
+
+  <!-- CONFORT -->
+  <section class="section" aria-labelledby="comfort-title">
+    <div class="container comfort">
+      <div class="reveal">
+        <p class="eyebrow">Confort et hygiène</p>
+        <h2 id="comfort-title">Des yeux confortables, du début à la fin.</h2>
+        <p class="lead">Tu dois pouvoir te détendre pendant ta pose. C’est pour ça que Miya y veille à chaque étape.</p>
+      </div>
+      <ol class="comfort__list">
+        <li class="reveal">
+          <span class="comfort__n">01</span>
+          <h3>Sans irritation</h3>
+          <p>Des poses pensées pour que tes yeux restent confortables.</p>
+        </li>
+        <li class="reveal">
+          <span class="comfort__n">02</span>
+          <h3>Yeux bien fermés</h3>
+          <p>Miya vérifie que tes yeux restent fermés pendant toute la pose.</p>
+        </li>
+        <li class="reveal">
+          <span class="comfort__n">03</span>
+          <h3>Patchs bien en place</h3>
+          <p>Elle s’assure que les patchs ne bougent pas.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- FORMATION -->
+  <section class="section section--blush" aria-labelledby="training-title">
+    <div class="container training">
+      <div class="reveal">
+        <p class="eyebrow">Formations</p>
+        <h2 id="training-title">Deviens <em>Lash Boss.</em></h2>
+        <p class="lead">“{trainings.pitch}”</p>
+        <ul class="training__facts">
+          <li><strong>{lb.days} jours</strong> de théorie, de pratique et de business</li>
+          <li><strong>Certification</strong> et kit professionnel complet</li>
+          <li><strong>{price(lb.price)}</strong>, près du Centropolis</li>
+        </ul>
+        <div class="btn-row">
+          <a class="btn" href="/formations">Voir le programme <Icon name="arrow" /></a>
+          <a class="btn btn--ghost" href={identity.instagram.dmUrl}><Icon name="dm" />Écrire en DM</a>
+        </div>
+      </div>
+      <div class="training__card card reveal" aria-hidden="true">
+        {lb.program.map((d) => (
+          <div class="training__day">
+            <span>{d.day}</span>
+            <p>{d.title}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {
+    reviews.length > 0 && (
+      <section class="section" aria-labelledby="reviews-title">
+        <div class="container">
+          <p class="eyebrow">Avis</p>
+          <h2 id="reviews-title">Elles en parlent</h2>
+          <div class="grid grid--3">
+            {reviews.map((r) => (
+              <figure class="card">
+                <blockquote>{r.text}</blockquote>
+                <figcaption>
+                  {r.author}
+                  {r.service && <span> · {r.service}</span>}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- RÉSERVER -->
+  <section class="section final" aria-labelledby="book-title">
+    <div class="narrow center reveal">
+      <p class="script final__script" aria-hidden="true">Miya signature</p>
+      <h2 id="book-title">Prête pour ton rendez-vous ?</h2>
+      <p class="lead">La réservation se fait en ligne, en quelques clics. Prends une minute pour lire la politique avant.</p>
+      <div class="final__policy">
+        <PolicySummary />
+      </div>
+      <div class="btn-row final__btns">
+        <a class="btn" href={identity.bookingUrl} data-booking><Icon name="calendar" />Réserver</a>
+        <a class="btn btn--ghost" href={identity.instagram.url}><Icon name="instagram" />@{identity.instagram.handle}</a>
+      </div>
+      <p class="xoxo" aria-hidden="true">xoxo</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: calc(100svh - 4.4rem - 2.4rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: clamp(2.5rem, 2rem + 4vw, 5rem) 2.5rem;
+    background:
+      radial-gradient(55% 70% at 90% 20%, var(--blush) 0%, transparent 70%),
+      radial-gradient(45% 55% at 5% 95%, rgba(230, 213, 184, 0.55) 0%, transparent 70%),
+      var(--ivory);
+    overflow: hidden;
+  }
+  .hero__grid {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .hero__grid { grid-template-columns: 1.1fr 0.9fr; gap: 3rem; }
+  }
+  .hero h1 { margin-bottom: 1.4rem; }
+  .hero__tagline { display: block; }
+  .hero__tagline em { font-style: italic; color: var(--rose-deep); }
+  .hero__kw {
+    display: block;
+    margin-top: 1rem;
+    font-family: var(--font-body);
+    font-size: clamp(0.85rem, 0.8rem + 0.3vw, 1rem);
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+  }
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.9rem 1.2rem;
+    margin-top: 1.8rem;
+  }
+  .hero__actions :global(.booking-cta) { display: grid; gap: 0.2rem; justify-items: start; }
+  .hero__actions :global(.policy-sum) { margin-bottom: 0.6rem; }
+
+  .hero__visual { position: relative; order: -1; max-width: 230px; margin-inline: auto; width: 100%; }
+  @media (min-width: 600px) and (max-width: 959px) { .hero__visual { max-width: 320px; } }
+  @media (min-width: 960px) { .hero__visual { order: 0; max-width: none; } }
+  .hero__visual img { border-radius: 999px 999px var(--radius) var(--radius); object-fit: cover; aspect-ratio: 4 / 5; }
+  .hero__art {
+    position: relative;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 40%, #fffdfa 0%, var(--blush) 60%, var(--rose) 100%);
+    box-shadow: inset 0 0 0 1px rgba(196, 162, 113, 0.35), var(--shadow);
+  }
+  .hero__art :global(.lash-art) { width: 78%; transform: translateY(-4%); }
+  .hero__ring {
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    opacity: 0.55;
+    animation: spin 60s linear infinite;
+    border-style: dashed;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hero__sig {
+    position: absolute;
+    bottom: 13%;
+    margin: 0;
+    font-family: var(--font-script);
+    font-size: clamp(1.7rem, 1.2rem + 2.5vw, 3.6rem);
+    color: var(--ink);
+  }
+
+  .proof {
+    list-style: none;
+    padding: 1.5rem 0 0;
+    margin: clamp(2rem, 1rem + 3vw, 3.5rem) 0 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    border-top: 1px solid var(--line);
+  }
+  .proof li { display: grid; gap: 0.15rem; }
+  .proof strong {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem);
+    color: var(--ink);
+    line-height: 1;
+  }
+  .proof span { font-size: 0.82rem; line-height: 1.35; color: var(--muted); }
+
+  .intro { text-align: center; }
+  .intro .eyebrow { justify-content: center; }
+  .intro h2 em, .training h2 em { color: var(--rose-deep); }
+  .intro .lead { margin-inline: auto; }
+  .link-arrow { display: inline-flex; gap: 0.5rem; align-items: center; font-weight: 450; }
+
+  .section-head { margin-bottom: 2.5rem; }
+  .hl-grid { margin-bottom: 2.5rem; }
+  .hl {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 1.2rem;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
+  }
+  .hl:hover { color: inherit; transform: translateY(-4px); box-shadow: 0 26px 60px -28px rgba(90, 55, 45, 0.4); }
+  .hl h3 { margin-bottom: 0.4rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+  .hl p { margin-bottom: 0.5rem; }
+  .hl__art { background: var(--blush); border-radius: 50%; aspect-ratio: 1; display: grid; place-items: center; padding: 0.5rem; }
+  .hl__price { color: var(--muted); font-size: 0.92rem; margin: 0; }
+  .hl__price strong { color: var(--ink); font-weight: 500; font-size: 1.05rem; }
+  @media (max-width: 420px) { .hl { grid-template-columns: 1fr; } .hl__art { width: 96px; } }
+  .center { text-align: center; }
+  .center .btn-row { justify-content: center; }
+
+  .signature__grid { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 900px) { .signature__grid { grid-template-columns: 1fr 1fr; gap: 4rem; } }
+  .signature__art {
+    background: radial-gradient(circle, #fbf7f2 0%, #f4e3df 65%, transparent 66%);
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    max-width: 460px;
+    width: 100%;
+    margin-inline: auto;
+  }
+  .signature__art :global(.lash-art) { width: 80%; }
+  .specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 1rem;
+    margin: 1.8rem 0 2rem;
+    padding: 1.2rem 0;
+    border-block: 1px solid rgba(255, 255, 255, 0.14);
+  }
+  .specs dt { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-soft); }
+  .specs dd { margin: 0.2rem 0 0; font-family: var(--font-display); font-size: 1.35rem; color: #fbf7f2; }
+
+  .comfort { display: grid; gap: 2.5rem; }
+  @media (min-width: 900px) { .comfort { grid-template-columns: 0.9fr 1.1fr; gap: 4rem; align-items: start; } }
+  .comfort__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1rem; }
+  .comfort__list li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 1.2rem;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .comfort__list h3 { margin: 0 0 0.3rem; font-size: 1.5rem; }
+  .comfort__list p { margin: 0; grid-column: 2; }
+  .comfort__n { font-family: var(--font-display); font-size: 1rem; color: var(--gold-text); grid-row: span 2; padding-top: 0.35rem; }
+
+  .training { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 900px) { .training { grid-template-columns: 1.2fr 0.8fr; gap: 4rem; } }
+  .training .lead { font-family: var(--font-display); font-style: italic; font-size: 1.35rem; }
+  .training__facts { list-style: none; padding: 0; margin: 0 0 2rem; display: grid; gap: 0.5rem; }
+  .training__facts strong { color: var(--ink); font-weight: 500; }
+  .training__card { display: grid; gap: 0; padding: 0.5rem 1.6rem; }
+  .training__day { padding: 1.2rem 0; border-bottom: 1px solid var(--line); }
+  .training__day:last-child { border-bottom: 0; }
+  .training__day span { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-text); }
+  .training__day p { margin: 0.2rem 0 0; font-family: var(--font-display); font-size: 1.4rem; color: var(--ink); line-height: 1.2; }
+
+  .final__script { font-size: clamp(3rem, 2rem + 4vw, 5rem); color: var(--rose-deep); margin: 0 0 0.5rem; }
+  .final .lead { margin-inline: auto; }
+  .final__policy { text-align: left; display: flex; justify-content: center; margin-top: 1.5rem; }
+  .final__btns { margin: 0.5rem 0 1.5rem; }
+</style>

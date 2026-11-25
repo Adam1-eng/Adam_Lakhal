@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import PolicyFull from '../components/PolicyFull.astro';
+import Icon from '../components/Icon.astro';
+import { identity } from '../config/miya';
+---
+
+<Base
+  title="Politique de rendez-vous"
+  description="Politique de rendez-vous de Miya signature : réservation, annulations, déplacements, absences et retards."
+  crumb="Politique de rendez-vous"
+>
+  <section class="page-hero">
+    <div class="container">
+      <p class="eyebrow">Avant de réserver</p>
+      <h1>Politique de rendez-vous</h1>
+    </div>
+  </section>
+  <section class="section">
+    <div class="container">
+      <PolicyFull />
+      <p class="after">
+        <a class="btn" href={identity.bookingUrl} data-booking><Icon name="calendar" />J’ai lu, je réserve</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .after { margin-top: 2.5rem; }
+</style>

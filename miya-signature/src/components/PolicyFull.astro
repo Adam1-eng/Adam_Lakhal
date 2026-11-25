@@ -1,0 +1,63 @@
+---
+/** Politique de rendez-vous complète : texte officiel, mot pour mot. */
+import { policy } from '../config/miya';
+import { brandItalic } from '../lib/format';
+interface Props { headingLevel?: 2 | 3 }
+const { headingLevel = 2 } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const Sub = `h${headingLevel + 1}` as 'h3' | 'h4';
+---
+<div class="policy" id="politique">
+  <H class="sr-only">Politique de rendez-vous</H>
+  <p class="policy__intro" set:html={brandItalic(policy.intro)} />
+  <div class="policy__grid">
+    {policy.sections.map((s) => (
+      <section class="policy__block">
+        <Sub>{s.title}</Sub>
+        {s.items.length === 1 ? <p>{s.items[0]}</p> : <ul>{s.items.map((i) => <li>{i}</li>)}</ul>}
+      </section>
+    ))}
+  </div>
+  <section class="policy__closing">
+    <Sub>{policy.closingTitle}</Sub>
+    <p set:html={brandItalic(policy.closing)} />
+  </section>
+</div>
+
+<style>
+  .policy__intro {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.7rem);
+    line-height: 1.4;
+    color: var(--ink);
+    max-width: 40ch;
+    margin-bottom: 2.2rem;
+  }
+  .policy__grid {
+    display: grid;
+    gap: 1rem;
+  }
+  @media (min-width: 760px) {
+    .policy__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .policy__block:first-child { grid-column: 1 / -1; }
+  }
+  .policy__block, .policy__closing {
+    background: #fffdfa;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 1.3rem 1.4rem;
+  }
+  .policy__block :is(h3, h4), .policy__closing :is(h3, h4) {
+    font-size: 1.35rem;
+    margin-bottom: 0.5rem;
+  }
+  .policy__block p, .policy__block ul { margin: 0; }
+  .policy__block ul { padding-left: 1.1rem; }
+  .policy__block li + li { margin-top: 0.45rem; }
+  .policy__closing {
+    margin-top: 1rem;
+    background: var(--blush);
+    border-color: transparent;
+  }
+  .policy__closing p { margin: 0; }
+</style>

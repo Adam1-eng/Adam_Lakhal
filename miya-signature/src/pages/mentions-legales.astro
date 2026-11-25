@@ -1,0 +1,42 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { identity, legal } from '../config/miya';
+---
+<LegalPage title="Mentions légales" description="Mentions légales du site de Miya signature, extensions de cils à Laval.">
+  <h2>Éditrice du site</h2>
+  <p>
+    {identity.name}{legal.legalName && <> ({legal.legalName})</>}<br />
+    {identity.location.city}, {identity.location.regionName}, Canada<br />
+    Courriel : <a href={`mailto:${identity.email}`}>{identity.email}</a>
+    {legal.neq && <><br />NEQ : {legal.neq}</>}
+  </p>
+
+  {legal.host && (
+    <>
+      <h2>Hébergement</h2>
+      <p>{legal.host.name}<br />{legal.host.address}</p>
+    </>
+  )}
+
+  <h2>Réservation en ligne</h2>
+  <p>
+    Les rendez-vous se prennent sur <a href={identity.bookingUrl}>{identity.bookingUrl.replace('https://', '')}</a>, un
+    service de réservation tiers (Acuity Scheduling). Ses propres conditions d’utilisation s’y appliquent, en plus de la
+    <a href="/politique-de-rendez-vous">politique de rendez-vous</a> de {identity.brand}.
+  </p>
+
+  <h2>Propriété intellectuelle</h2>
+  <p>
+    Les textes, le nom {identity.brand}, les illustrations et la mise en page de ce site sont protégés. Toute
+    reproduction sans autorisation écrite est interdite.
+  </p>
+
+  <h2>Liens externes</h2>
+  <p>
+    Ce site contient des liens vers des services externes (Instagram, réservation en ligne). {identity.name} n’est pas
+    responsable de leur contenu ni de leurs pratiques.
+  </p>
+
+  <h2>Prix</h2>
+  <p>Les prix sont indiqués en dollars canadiens. Le prix confirmé lors de la réservation en ligne fait foi.</p>
+</LegalPage>

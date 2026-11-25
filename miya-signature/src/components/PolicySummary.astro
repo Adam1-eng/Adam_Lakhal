@@ -1,0 +1,56 @@
+---
+/**
+ * Résumé de la politique, affiché AVANT chaque bouton « Réserver ».
+ * Phrases extraites telles quelles du texte officiel (config).
+ */
+import { policy } from '../config/miya';
+interface Props { compact?: boolean; id?: string; tone?: 'light' | 'dark' }
+const { compact = false, id, tone = 'light' } = Astro.props;
+---
+{compact ? (
+  <details class={`policy-sum policy-sum--compact policy-sum--${tone}`} id={id}>
+    <summary>À lire avant de réserver : politique de rendez-vous</summary>
+    <ul>{policy.summary.map((s) => <li>{s}</li>)}</ul>
+    <a href="/politique-de-rendez-vous">Lire la politique complète</a>
+  </details>
+) : (
+  <aside class={`policy-sum policy-sum--${tone}`} id={id} aria-label="Politique de rendez-vous, résumé">
+    <p class="policy-sum__title">Avant de réserver</p>
+    <ul>{policy.summary.map((s) => <li>{s}</li>)}</ul>
+    <a href="/politique-de-rendez-vous">Lire la politique complète</a>
+  </aside>
+)}
+
+<style>
+  .policy-sum {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    border-left: 2px solid var(--gold);
+    padding: 0.2rem 0 0.2rem 1rem;
+    margin: 0 0 1.25rem;
+    max-width: 62ch;
+    color: var(--ink-soft);
+  }
+  .policy-sum ul { margin: 0.4rem 0 0.6rem; padding-left: 1.1rem; }
+  .policy-sum li + li { margin-top: 0.3rem; }
+  .policy-sum__title {
+    margin: 0;
+    font-size: 0.74rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--gold-text);
+  }
+  .policy-sum a { font-weight: 450; }
+  .policy-sum--compact summary {
+    cursor: pointer;
+    font-size: 0.84rem;
+    font-weight: 450;
+    color: var(--ink);
+    list-style-position: outside;
+    padding-block: 0.3rem;
+  }
+  .policy-sum--dark { color: #e9e2dc; }
+  .policy-sum--dark summary, .policy-sum--dark a { color: #fbf7f2; }
+  .policy-sum--dark .policy-sum__title { color: var(--gold-soft); }
+</style>

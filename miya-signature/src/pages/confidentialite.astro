@@ -1,0 +1,45 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { identity, legal } from '../config/miya';
+---
+<LegalPage title="Politique de confidentialité" description="Comment Miya signature protège tes renseignements personnels (Loi 25, Québec).">
+  <p class="lead">
+    Le respect de ta vie privée compte. Cette politique explique quels renseignements sont recueillis, pourquoi, et
+    comment exercer tes droits, conformément à la Loi sur la protection des renseignements personnels dans le secteur
+    privé du Québec.
+  </p>
+
+  <h2>Ce que ce site recueille</h2>
+  <p>
+    Rien directement. Ce site ne contient aucun formulaire, ne dépose aucun cookie et n’utilise aucun outil de mesure
+    d’audience ni de publicité. Les polices de caractères sont hébergées avec le site : aucune donnée n’est envoyée à un
+    service tiers pendant ta visite.
+  </p>
+  <p>Comme pour tout site web, l’hébergeur peut conserver des journaux techniques (adresse IP, date, page demandée) pour assurer la sécurité et le bon fonctionnement du service.</p>
+
+  <h2>Quand tu réserves</h2>
+  <p>
+    La réservation se fait sur la plateforme Acuity Scheduling. Les renseignements que tu y saisis (nom, coordonnées,
+    carte de crédit pour garantir la réservation) servent à gérer ton rendez-vous et à appliquer la
+    <a href="/politique-de-rendez-vous">politique de rendez-vous</a>. Ils sont traités par cette plateforme et son
+    service de paiement, selon leurs propres politiques de confidentialité.
+  </p>
+
+  <h2>Quand tu écris à Miya</h2>
+  <p>
+    Les messages envoyés par courriel ou sur Instagram servent uniquement à te répondre. Ils ne sont ni vendus, ni
+    partagés à des fins commerciales.
+  </p>
+
+  <h2>Tes droits</h2>
+  <p>
+    Tu peux demander l’accès à tes renseignements, leur rectification ou leur suppression, et retirer ton consentement,
+    en écrivant à <a href={`mailto:${identity.email}`}>{identity.email}</a>.
+  </p>
+
+  <h2>Responsable de la protection des renseignements personnels</h2>
+  <p>
+    {legal.privacyOfficer ? <>{legal.privacyOfficer}, </> : null}joignable à
+    <a href={`mailto:${identity.email}`}>{identity.email}</a>.
+  </p>
+</LegalPage>

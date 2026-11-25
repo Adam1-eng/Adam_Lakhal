@@ -1,0 +1,233 @@
+---
+/**
+ * Illustration vectorielle générée (aucune photo) :
+ * une paupière et ses cils, dessinés selon le style.
+ */
+import type { Style } from '../config/miya';
+
+type Art = Style['art'];
+interface Props {
+  art: Art;
+  seed?: string;
+  class?: string;
+  /** Si fourni, l'illustration est annoncée aux lecteurs d'écran. */
+  label?: string;
+}
+
+const { art, seed = 'miya', class: className = '', label } = Astro.props;
+
+// --- PRNG déterministe -----------------------------------------
+let h = 2166136261;
+for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+const rand = () => {
+  h += 0x6d2b79f5;
+  let t = h;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+const jitter = (a: number) => (rand() - 0.5) * 2 * a;
+const f = (n: number) => n.toFixed(1);
+
+const colors = { black: '#1d1a1a', brown: '#6b4a36', burgundy: '#6d1f2e', red: '#b3262e' };
+const ink = colors[art.color ?? 'black'];
+
+// --- Paupière (courbe quadratique) ----------------------------
+const P0 = { x: 30, y: 104 };
+const C = { x: 120, y: 46 };
+const P2 = { x: 210, y: 104 };
+const at = (t: number) => ({
+  x: (1 - t) ** 2 * P0.x + 2 * (1 - t) * t * C.x + t * t * P2.x,
+  y: (1 - t) ** 2 * P0.y + 2 * (1 - t) * t * C.y + t * t * P2.y,
+});
+const tangent = (t: number) => {
+  const dx = 2 * (1 - t) * (C.x - P0.x) + 2 * t * (P2.x - C.x);
+  const dy = 2 * (1 - t) * (C.y - P0.y) + 2 * t * (P2.y - C.y);
+  const l = Math.hypot(dx, dy);
+  return { x: dx / l, y: dy / l };
+};
+
+type Stroke = { d: string; w: number; o: number };
+const strokes: Stroke[] = [];
+const spikeD: string[] = [];
+
+const lash = (t: number, len: number, curl: number, w: number, o = 1, spread = 0, tip?: { x: number; y: number }) => {
+  const b = at(t);
+  const tg = tangent(t);
+  let dir = { x: tg.y, y: -tg.x };
+  const lean = (t - 0.5) * 0.9 + spread;
+  dir = { x: dir.x + tg.x * lean, y: dir.y + tg.y * lean };
+  const dl = Math.hypot(dir.x, dir.y);
+  dir = { x: dir.x / dl, y: dir.y / dl };
+  const end = tip ?? { x: b.x + dir.x * len, y: b.y + dir.y * len };
+  const side = t < 0.5 ? -1 : 1;
+  const perp = { x: tg.x * side, y: tg.y * side };
+  const cp = {
+    x: b.x + dir.x * len * 0.5 + perp.x * len * curl,
+    y: b.y + dir.y * len * 0.5 + perp.y * len * curl - len * curl * 0.35,
+  };
+  strokes.push({ d: `M${f(b.x)} ${f(b.y)}Q${f(cp.x)} ${f(cp.y)} ${f(end.x)} ${f(end.y)}`, w, o });
+  return end;
+};
+
+const profile = (t: number): number => {
+  const shape = art.shape ?? 'natural';
+  if (shape === 'doll') return Math.pow(Math.sin(Math.PI * t), 1.6);
+  if (shape === 'cat') {
+    const rise = Math.pow(t, 1.3);
+    return t > 0.9 ? rise * (1 - (t - 0.9) * 3.2) : rise;
+  }
+  return 0.45 + 0.55 * Math.pow(Math.sin(Math.PI * (0.15 + t * 0.8)), 0.9);
+};
+
+let extra = '';
+
+if (art.kind === 'lashes') {
+  const density = art.density ?? 2;
+  const count = [0, 26, 32, 38, 42][density];
+  const fan = [0, 1, 2, 3, 5][density];
+  const scale = art.short ? 0.78 : 1;
+  const minL = 18 * scale;
+  const maxL = 50 * scale;
+  const clusters = art.wet || art.spiky;
+  const group = art.wet ? 4 : 5;
+
+  for (let i = 0; i < count; i++) {
+    const t = 0.05 + (0.92 * i) / (count - 1);
+    let len = minL + (maxL - minL) * profile(t);
+    if (art.textured && i % 2) len *= 0.78;
+    if (art.wispy && i % 5 === 2) len *= 1.28;
+    len += jitter(1.8);
+    const curl = 0.18 + jitter(0.03);
+    const strands = density === 2 ? (i % 2 ? 2 : 1) : fan;
+
+    if (clusters) {
+      // Fond de cils fins ; les pointes pleines sont dessinées après la boucle.
+      lash(t, len * 0.82, curl, 0.6, 0.7, jitter(0.04));
+    } else {
+      for (let s = 0; s < strands; s++) {
+        const sp = strands === 1 ? 0 : (s / (strands - 1) - 0.5) * 0.34;
+        lash(t, len * (1 - Math.abs(sp) * 0.4), curl, strands === 1 ? 1.35 : 0.62, strands === 1 ? 1 : 0.8, sp);
+      }
+    }
+  }
+  if (clusters) {
+    const step = art.wet ? 3 : 4;
+    for (let i = 1; i < count - 1; i += step) {
+      const t = 0.05 + (0.92 * i) / (count - 1);
+      const len = (minL + (maxL - minL) * profile(t)) * (art.textured && (i / step) % 2 ? 0.8 : 1.05) + jitter(2);
+      const b = at(t);
+      const tg = tangent(t);
+      let d = { x: tg.y + tg.x * ((t - 0.5) * 0.9), y: -tg.x + tg.y * ((t - 0.5) * 0.9) };
+      const dl = Math.hypot(d.x, d.y);
+      d = { x: d.x / dl, y: d.y / dl };
+      const side = t < 0.5 ? -1 : 1;
+      const bend = { x: tg.x * side * len * 0.16, y: tg.y * side * len * 0.16 - len * 0.05 };
+      const tip = { x: b.x + d.x * len + bend.x, y: b.y + d.y * len + bend.y };
+      const w = art.spiky ? 2.6 : 2.1;
+      const l = { x: b.x - tg.x * w, y: b.y - tg.y * w };
+      const r = { x: b.x + tg.x * w, y: b.y + tg.y * w };
+      const c = { x: b.x + d.x * len * 0.5 + bend.x * 0.3, y: b.y + d.y * len * 0.5 + bend.y * 0.3 };
+      spikeD.push(`M${f(l.x)} ${f(l.y)}Q${f(c.x - tg.x * w * 0.6)} ${f(c.y - tg.y * w * 0.6)} ${f(tip.x)} ${f(tip.y)}Q${f(c.x + tg.x * w * 0.6)} ${f(c.y + tg.y * w * 0.6)} ${f(r.x)} ${f(r.y)}Z`);
+    }
+  }
+} else if (art.kind === 'lift') {
+  for (let i = 0; i < 24; i++) {
+    const t = 0.06 + (0.9 * i) / 23;
+    const len = 20 + 18 * Math.pow(Math.sin(Math.PI * t), 0.9) + jitter(1.5);
+    lash(t, len, 0.42 + jitter(0.03), 1.25, 0.95);
+  }
+} else if (art.kind === 'brow') {
+  // Sourcil : poils courts le long d'une arche
+  const B = (t: number) => {
+    const a = { x: 34, y: 112 },
+      c1 = { x: 110, y: 52 },
+      c2 = { x: 170, y: 48 },
+      e = { x: 214, y: 82 };
+    const u = 1 - t;
+    return {
+      x: u ** 3 * a.x + 3 * u * u * t * c1.x + 3 * u * t * t * c2.x + t ** 3 * e.x,
+      y: u ** 3 * a.y + 3 * u * u * t * c1.y + 3 * u * t * t * c2.y + t ** 3 * e.y,
+    };
+  };
+  for (let i = 0; i < 120; i++) {
+    const t = rand();
+    const p = B(t);
+    const thick = 14 * Math.sin(Math.PI * Math.min(1, t * 1.15 + 0.08)) + 3;
+    const off = jitter(thick / 2);
+    const ang = t < 0.25 ? -1.25 + jitter(0.15) : -0.5 + t * 0.9 + jitter(0.2);
+    const len = 11 + rand() * 9;
+    const x = p.x + jitter(2);
+    const y = p.y + off;
+    strokes.push({
+      d: `M${f(x)} ${f(y)}q${f(Math.cos(ang) * len * 0.5)} ${f(Math.sin(ang) * len * 0.5 - 2)} ${f(Math.cos(ang) * len)} ${f(Math.sin(ang) * len)}`,
+      w: 1.1,
+      o: 0.55 + rand() * 0.4,
+    });
+  }
+} else if (art.kind === 'gem') {
+  extra = `
+    <path d="M86 40c-18 0-30 14-30 34 0 16 6 26 10 40 3 11 5 22 12 22 8 0 7-22 14-22h16c7 0 6 22 14 22 7 0 9-11 12-22 4-14 10-24 10-40 0-20-12-34-30-34-8 0-12 4-14 4s-6-4-14-4z" fill="#fffdfa" stroke="var(--gold)" stroke-width="1.6"/>
+    <g transform="translate(108 78)">
+      <path d="M0-14 9-4 0 14-9-4z" fill="url(#gemfill)" stroke="#7d5f35" stroke-width="0.8"/>
+      <path d="M-9-4H9M0-14-3-4 0 14 3-4z" fill="none" stroke="#fff" stroke-width="0.6" opacity="0.9"/>
+    </g>
+    <g transform="translate(182 54)" fill="var(--rose)" stroke="var(--rose-deep)" stroke-width="0.8">
+      <ellipse cx="-9" cy="-6" rx="9" ry="12" transform="rotate(-25 -9 -6)"/>
+      <ellipse cx="9" cy="-6" rx="9" ry="12" transform="rotate(25 9 -6)"/>
+      <ellipse cx="-7" cy="9" rx="6" ry="8" transform="rotate(25 -7 9)"/>
+      <ellipse cx="7" cy="9" rx="6" ry="8" transform="rotate(-25 7 9)"/>
+      <path d="M0-12V16" stroke="var(--ink)" stroke-width="1.4"/>
+    </g>
+    <g fill="var(--gold)">
+      <path d="M44 30l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>
+      <path d="M200 112l1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z"/>
+    </g>`;
+}
+
+const showEye = art.kind === 'lashes' || art.kind === 'lift';
+const gid = `g-${seed.replace(/[^a-z0-9]/gi, '')}`;
+---
+
+<svg
+  class={`lash-art ${className}`}
+  viewBox="0 0 240 150"
+  xmlns="http://www.w3.org/2000/svg"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  focusable="false"
+>
+  <defs>
+    <radialGradient id={gid} cx="50%" cy="60%" r="60%">
+      <stop offset="0%" stop-color="#f4e3df" />
+      <stop offset="100%" stop-color="#f4e3df" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="gemfill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="55%" stop-color="#e8cbc5" />
+      <stop offset="100%" stop-color="#c4a271" />
+    </linearGradient>
+  </defs>
+  <ellipse cx="120" cy="92" rx="110" ry="56" fill={`url(#${gid})`} />
+  {
+    showEye && (
+      <>
+        <path d="M30 104Q120 136 210 104" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.7" />
+        <path d="M30 104Q120 46 210 104" fill="none" stroke={ink} stroke-width="2.2" stroke-linecap="round" />
+      </>
+    )
+  }
+  <g fill="none" stroke={ink} stroke-linecap="round">
+    {strokes.map((s) => <path d={s.d} stroke-width={s.w} opacity={s.o} />)}
+  </g>
+  {spikeD.length > 0 && <path d={spikeD.join('')} fill={ink} />}
+  <Fragment set:html={extra} />
+</svg>
+
+<style>
+  .lash-art {
+    width: 100%;
+    height: auto;
+  }
+</style>

@@ -1,0 +1,82 @@
+---
+import { identity, shop } from '../config/miya';
+import Icon from './Icon.astro';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div>
+      <p class="site-footer__brand"><span class="script">Miya</span> <em>signature</em></p>
+      <p class="site-footer__tag">{identity.role}<br />{identity.bio.join(' · ')}</p>
+      <p class="xoxo" aria-hidden="true">xoxo</p>
+    </div>
+    <div>
+      <h2 class="site-footer__h">Le studio</h2>
+      <p>{identity.location.city}, {identity.location.landmark}</p>
+      <ul class="site-footer__links">
+        <li><a href={`mailto:${identity.email}`}><Icon name="mail" />{identity.email}</a></li>
+        <li><a href={identity.instagram.url}><Icon name="instagram" />@{identity.instagram.handle}</a></li>
+        {identity.phone && <li><a href={`tel:${identity.phone.replace(/\D/g, '')}`}>{identity.phone}</a></li>}
+      </ul>
+    </div>
+    <div>
+      <h2 class="site-footer__h">Explorer</h2>
+      <ul class="site-footer__links">
+        <li><a href="/services">Services et prix</a></li>
+        <li><a href="/styles">Styles</a></li>
+        <li><a href="/formations">Formations</a></li>
+        <li><a href="/a-propos">À propos</a></li>
+        {shop.enabled && <li><a href="/boutique">Boutique</a></li>}
+        <li><a href="/politique-de-rendez-vous">Politique de rendez-vous</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="container site-footer__bottom">
+    <p>© {year} {identity.name}</p>
+    <ul>
+      <li><a href="/mentions-legales">Mentions légales</a></li>
+      <li><a href="/confidentialite">Confidentialité</a></li>
+      <li><a href="/cookies">Cookies</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--ink);
+    color: #d9d0c9;
+    padding-block: 4.5rem 2rem;
+    font-size: 0.95rem;
+  }
+  .site-footer a { color: #fbf7f2; text-decoration: none; }
+  .site-footer a:hover { color: var(--gold-soft); text-decoration: underline; }
+  .site-footer__grid { display: grid; gap: 2.5rem; }
+  @media (min-width: 800px) { .site-footer__grid { grid-template-columns: 1.4fr 1fr 1fr; } }
+  .site-footer__brand { font-family: var(--font-display); font-size: 1.6rem; color: #fbf7f2; margin: 0 0 0.6rem; }
+  .site-footer__brand .script { font-size: 2.8rem; }
+  .site-footer__tag { color: #c9bfb8; }
+  .site-footer .xoxo { color: var(--rose); margin: 0; }
+  .site-footer__h {
+    font-family: var(--font-body);
+    font-size: 0.74rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .site-footer__links { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
+  .site-footer__links a { display: inline-flex; gap: 0.55rem; align-items: center; word-break: break-word; }
+  .site-footer__bottom {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.82rem;
+  }
+  .site-footer__bottom p { margin: 0; }
+  .site-footer__bottom ul { list-style: none; display: flex; flex-wrap: wrap; gap: 1.2rem; margin: 0; padding: 0; }
+</style>
