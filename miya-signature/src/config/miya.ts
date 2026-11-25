@@ -52,6 +52,13 @@ export const identity = {
     /** Adresse exacte inconnue : aucun plan d'accès tant que null. */
     streetAddress: null as string | null,
     postalCode: null as string | null,
+    /**
+     * Coordonnées EXACTES du studio (ex. { lat: 45.56, lng: -73.74 }).
+     * Tant que null, la carte montre le repère « Centropolis » et le dit clairement.
+     */
+    geo: null as { lat: number; lng: number } | null,
+    /** Repère connu (OpenStreetMap, relevé du 25 nov. 2026). Ce n'est PAS l'adresse du studio. */
+    landmarkGeo: { name: 'Centropolis', lat: 45.5617665, lng: -73.7459985 },
   },
   /** Inconnu : masqué partout tant que null. */
   phone: null as string | null,

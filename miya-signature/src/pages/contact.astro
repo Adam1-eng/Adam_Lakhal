@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import PolicySummary from '../components/PolicySummary.astro';
 import PolicyFull from '../components/PolicyFull.astro';
 import Icon from '../components/Icon.astro';
+import MapBlock from '../components/MapBlock.astro';
 import { identity } from '../config/miya';
 import { number } from '../lib/format';
 import { beautySalon } from '../lib/schema';
@@ -85,7 +86,15 @@ const loc = identity.location;
     </div>
   </section>
 
-  <section class="section section--cream" aria-labelledby="pol-t">
+  <section class="section section--cream" aria-labelledby="map-t">
+    <div class="container">
+      <p class="eyebrow">Le studio</p>
+      <h2 id="map-t">Où nous trouver</h2>
+      <MapBlock />
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pol-t">
     <div class="container">
       <p class="eyebrow">À lire avant de réserver</p>
       <h2 id="pol-t">Politique de rendez-vous</h2>

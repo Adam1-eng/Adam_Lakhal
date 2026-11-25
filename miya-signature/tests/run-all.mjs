@@ -180,7 +180,7 @@ section('Liens internes');
     }
   }
   const ext = new Set(Object.values(html).flatMap((h) => [...h.matchAll(/href="(https?:[^"]+)"/g)].map((m) => decode(m[1]))));
-  const extOk = [...ext].every((u) => u.startsWith('https://miyasignature.as.me') || u.startsWith('https://www.instagram.com/miya.signature') || u.startsWith('https://ig.me/m/miya.signature') || u.startsWith(identity.siteUrl));
+  const extOk = [...ext].every((u) => u.startsWith('https://miyasignature.as.me') || u.startsWith('https://www.instagram.com/miya.signature') || u.startsWith('https://ig.me/m/miya.signature') || u.startsWith('https://www.google.com/maps/') || u.startsWith(identity.siteUrl));
   ok(extOk, 'lien externe inattendu : ' + [...ext].join(', '));
 }
 
@@ -239,6 +239,26 @@ for (const r of Object.keys(html)) {
   await page.keyboard.press('Escape');
   await page.waitForTimeout(450);
   ok(!(await page.isVisible('#nav-list a[href="/services"]')), 'menu mobile : ne se ferme pas avec Échap');
+  await ctx.close();
+}
+// Carte : rien d'externe avant le clic, iframe OpenStreetMap après
+{
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  const page = await ctx.newPage();
+  const ext = [];
+  page.on('request', (q) => { if (!q.url().startsWith(BASE)) ext.push(q.url()); });
+  await page.goto(BASE + '/contact', { waitUntil: 'networkidle' });
+  ok(ext.length === 0, 'carte : requête externe avant le clic');
+  for (const w of [360, 390, 768]) {
+    await page.setViewportSize({ width: w, height: 800 });
+    const fits = await page.evaluate(() => [...document.querySelectorAll('.map__frame, .map__hint, .map__load, .map__info')].every((e) => e.getBoundingClientRect().right <= document.querySelector('.map').getBoundingClientRect().right + 0.5));
+    ok(fits, `carte @${w}px : contenu coupé (dépasse du cadre)`);
+  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.click('.map__load');
+  const src = await page.getAttribute('.map__frame iframe', 'src');
+  ok(/openstreetmap\.org\/export\/embed\.html.*marker=45\.56/.test(src || ''), 'carte : iframe OpenStreetMap absente après clic');
+  ok(await page.isVisible('.map__note') === !identity.location.geo, 'carte : mention « repère, pas l’adresse exacte » manquante');
   await ctx.close();
 }
 // prefers-reduced-motion

@@ -12,7 +12,7 @@ const year = new Date().getFullYear();
     </div>
     <div>
       <h2 class="site-footer__h">Le studio</h2>
-      <p>{identity.location.city}, {identity.location.landmark}</p>
+      <p>{identity.location.city}, {identity.location.landmark}<br /><a href="/contact#carte">Voir la carte</a></p>
       <ul class="site-footer__links">
         <li><a href={`mailto:${identity.email}`}><Icon name="mail" />{identity.email}</a></li>
         <li><a href={identity.instagram.url}><Icon name="instagram" />@{identity.instagram.handle}</a></li>

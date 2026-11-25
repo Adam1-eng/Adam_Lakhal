@@ -1,0 +1,97 @@
+---
+/**
+ * Carte de localisation.
+ * - La carte OpenStreetMap ne se charge qu'au clic (aucune requête externe avant).
+ * - Adresse exacte connue (identity.location.geo) : repère sur le studio.
+ * - Sinon : repère sur le Centropolis, présenté clairement comme repère.
+ */
+import { identity } from '../config/miya';
+import Icon from './Icon.astro';
+
+const loc = identity.location;
+const exact = loc.geo;
+const point = exact ?? { lat: loc.landmarkGeo.lat, lng: loc.landmarkGeo.lng };
+const d = exact ? 0.004 : 0.011;
+const bbox = [point.lng - d * 1.6, point.lat - d, point.lng + d * 1.6, point.lat + d].map((n) => n.toFixed(5)).join(',');
+const osm = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${point.lat},${point.lng}`;
+const fullAddress = loc.streetAddress ? `${loc.streetAddress}, ${loc.city}, ${loc.region} ${loc.postalCode ?? ''}`.trim() : null;
+const query = encodeURIComponent(fullAddress ?? `${loc.landmarkGeo.name}, ${loc.city}, ${loc.region}`);
+const gmaps = exact
+  ? `https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`
+  : `https://www.google.com/maps/search/?api=1&query=${query}`;
+const directions = exact
+  ? `https://www.google.com/maps/dir/?api=1&destination=${point.lat},${point.lng}`
+  : `https://www.google.com/maps/dir/?api=1&destination=${query}`;
+---
+<div class="map" id="carte">
+  <div class="map__frame" data-map-src={osm}>
+    <div class="map__placeholder">
+      <svg class="map__pattern" viewBox="0 0 400 260" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+        <rect width="400" height="260" fill="#f5ede4" />
+        <path d="M-10 190 C80 170 140 210 230 180 S360 120 420 140" stroke="#fffdfa" stroke-width="14" fill="none" />
+        <path d="M60 -10 L120 280 M250 -10 L210 280 M-10 70 L420 95" stroke="#fffdfa" stroke-width="8" fill="none" />
+        <path d="M-10 130 L420 40" stroke="#e6d5b8" stroke-width="5" fill="none" />
+        <circle cx="200" cy="95" r="40" fill="#e8cbc5" opacity="0.55" />
+        <path d="M200 67c-12 0-21 9-21 21 0 16 21 35 21 35s21-19 21-35c0-12-9-21-21-21z" fill="#1d1a1a" />
+        <circle cx="200" cy="88" r="7" fill="#f4e3df" />
+      </svg>
+      <button type="button" class="btn map__load">
+        <Icon name="pin" />Afficher la carte
+      </button>
+      <p class="map__hint">La carte est fournie par OpenStreetMap et ne se charge que si tu cliques.</p>
+    </div>
+  </div>
+  <div class="map__info">
+    <p class="map__label">Localisation</p>
+    {fullAddress ? (
+      <address>{fullAddress}</address>
+    ) : (
+      <>
+        <p class="map__place">{loc.city}, {loc.landmark}</p>
+        <p class="map__note">Le repère sur la carte indique le {loc.landmarkGeo.name}, pas l’adresse exacte du studio.</p>
+      </>
+    )}
+    <div class="btn-row">
+      <a class="btn btn--sm" href={directions}><Icon name="arrow" />Itinéraire</a>
+      <a class="btn btn--sm btn--ghost" href={gmaps}>Ouvrir dans Google Maps</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('.map__frame').forEach((frame) => {
+    frame.querySelector('.map__load')?.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = frame.dataset.mapSrc!;
+      iframe.title = 'Carte de localisation (OpenStreetMap)';
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'no-referrer';
+      frame.replaceChildren(iframe);
+      iframe.focus();
+    });
+  });
+</script>
+
+<style>
+  .map {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #fffdfa;
+    box-shadow: var(--shadow);
+  }
+  @media (min-width: 860px) { .map { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); } }
+  .map__frame { position: relative; aspect-ratio: 4 / 3; width: 100%; background: var(--cream); }
+  @media (min-width: 860px) { .map__frame { aspect-ratio: 16 / 10; } }
+  .map__frame :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .map__placeholder { position: absolute; inset: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; align-content: end; gap: 0.6rem; padding: 1rem 1rem 1.2rem; text-align: center; }
+  .map__pattern { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .map__load, .map__hint { position: relative; }
+  .map__hint { margin: 0; max-width: 100%; font-size: 0.8rem; color: var(--ink-soft); background: rgba(255, 253, 250, 0.85); padding: 0.2rem 0.7rem; border-radius: 999px; }
+  .map__info { min-width: 0; padding: clamp(1.4rem, 1rem + 1.5vw, 2.2rem); display: grid; align-content: center; gap: 0.6rem; }
+  .map__label { margin: 0; font-size: 0.74rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-text); }
+  .map__place, address { margin: 0; font-family: var(--font-display); font-size: 1.6rem; color: var(--ink); line-height: 1.2; font-style: normal; }
+  .map__note { margin: 0 0 0.6rem; font-size: 0.9rem; color: var(--muted); }
+</style>

@@ -7,7 +7,7 @@ Tant qu'une info manque, le site la **masque** (rien d'inventé). Pour l'ajouter
 | 1 | Photos haute qualité (portrait, poses, studio) | `media.heroPhoto`, `media.portrait`, `styleGroups[].styles[].photo` (fichiers dans `public/photos/`) | Remplacent les illustrations vectorielles |
 | 2 | Vidéo « I'm Miya » | `media.introVideo` (+ `introVideoPoster`) | Section vidéo sur À propos |
 | 3 | Horaires exacts | `identity.hours` | Bloc Horaires sur Contact |
-| 4 | Adresse complète du studio | `identity.location.streetAddress`, `postalCode` | Adresse sur Contact + données structurées (plan d'accès à ajouter ensuite) |
+| 4 | Adresse complète du studio (+ coordonnées GPS) | `identity.location.streetAddress`, `postalCode`, `geo` | La carte passe du repère « Centropolis » au repère exact du studio ; adresse affichée sur Contact et dans les données structurées |
 | 5 | Téléphone (si elle veut l'afficher) | `identity.phone` | Contact, pied de page, données structurées |
 | 6 | Témoignages ou avis clientes (réels, avec accord) | `reviews` | Section Avis sur l'accueil |
 | 7 | Boutique en ligne : oui ou non ? | `shop.enabled` | Page /boutique + lien menu |
